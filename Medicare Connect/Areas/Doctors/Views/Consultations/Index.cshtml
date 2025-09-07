@@ -1,0 +1,126 @@
+@model List<Medicare_Connect.Areas.Patients.Models.Consultation>
+@using Medicare_Connect.Areas.Patients.Models
+@{
+    ViewData["Title"] = "Consultations";
+    var patients = ViewBag.Patients as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var patientKey = ViewBag.PatientKey as string;
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">Consultations</h2>
+        <a class="btn btn-outline-primary" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">Back to dashboard</a>
+    </div>
+
+    @if (TempData["CSuccess"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["CSuccess"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["CError"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["CError"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card dashboard-card border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Select Patient</h5>
+                    <form asp-action="For" method="get">
+                        <div class="mb-3">
+                            <label class="form-label">Patient</label>
+                            <select class="form-select" name="patientKey" required>
+                                <option value="">Choose...</option>
+                                @foreach (var p in patients)
+                                {
+                                    <option value="@p.PatientKey" selected="@(patientKey == p.PatientKey ? "selected" : null)">@p.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="submit"><i class="bi bi-people me-2"></i>Load</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card dashboard-card border-0 @(string.IsNullOrWhiteSpace(patientKey) ? "opacity-50" : string.Empty)">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Create Consultation</h5>
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="patientKey" value="@patientKey" />
+                        <div class="mb-3">
+                            <label class="form-label">Subject</label>
+                            <input class="form-control" type="text" name="Subject" maxlength="128" required @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null) />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Date & Time</label>
+                            <input class="form-control" type="datetime-local" name="WhenUtc" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null) />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Duration (minutes)</label>
+                            <input class="form-control" type="number" name="DurationMinutes" min="0" max="480" value="30" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null) />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="Notes" rows="2" maxlength="1000" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null)></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="submit" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null)><i class="bi bi-plus-circle me-2"></i>Create</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card dashboard-card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Patient Consultations</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>When</th>
+                                    <th>Subject</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model == null || !Model.Any())
+                                {
+                                    <tr><td colspan="4" class="text-center text-muted">No consultations yet.</td></tr>
+                                }
+                                else
+                                {
+                                    @foreach (var c in Model)
+                                    {
+                                        <tr>
+                                            <td>@c.WhenUtc.ToString("ddd, dd MMM yyyy HH:mm")</td>
+                                            <td>@c.Subject</td>
+                                            <td>@c.DurationMinutes min</td>
+                                            <td>
+                                                @if (c.Status == ConsultationStatus.Planned) { <span class="badge bg-warning text-dark">Planned</span>; }
+                                                else { <span class="badge bg-success">Completed</span>; }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

@@ -1,0 +1,162 @@
+@model Medicare_Connect.Areas.AdministrativeStaff.Models.PatientRegistrationViewModel
+@{
+    ViewData["Title"] = "Register New Patient";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Register New Patient</h2>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Patients
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Patient Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label"></label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label"></label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Email" class="form-label"></label>
+                                <input asp-for="Email" class="form-control" type="email" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PhoneNumber" class="form-label"></label>
+                                <input asp-for="PhoneNumber" class="form-control" type="tel" />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DateOfBirth" class="form-label"></label>
+                                <input asp-for="DateOfBirth" class="form-control" type="date" />
+                                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Gender" class="form-label"></label>
+                                <select asp-for="Gender" class="form-select">
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                    <option value="Prefer not to say">Prefer not to say</option>
+                                </select>
+                                <span asp-validation-for="Gender" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label"></label>
+                            <input asp-for="Address" class="form-control" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="City" class="form-label"></label>
+                                <input asp-for="City" class="form-control" />
+                                <span asp-validation-for="City" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PostalCode" class="form-label"></label>
+                                <input asp-for="PostalCode" class="form-control" />
+                                <span asp-validation-for="PostalCode" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <h6>Emergency Contact Information</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="EmergencyContactName" class="form-label"></label>
+                                <input asp-for="EmergencyContactName" class="form-control" />
+                                <span asp-validation-for="EmergencyContactName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="EmergencyContactPhone" class="form-label"></label>
+                                <input asp-for="EmergencyContactPhone" class="form-control" type="tel" />
+                                <span asp-validation-for="EmergencyContactPhone" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <h6>Insurance Information</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="InsuranceNumber" class="form-label"></label>
+                                <input asp-for="InsuranceNumber" class="form-control" />
+                                <span asp-validation-for="InsuranceNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="InsuranceProvider" class="form-label"></label>
+                                <input asp-for="InsuranceProvider" class="form-control" />
+                                <span asp-validation-for="InsuranceProvider" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PrimaryCarePhysician" class="form-label"></label>
+                            <input asp-for="PrimaryCarePhysician" class="form-control" />
+                            <span asp-validation-for="PrimaryCarePhysician" class="text-danger"></span>
+                        </div>
+
+                        <hr class="my-4">
+                        <h6>Medical Information</h6>
+                        <div class="mb-3">
+                            <label asp-for="Allergies" class="form-label"></label>
+                            <textarea asp-for="Allergies" class="form-control" rows="2" 
+                                      placeholder="List any known allergies..."></textarea>
+                            <span asp-validation-for="Allergies" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="MedicalHistory" class="form-label"></label>
+                            <textarea asp-for="MedicalHistory" class="form-control" rows="3" 
+                                      placeholder="Brief medical history..."></textarea>
+                            <span asp-validation-for="MedicalHistory" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CurrentMedications" class="form-label"></label>
+                            <textarea asp-for="CurrentMedications" class="form-control" rows="2" 
+                                      placeholder="List current medications..."></textarea>
+                            <span asp-validation-for="CurrentMedications" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-person-plus"></i> Register Patient
+                            </button>
+                            <button type="reset" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} 

@@ -1,0 +1,191 @@
+@model Medicare_Connect.Areas.Patients.Models.OutstandingBillsViewModel
+@{
+    ViewData["Title"] = "Outstanding Bills";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Outstanding Bills</h2>
+                <div class="d-flex gap-2">
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Billing
+                    </a>
+                </div>
+            </div>
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Summary Alert -->
+            @if (Model.Bills.Any(b => b.IsOverdue))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Attention:</strong> You have @Model.Bills.Count(b => b.IsOverdue) overdue bill(s) that require immediate attention.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-exclamation-triangle text-warning"></i> 
+                        Outstanding Bills (@Model.Bills.Count)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Bills.Any())
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                            <p class="text-success mt-2">Great news! You have no outstanding bills.</p>
+                            <p class="text-muted">All your bills are up to date.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Service Type</th>
+                                        <th>Service Date</th>
+                                        <th>Amount</th>
+                                        <th>Insurance</th>
+                                        <th>Your Responsibility</th>
+                                        <th>Payment Status</th>
+                                        <th>Due Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var bill in Model.Bills)
+                                    {
+                                        <tr class="@(bill.IsOverdue ? "table-danger" : "")">
+                                            <td>
+                                                <span class="badge bg-info">@bill.ServiceType</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">@bill.ServiceDate.ToString("MMM dd, yyyy")</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-success fw-bold">@bill.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                            </td>
+                                            <td>
+                                                @if (bill.InsuranceAmount.HasValue)
+                                                {
+                                                    <span class="text-info">@bill.InsuranceAmount.Value.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">None</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="text-warning fw-bold">@bill.PatientResponsibility.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                            </td>
+                                            <td>
+                                                @if (bill.PaymentStatus == "Overdue")
+                                                {
+                                                    <span class="badge bg-danger">@bill.PaymentStatus</span>
+                                                }
+                                                else if (bill.PaymentStatus == "Pending")
+                                                {
+                                                    <span class="badge bg-warning">@bill.PaymentStatus</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">@bill.PaymentStatus</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (bill.IsOverdue)
+                                                {
+                                                    <span class="text-danger fw-bold">
+                                                        @bill.DueDate.ToString("MMM dd, yyyy")
+                                                        <br>
+                                                        <small class="text-danger">@bill.DaysOverdue day(s) overdue</small>
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">@bill.DueDate.ToString("MMM dd, yyyy")</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (bill.IsOverdue)
+                                                {
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-exclamation-triangle"></i> OVERDUE
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">
+                                                        <i class="bi bi-clock"></i> DUE SOON
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="@Url.Action("Details", new { id = bill.Id })" class="btn btn-sm btn-outline-info">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </a>
+                                                    @if (bill.IsOverdue)
+                                                    {
+                                                        <button class="btn btn-sm btn-outline-danger" onclick="contactSupport()">
+                                                            <i class="bi bi-telephone"></i> Contact
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Payment Options -->
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <h6 class="mb-3">
+                                <i class="bi bi-info-circle text-info"></i> Payment Options
+                            </h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Online payment through our secure portal</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Phone payment with our billing department</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>In-person payment at our office</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <ul class="list-unstyled">
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Payment plans available for large amounts</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Insurance claim assistance</li>
+                                        <li><i class="bi bi-check-circle text-success me-2"></i>Financial hardship considerations</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function contactSupport() {
+            alert('Please contact our billing department at:\n\nPhone: (011) 123-4567\nEmail: billing@medicare.com\n\nWe\'re here to help with payment arrangements.');
+        }
+    </script>
+} 

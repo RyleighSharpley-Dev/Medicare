@@ -1,0 +1,13 @@
+@{
+    var routeValues = ViewContext.RouteData.Values;
+    string currentController = (routeValues["controller"]?.ToString() ?? "").ToLowerInvariant();
+}
+<nav class="nav flex-column">
+    <a class="nav-link px-3 py-2 @(currentController=="dashboard"?"active":"")" asp-area="Pharmacists" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+    <a class="nav-link px-3 py-2 @(currentController=="prescriptions"?"active":"")" asp-area="Pharmacists" asp-controller="Prescriptions" asp-action="Index">Prescriptions</a>
+    <a class="nav-link px-3 py-2 @(currentController=="inventory"?"active":"")" asp-area="Pharmacists" asp-controller="Inventory" asp-action="Index">Inventory</a>
+    <a class="nav-link px-3 py-2 @(currentController=="dispensing"?"active":"")" asp-area="Pharmacists" asp-controller="Dispensing" asp-action="Index">Dispensing</a>
+    <a class="nav-link px-3 py-2 @(currentController=="interactions"?"active":"")" asp-area="Pharmacists" asp-controller="Interactions" asp-action="Index">Drug Interactions</a>
+    <a class="nav-link px-3 py-2 @(currentController=="refills"?"active":"")" asp-area="Pharmacists" asp-controller="Refills" asp-action="Index">Refill Requests</a>
+    <a class="nav-link px-3 py-2 @(currentController=="profile"?"active":"")" asp-area="Pharmacists" asp-controller="Profile" asp-action="Index">Profile</a>
+</nav>

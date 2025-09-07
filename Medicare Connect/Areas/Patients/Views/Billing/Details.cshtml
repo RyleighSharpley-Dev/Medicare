@@ -1,0 +1,193 @@
+@model Medicare_Connect.Areas.Patients.Models.PatientBillingDetailViewModel
+@{
+    ViewData["Title"] = "Billing Details";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Billing Details</h2>
+                <div class="d-flex gap-2">
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Billing
+                    </a>
+                </div>
+            </div>
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Billing Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Service Type:</label>
+                                    <p class="form-control-plaintext">
+                                        <span class="badge bg-info">@Model.ServiceType</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Service Date:</label>
+                                    <p class="form-control-plaintext">@Model.ServiceDate.ToString("dddd, MMMM dd, yyyy")</p>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Total Amount:</label>
+                                    <p class="form-control-plaintext text-success fw-bold fs-5">
+                                        @Model.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))
+                                    </p>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Insurance Coverage:</label>
+                                    <p class="form-control-plaintext">
+                                        @if (Model.InsuranceAmount.HasValue)
+                                        {
+                                            <span class="text-info">@Model.InsuranceAmount.Value.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">None</span>
+                                        }
+                                    </p>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Your Responsibility:</label>
+                                    <p class="form-control-plaintext text-warning fw-bold fs-5">
+                                        @Model.PatientResponsibility.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Payment Status:</label>
+                                    <p class="form-control-plaintext">
+                                        @if (Model.PaymentStatus == "Paid")
+                                        {
+                                            <span class="badge bg-success fs-6">@Model.PaymentStatus</span>
+                                        }
+                                        else if (Model.PaymentStatus == "Overdue")
+                                        {
+                                            <span class="badge bg-danger fs-6">@Model.PaymentStatus</span>
+                                        }
+                                        else if (Model.PaymentStatus == "Pending")
+                                        {
+                                            <span class="badge bg-warning fs-6">@Model.PaymentStatus</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary fs-6">@Model.PaymentStatus</span>
+                                        }
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Due Date:</label>
+                                    <p class="form-control-plaintext @(Model.IsOverdue ? "text-danger fw-bold" : "")">
+                                        @Model.DueDate.ToString("dddd, MMMM dd, yyyy")
+                                        @if (Model.IsOverdue)
+                                        {
+                                            <span class="badge bg-danger ms-2">OVERDUE</span>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Model.Notes))
+                            {
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold">Notes:</label>
+                                        <p class="form-control-plaintext">@Model.Notes</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">Quick Actions</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                @if (Model.PaymentStatus != "Paid")
+                                {
+                                    <button class="btn btn-outline-success" onclick="makePayment()">
+                                        <i class="bi bi-credit-card"></i> Make Payment
+                                    </button>
+                                    <button class="btn btn-outline-info" onclick="requestPaymentPlan()">
+                                        <i class="bi bi-calendar-check"></i> Request Payment Plan
+                                    </button>
+                                }
+                                <button class="btn btn-outline-primary" onclick="downloadInvoice()">
+                                    <i class="bi bi-download"></i> Download Invoice
+                                </button>
+                                <button class="btn btn-outline-warning" onclick="contactBilling()">
+                                    <i class="bi bi-telephone"></i> Contact Billing
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">System Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <small class="text-muted">Billing ID:</small><br>
+                                <code>@Model.Id</code>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Created:</small><br>
+                                <span>@Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</span>
+                            </div>
+                            @if (Model.UpdatedAt.HasValue)
+                            {
+                                <div class="mb-2">
+                                    <small class="text-muted">Last Updated:</small><br>
+                                    <span>@Model.UpdatedAt.Value.ToString("MMM dd, yyyy HH:mm")</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function makePayment() {
+            alert('Payment functionality will be implemented here.\n\nFor now, please contact our billing department to make a payment.');
+        }
+
+        function requestPaymentPlan() {
+            alert('Payment plan request functionality will be implemented here.\n\nPlease contact our billing department to discuss payment plan options.');
+        }
+
+        function downloadInvoice() {
+            alert('Invoice download functionality will be implemented here.\n\nFor now, please contact our billing department to request an invoice.');
+        }
+
+        function contactBilling() {
+            alert('Please contact our billing department at:\n\nPhone: (011) 123-4567\nEmail: billing@medicare.com\n\nWe\'re here to help with all your billing questions.');
+        }
+    </script>
+} 

@@ -1,0 +1,157 @@
+@model List<Medicare_Connect.Areas.Patients.Models.Prescription>
+@using Medicare_Connect.Areas.Patients.Models
+@{
+    ViewData["Title"] = "Prescriptions";
+    var refillRequests = ViewBag.RefillRequests as IEnumerable<RefillRequest> ?? Enumerable.Empty<RefillRequest>();
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Izidakamizwa</h1>
+            <p class="text-muted mb-0">Access and review your digital prescriptions</p>
+        </div>
+        <div>
+            <a asp-area="Patients" asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["RxSuccess"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["RxSuccess"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["RxError"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["RxError"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Active Prescriptions -->
+    <div class="card dashboard-card border-0 mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Your Prescriptions</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Medication</th>
+                            <th>Dosage</th>
+                            <th>Date</th>
+                            <th>Refills</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model == null || !Model.Any())
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No prescriptions yet.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var rx in Model)
+                            {
+                                <tr>
+                                    <td>@rx.Medication</td>
+                                    <td>@rx.Dosage</td>
+                                    <td>@rx.Date.ToString("dd MMM yyyy")</td>
+                                    <td>@rx.RefillsUsed / @rx.RefillsTotal</td>
+                                    <td>
+                                        @if (rx.Status == PrescriptionStatus.Active) { <span class="badge bg-success">Active</span>; } else if (rx.Status == PrescriptionStatus.Completed) { <span class="badge bg-secondary">Completed</span>; } else { <span class="badge bg-secondary">Cancelled</span>; }
+                                    </td>
+                                    <td class="text-end">
+                                        @if (rx.Status == PrescriptionStatus.Active && rx.RefillsUsed < rx.RefillsTotal)
+                                        {
+                                            <form asp-action="RequestRefill" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="prescriptionId" value="@rx.Id" />
+                                                <button class="btn btn-sm btn-outline-primary" type="submit">
+                                                    <i class="bi bi-plus-circle me-1"></i>Request Refill
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refill Requests -->
+    <div class="card dashboard-card border-0">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Refill Requests</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Prescription</th>
+                            <th>Requested</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!refillRequests.Any())
+                        {
+                            <tr><td colspan="4" class="text-center text-muted">No refill requests yet.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var r in refillRequests)
+                            {
+                                var rx = Medicare_Connect.Areas.Patients.Services.PrescriptionStore.FindPrescription(r.PrescriptionId);
+                                var price = (decimal)r.PriceCents / 100m;
+                                <tr>
+                                    <td>@rx?.Medication</td>
+                                    <td>@r.RequestedAt.ToString("dd MMM yyyy HH:mm")</td>
+                                    <td>
+                                        @if (r.Status == RefillRequestStatus.Pending) { <span class="badge bg-warning text-dark">Pending</span>; }
+                                        else if (r.Status == RefillRequestStatus.Approved) { <span class="badge bg-success">Approved</span>; }
+                                        else { <span class="badge bg-secondary">Rejected</span>; }
+                                    </td>
+                                    <td class="text-end">
+                                        @if (!r.IsPaid)
+                                        {
+                                            <div class="d-flex align-items-center justify-content-end gap-2">
+                                                <span class="text-muted">@price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                                <form asp-action="PayRefill" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="refillRequestId" value="@r.Id" />
+                                                    <button class="btn btn-sm btn-primary" type="submit">
+                                                        <i class="bi bi-credit-card me-1"></i>Pay Now
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            <small class="text-muted d-block">Or pay later from Payments</small>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Paid</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+

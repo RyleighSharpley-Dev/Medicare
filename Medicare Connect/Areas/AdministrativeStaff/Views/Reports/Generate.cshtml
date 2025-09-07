@@ -1,0 +1,150 @@
+@model Medicare_Connect.Areas.AdministrativeStaff.Models.ReportRequestViewModel
+@{
+    ViewData["Title"] = "Generate Report";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Generate Custom Report</h2>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Reports
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Report Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ReportType" class="form-label"></label>
+                                <select asp-for="ReportType" class="form-select">
+                                    <option value="">Select Report Type</option>
+                                    <option value="Patient Registration">Patient Registration Report</option>
+                                    <option value="Appointment Summary">Appointment Summary Report</option>
+                                    <option value="Billing Summary">Billing Summary Report</option>
+                                    <option value="Staff Schedule">Staff Schedule Report</option>
+                                    <option value="Revenue Analysis">Revenue Analysis Report</option>
+                                    <option value="Department Performance">Department Performance Report</option>
+                                    <option value="Patient Demographics">Patient Demographics Report</option>
+                                    <option value="Insurance Coverage">Insurance Coverage Report</option>
+                                    <option value="Appointment Trends">Appointment Trends Report</option>
+                                    <option value="Payment Status">Payment Status Report</option>
+                                </select>
+                                <span asp-validation-for="ReportType" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Format" class="form-label"></label>
+                                <select asp-for="Format" class="form-select">
+                                    <option value="PDF">PDF</option>
+                                    <option value="Excel">Excel</option>
+                                    <option value="CSV">CSV</option>
+                                    <option value="HTML">HTML</option>
+                                </select>
+                                <span asp-validation-for="Format" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="StartDate" class="form-label"></label>
+                                <input asp-for="StartDate" class="form-control" type="date" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="EndDate" class="form-label"></label>
+                                <input asp-for="EndDate" class="form-control" type="date" />
+                                <span asp-validation-for="EndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Department" class="form-label"></label>
+                                <select asp-for="Department" class="form-select">
+                                    <option value="">All Departments</option>
+                                    <option value="Emergency Department">Emergency Department</option>
+                                    <option value="ICU">ICU</option>
+                                    <option value="Cardiology">Cardiology</option>
+                                    <option value="Pediatrics">Pediatrics</option>
+                                    <option value="Surgery">Surgery</option>
+                                    <option value="Radiology">Radiology</option>
+                                    <option value="Laboratory">Laboratory</option>
+                                    <option value="Administration">Administration</option>
+                                    <option value="Nursing">Nursing</option>
+                                    <option value="Pharmacy">Pharmacy</option>
+                                </select>
+                                <span asp-validation-for="Department" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Report Options</label>
+                                <div class="form-check">
+                                    <input asp-for="IncludeCharts" class="form-check-input" type="checkbox" />
+                                    <label asp-for="IncludeCharts" class="form-check-label"></label>
+                                </div>
+                                <div class="form-check">
+                                    <input asp-for="IncludeDetails" class="form-check-input" type="checkbox" />
+                                    <label asp-for="IncludeDetails" class="form-check-label"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Additional Filters</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Doctor (Optional)</label>
+                                    <select class="form-select">
+                                        <option value="">All Doctors</option>
+                                        <option value="dr.smith">Dr. Smith</option>
+                                        <option value="dr.johnson">Dr. Johnson</option>
+                                        <option value="dr.williams">Dr. Williams</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Patient (Optional)</label>
+                                    <select class="form-select">
+                                        <option value="">All Patients</option>
+                                        <option value="patient1">John Doe</option>
+                                        <option value="patient2">Jane Smith</option>
+                                        <option value="patient3">Bob Wilson</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-file-earmark-text"></i> Generate Report
+                            </button>
+                            <button type="reset" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">Report Preview</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-4">
+                        <i class="bi bi-file-earmark-text text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-2">Report preview will appear here after generation</p>
+                        <small class="text-muted">Select your report parameters and click "Generate Report" to see a preview</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} 

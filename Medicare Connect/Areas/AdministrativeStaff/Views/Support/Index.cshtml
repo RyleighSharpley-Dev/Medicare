@@ -1,0 +1,129 @@
+@model List<object>
+@{
+    ViewData["Title"] = "Patient Support";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Patient Support</h2>
+                <a href="@Url.Action("Create")" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Create Ticket
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Support Tickets</h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-headset text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">No support tickets found.</p>
+                            <a href="@Url.Action("Create")" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Create First Ticket
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Ticket ID</th>
+                                        <th>Patient</th>
+                                        <th>Subject</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Created Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (dynamic ticket in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-secondary">#@ticket.Id</span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" 
+                                                         style="width: 32px; height: 32px;">
+                                                        <i class="bi bi-person"></i>
+                                                    </div>
+                                                    <div>
+                                                        <strong>@ticket.PatientName</strong>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>@ticket.Subject</td>
+                                            <td>
+                                                @if (ticket.Priority == "High")
+                                                {
+                                                    <span class="badge bg-danger">@ticket.Priority</span>
+                                                }
+                                                else if (ticket.Priority == "Medium")
+                                                {
+                                                    <span class="badge bg-warning">@ticket.Priority</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success">@ticket.Priority</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (ticket.Status == "Open")
+                                                {
+                                                    <span class="badge bg-primary">@ticket.Status</span>
+                                                }
+                                                else if (ticket.Status == "In Progress")
+                                                {
+                                                    <span class="badge bg-warning">@ticket.Status</span>
+                                                }
+                                                else if (ticket.Status == "Resolved")
+                                                {
+                                                    <span class="badge bg-success">@ticket.Status</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">@ticket.Status</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">@ticket.CreatedDate.ToString("MMM dd, yyyy HH:mm")</span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-sm btn-outline-info">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-warning">
+                                                        <i class="bi bi-pencil"></i> Edit
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-success">
+                                                        <i class="bi bi-check-circle"></i> Resolve
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                Showing @Model.Count ticket(s)
+                            </small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

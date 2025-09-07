@@ -1,0 +1,87 @@
+@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+    ViewData["BodyClass"] = "login-page";
+}
+
+<div class="container-fluid px-0">
+    <div class="row g-0 min-vh-100">
+        <div class="col-12 col-lg-6 d-none d-lg-block position-relative bg-dark">
+            <video class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" src="https://cdn.midjourney.com/video/b53d39b5-50b2-4e6e-bf0f-d36534f0ba82/1.mp4" autoplay muted loop playsinline></video>
+            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.45) 100%);"></div>
+            <div class="position-absolute bottom-0 start-0 text-white p-4 p-lg-5">
+                <div class="fs-6 text-uppercase opacity-75">Where healthcare meets innovation</div>
+                <h2 class="display-6 fw-semibold mt-1">Join Medicare Connect</h2>
+                <p class="lead mb-0 opacity-75">Create your account to access secure, connected care.</p>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 d-flex align-items-center justify-content-center p-4 p-lg-5">
+            <div class="w-100" style="max-width: 460px;">
+                <h1 class="h3 mb-3">Create your account</h1>
+                <p class="text-muted mb-4">It’s quick and easy.</p>
+
+                <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Email" class="form-label"></label>
+                        <input asp-for="Input.Email" class="form-control form-control-lg" autocomplete="username" />
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Password" class="form-label"></label>
+                        <div class="input-group input-group-lg">
+                            <input asp-for="Input.Password" class="form-control" autocomplete="new-password" />
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword" aria-label="Show password">Show</button>
+                        </div>
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.ConfirmPassword" class="form-label"></label>
+                        <div class="input-group input-group-lg">
+                            <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" />
+                            <button type="button" class="btn btn-outline-secondary" id="toggleConfirm" aria-label="Show password">Show</button>
+                        </div>
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <button id="registerSubmit" type="submit" class="btn btn-primary btn-lg w-100">Create account</button>
+
+                    <div class="text-center text-muted mt-3">Already have an account? <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Log in</a></div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const toggle = document.getElementById('togglePassword');
+            const toggle2 = document.getElementById('toggleConfirm');
+            if (toggle) toggle.addEventListener('click', function () {
+                const input = document.getElementById('Input_Password');
+                if (!input) return;
+                const isPassword = input.getAttribute('type') === 'password';
+                input.setAttribute('type', isPassword ? 'text' : 'password');
+                this.textContent = isPassword ? 'Hide' : 'Show';
+                this.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+            });
+            if (toggle2) toggle2.addEventListener('click', function () {
+                const input = document.getElementById('Input_ConfirmPassword');
+                if (!input) return;
+                const isPassword = input.getAttribute('type') === 'password';
+                input.setAttribute('type', isPassword ? 'text' : 'password');
+                this.textContent = isPassword ? 'Hide' : 'Show';
+                this.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+            });
+        })();
+    </script>
+}
+
+

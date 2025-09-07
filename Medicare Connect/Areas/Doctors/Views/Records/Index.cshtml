@@ -1,0 +1,192 @@
+@model List<Medicare_Connect.Areas.Patients.Models.PatientRecord>
+@{
+    ViewData["Title"] = "Patient Records";
+    var patients = ViewBag.Patients as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var patientKey = ViewBag.PatientKey as string;
+    var patientName = ViewBag.PatientName as string;
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">Patient Records</h2>
+        <a class="btn btn-outline-primary" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">Back to dashboard</a>
+    </div>
+    <p class="text-muted">Select a patient to view their records. Add new entries via the form (no file upload).</p>
+
+    @if (TempData["RecSuccess"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["RecSuccess"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["RecError"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["RecError"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- Left: patient selector + add form -->
+        <div class="col-lg-4">
+            <div class="card dashboard-card border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Select Patient</h5>
+                    <form asp-action="For" method="get">
+                        <div class="mb-3">
+                            <label class="form-label">Patient</label>
+                            <select class="form-select" name="patientKey" required>
+                                <option value="">Choose...</option>
+                                @foreach (var p in patients)
+                                {
+                                    <option value="@p.PatientKey" selected="@(patientKey == p.PatientKey ? "selected" : null)">@p.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-people me-2"></i>Load Records
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card dashboard-card border-0 @(string.IsNullOrWhiteSpace(patientKey) ? "opacity-50" : string.Empty)">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="card-title mb-0">Add Record</h5>
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#addRecordForm" aria-expanded="true">
+                            <i class="bi bi-plus-circle me-1"></i>Toggle
+                        </button>
+                    </div>
+                    <div id="addRecordForm" class="collapse show">
+                        <form asp-action="Upload" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="patientKey" value="@patientKey" />
+                            <div class="mb-3">
+                                <label class="form-label">Title</label>
+                                <input class="form-control" type="text" name="Title" maxlength="100" required @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null) />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Type</label>
+                                <select class="form-select" name="Type" required @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null)>
+                                    <option value="Report">Report</option>
+                                    <option value="Prescription">Prescription</option>
+                                    <option value="LabResult">Lab Result</option>
+                                    <option value="Imaging">Imaging</option>
+                                    <option value="Other" selected>Other</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Date</label>
+                                <input class="form-control" type="date" name="Date" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null) />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notes (optional)</label>
+                                <textarea class="form-control" name="Notes" rows="2" maxlength="256" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null)></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-primary" type="submit" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null)>
+                                    <i class="bi bi-plus-circle me-2"></i>Save Record
+                                </button>
+                            </div>
+                        </form>
+                        @if (string.IsNullOrWhiteSpace(patientKey))
+                        {
+                            <small class="text-muted d-block mt-2">Select a patient first to enable the form.</small>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: records table -->
+        <div class="col-lg-8">
+            <div class="card dashboard-card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Patient Records</h5>
+                        <div class="text-muted small">
+                            @if (!string.IsNullOrWhiteSpace(patientName))
+                            {
+                                <span>for <strong>@patientName</strong></span>
+                            }
+                            @if (Model != null && Model.Any())
+                            {
+                                <span class="ms-2">Total: @Model.Count</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Patient</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Attachment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model == null || !Model.Any())
+                                {
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-5">
+                                            <div class="mb-2"><i class="bi bi-inbox"></i></div>
+                                            No records for selection.
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var r in Model)
+                                    {
+                                        <tr>
+                                            <td>@r.Title<br /><small class="text-muted">@r.Notes</small></td>
+                                            <td>@(patientName ?? r.PatientKey)</td>
+                                            <td>
+                                                @switch (r.Type)
+                                                {
+                                                    case Medicare_Connect.Areas.Patients.Models.RecordType.Report:
+                                                        <span class="badge bg-primary">Report</span>
+                                                        break;
+                                                    case Medicare_Connect.Areas.Patients.Models.RecordType.Prescription:
+                                                        <span class="badge bg-success">Prescription</span>
+                                                        break;
+                                                    case Medicare_Connect.Areas.Patients.Models.RecordType.LabResult:
+                                                        <span class="badge bg-info text-dark">Lab</span>
+                                                        break;
+                                                    case Medicare_Connect.Areas.Patients.Models.RecordType.Imaging:
+                                                        <span class="badge bg-warning text-dark">Imaging</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">Other</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>@r.Date.ToString("ddd, dd MMM yyyy")</td>
+                                            <td>
+                                                @if (!string.IsNullOrWhiteSpace(r.RelativePath))
+                                                {
+                                                    <a class="link-primary" href="@r.RelativePath" target="_blank">@r.FileName</a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">None</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

@@ -1,0 +1,150 @@
+@model Medicare_Connect.Areas.AdministrativeStaff.Models.StaffSchedulingViewModel
+@{
+    ViewData["Title"] = "Create Staff Schedule";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Create Staff Schedule</h2>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Scheduling
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Schedule Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="StaffId" class="form-label"></label>
+                                <select asp-for="StaffId" class="form-select">
+                                    <option value="">Select Staff Member</option>
+                                    @foreach (var staff in ViewBag.Staff)
+                                    {
+                                        <option value="@staff.Id">@staff.Name</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="StaffId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Department" class="form-label"></label>
+                                <select asp-for="Department" class="form-select">
+                                    <option value="">Select Department</option>
+                                    <option value="Emergency Department">Emergency Department</option>
+                                    <option value="ICU">ICU</option>
+                                    <option value="Cardiology">Cardiology</option>
+                                    <option value="Pediatrics">Pediatrics</option>
+                                    <option value="Surgery">Surgery</option>
+                                    <option value="Radiology">Radiology</option>
+                                    <option value="Laboratory">Laboratory</option>
+                                    <option value="Administration">Administration</option>
+                                    <option value="Nursing">Nursing</option>
+                                    <option value="Pharmacy">Pharmacy</option>
+                                </select>
+                                <span asp-validation-for="Department" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ShiftType" class="form-label"></label>
+                                <select asp-for="ShiftType" class="form-select">
+                                    <option value="">Select Shift Type</option>
+                                    <option value="Day Shift">Day Shift (6:00 AM - 2:00 PM)</option>
+                                    <option value="Evening Shift">Evening Shift (2:00 PM - 10:00 PM)</option>
+                                    <option value="Night Shift">Night Shift (10:00 PM - 6:00 AM)</option>
+                                    <option value="Weekend Shift">Weekend Shift</option>
+                                    <option value="On-Call">On-Call</option>
+                                    <option value="Part-Time">Part-Time</option>
+                                    <option value="Overtime">Overtime</option>
+                                </select>
+                                <span asp-validation-for="ShiftType" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="StartDate" class="form-label"></label>
+                                <input asp-for="StartDate" class="form-control" type="date" />
+                                <span asp-validation-for="StartDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="EndDate" class="form-label"></label>
+                                <input asp-for="EndDate" class="form-control" type="date" />
+                                <span asp-validation-for="EndDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="StartTime" class="form-label"></label>
+                                <input asp-for="StartTime" class="form-control" type="time" />
+                                <span asp-validation-for="StartTime" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="EndTime" class="form-label"></label>
+                                <input asp-for="EndTime" class="form-control" type="time" />
+                                <span asp-validation-for="EndTime" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Duration</label>
+                                <input type="text" class="form-control" id="duration" readonly />
+                                <small class="form-text text-muted">Calculated automatically</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Notes" class="form-label"></label>
+                            <textarea asp-for="Notes" class="form-control" rows="3" 
+                                      placeholder="Additional notes about the schedule..."></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-calendar-check"></i> Create Schedule
+                            </button>
+                            <button type="reset" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Calculate duration when times change
+        document.getElementById('StartTime').addEventListener('change', calculateDuration);
+        document.getElementById('EndTime').addEventListener('change', calculateDuration);
+
+        function calculateDuration() {
+            const startTime = document.getElementById('StartTime').value;
+            const endTime = document.getElementById('EndTime').value;
+            
+            if (startTime && endTime) {
+                const start = new Date(`2000-01-01T${startTime}`);
+                const end = new Date(`2000-01-01T${endTime}`);
+                
+                if (end < start) {
+                    end.setDate(end.getDate() + 1); // Next day
+                }
+                
+                const diffMs = end - start;
+                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                
+                document.getElementById('duration').value = `${diffHours}h ${diffMinutes}m`;
+            }
+        }
+    </script>
+} 

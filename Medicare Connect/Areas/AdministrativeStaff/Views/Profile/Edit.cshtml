@@ -1,0 +1,121 @@
+@model object
+@{
+    ViewData["Title"] = "Edit Admin Profile";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Edit Profile</h2>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Profile
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-control" value="Admin Staff" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" value="admin@medicare-connect.com" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" value="+27 12 345 6789" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Department</label>
+                                <select class="form-select">
+                                    <option value="Administration" selected>Administration</option>
+                                    <option value="Human Resources">Human Resources</option>
+                                    <option value="Finance">Finance</option>
+                                    <option value="IT Support">IT Support</option>
+                                    <option value="Patient Services">Patient Services</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Position</label>
+                                <input type="text" class="form-control" value="Administrative Staff" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Employee ID</label>
+                                <input type="text" class="form-control" value="ADM-001" readonly />
+                                <small class="form-text text-muted">Employee ID cannot be changed</small>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Hire Date</label>
+                                <input type="date" class="form-control" value="2023-01-01" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Supervisor</label>
+                                <input type="text" class="form-control" value="Department Manager" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Office Location</label>
+                                <input type="text" class="form-control" value="Main Building, Floor 1" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Work Schedule</label>
+                                <select class="form-select">
+                                    <option value="Monday - Friday, 8:00 AM - 5:00 PM" selected>Monday - Friday, 8:00 AM - 5:00 PM</option>
+                                    <option value="Monday - Friday, 9:00 AM - 6:00 PM">Monday - Friday, 9:00 AM - 6:00 PM</option>
+                                    <option value="Monday - Friday, 7:00 AM - 4:00 PM">Monday - Friday, 7:00 AM - 4:00 PM</option>
+                                    <option value="Rotating Shifts">Rotating Shifts</option>
+                                    <option value="Part-Time">Part-Time</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Emergency Contact</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" placeholder="Emergency Contact Name" />
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="tel" class="form-control" placeholder="Emergency Contact Phone" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Skills & Certifications</label>
+                            <textarea class="form-control" rows="3" 
+                                      placeholder="List your skills, certifications, and specializations..."></textarea>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Save Changes
+                            </button>
+                            <button type="reset" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

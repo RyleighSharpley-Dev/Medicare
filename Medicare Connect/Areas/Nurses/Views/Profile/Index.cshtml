@@ -1,0 +1,158 @@
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Nurse Profile</h2>
+                <button class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Edit Profile
+                </button>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto" 
+                                     style="width: 120px; height: 120px;">
+                                    <i class="bi bi-person" style="font-size: 3rem;"></i>
+                                </div>
+                            </div>
+                            <h5 class="card-title">Nurse Name</h5>
+                            <p class="text-muted">Registered Nurse</p>
+                            <p class="text-muted">Employee ID: RN-001</p>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Contact Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <small class="text-muted">Email</small><br>
+                                <strong>nurse@medicare-connect.com</strong>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Phone</small><br>
+                                <strong>+27 12 345 6789</strong>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Emergency Contact</small><br>
+                                <strong>+27 12 345 6790</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Professional Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">License Number</label>
+                                    <input type="text" class="form-control" value="RN-12345" readonly />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">License Expiry</label>
+                                    <input type="text" class="form-control" value="December 31, 2025" readonly />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Department</label>
+                                    <input type="text" class="form-control" value="Emergency Department" readonly />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Position</label>
+                                    <input type="text" class="form-control" value="Staff Nurse" readonly />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Hire Date</label>
+                                    <input type="text" class="form-control" value="January 15, 2023" readonly />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Employment Status</label>
+                                    <input type="text" class="form-control" value="Full-Time" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Certifications & Training</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Certification</th>
+                                            <th>Issued Date</th>
+                                            <th>Expiry Date</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Basic Life Support (BLS)</td>
+                                            <td>Jan 2023</td>
+                                            <td>Jan 2025</td>
+                                            <td><span class="badge bg-success">Active</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Advanced Cardiac Life Support (ACLS)</td>
+                                            <td>Mar 2023</td>
+                                            <td>Mar 2025</td>
+                                            <td><span class="badge bg-success">Active</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Pediatric Advanced Life Support (PALS)</td>
+                                            <td>Jun 2023</td>
+                                            <td>Jun 2025</td>
+                                            <td><span class="badge bg-success">Active</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Trauma Nursing Core Course (TNCC)</td>
+                                            <td>Sep 2023</td>
+                                            <td>Sep 2026</td>
+                                            <td><span class="badge bg-success">Active</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Skills & Specializations</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-primary">Emergency Care</span>
+                                <span class="badge bg-primary">Critical Care</span>
+                                <span class="badge bg-primary">Trauma Nursing</span>
+                                <span class="badge bg-primary">Pediatric Care</span>
+                                <span class="badge bg-primary">IV Therapy</span>
+                                <span class="badge bg-primary">Wound Care</span>
+                                <span class="badge bg-primary">Medication Administration</span>
+                                <span class="badge bg-primary">Patient Assessment</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

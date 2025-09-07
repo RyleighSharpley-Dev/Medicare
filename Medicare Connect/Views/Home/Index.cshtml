@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Medicare Connect";
+    ViewData["BodyClass"] = "landing-page";
+}
+
+<section class="hero">
+    <img class="hero__image" src="https://cdn.midjourney.com/5bda71fd-8242-42fd-86c8-3287dcf9a77f/0_0.png" alt="Background" loading="eager" />
+    <div class="hero__overlay"></div>
+    <div class="hero__content container-fluid">
+        <div class="hero__eyebrow">WHERE HEALTHCARE MEETS INNOVATION.</div>
+        <h1 class="hero__title">Healthcare made simple. Care made personal.</h1>
+        <p class="hero__subtitle">Experience seamless medical care with our integrated platform that connects patients, doctors, and healthcare providers in one secure digital space.</p>
+        <div class="hero__cta">
+            <a class="btn btn-light btn-lg me-2" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            const video = document.querySelector('.hero__video');
+            if (!video) return;
+            const tryPlay = () => video.play().catch(() => {/* ignore autoplay block */});
+            if (video.readyState >= 2) { tryPlay(); }
+            else { video.addEventListener('canplay', tryPlay, { once: true }); }
+        })();
+    </script>
+}

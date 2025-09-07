@@ -1,0 +1,163 @@
+@model Medicare_Connect.Areas.AdministrativeStaff.Models.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Administrative Dashboard";
+}
+
+@section Styles {
+    <style>
+        /* Dashboard-only text color override */
+        .dash-black, .dash-black .glass-title, .dash-black .glass-muted, .dash-black .table, .dash-black .table thead th {
+            color: #111 !important;
+        }
+        .dash-black .glass-muted { color: #555 !important; }
+        .dash-black .badge.bg-light.text-dark { color: #111 !important; border-color: rgba(0,0,0,0.1) !important; }
+        .dash-black .btn-outline-primary { color: #0d6efd !important; border-color: #0d6efd !important; }
+        .dash-black .btn-outline-primary:hover { background: #0d6efd !important; color: #fff !important; }
+    </style>
+}
+
+<div class="dash-black">
+<div class="container py-2 py-md-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1 glass-title">Sawubona, @User.Identity?.Name</h1>
+            <p class="glass-muted mb-0">Overview of users, appointments, billing and payments</p>
+        </div>
+        <a class="btn btn-outline-primary" asp-area="AdministrativeStaff" asp-controller="Reports" asp-action="Index">
+            <i class="bi bi-graph-up me-2"></i>Reports
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="glass-card">
+                <div class="card-body">
+                    <div class="glass-muted small">Total Users</div>
+                    <div class="fs-4 stat-value">@Model.TotalUsers</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card">
+                <div class="card-body">
+                    <div class="glass-muted small">Patients</div>
+                    <div class="fs-4 stat-value">@Model.TotalPatients</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card">
+                <div class="card-body">
+                    <div class="glass-muted small">Doctors</div>
+                    <div class="fs-4 stat-value">@Model.TotalDoctors</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="glass-card">
+                <div class="card-body">
+                    <div class="glass-muted small">Appointments Today</div>
+                    <div class="fs-4 stat-value">@Model.UpcomingAppointments</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="glass-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0 glass-title">Next Appointments</h5>
+                        <a class="btn btn-sm btn-outline-primary" asp-area="AdministrativeStaff" asp-controller="Appointments" asp-action="Index">Manage</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.NextAppointments.Any())
+                                {
+                                    <tr><td colspan="3" class="glass-muted">No upcoming appointments.</td></tr>
+                                }
+                                else
+                                {
+                                    @foreach (var a in Model.NextAppointments)
+                                    {
+                                        <tr>
+                                            <td>@(a.AppointmentDate.Add(a.StartTime).ToString("ddd, dd MMM yyyy HH:mm"))</td>
+                                            <td>@a.AppointmentType</td>
+                                            <td><span class="badge bg-light text-dark">@a.Status</span></td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="glass-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0 glass-title">Payments Today</h5>
+                        <div class="fs-6 stat-value">@Model.PaymentsTodayAmount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.RecentPayments.Any())
+                                {
+                                    <tr><td colspan="4" class="glass-muted">No recent payments.</td></tr>
+                                }
+                                else
+                                {
+                                    @foreach (var p in Model.RecentPayments)
+                                    {
+                                        <tr>
+                                            <td>@p.CreatedAt.ToString("HH:mm")</td>
+                                            <td>@p.PaymentType</td>
+                                            <td>@p.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</td>
+                                            <td>
+                                                @if (p.Status == Medicare_Connect.Data.Entities.PaymentStatus.Completed)
+                                                {
+                                                    <span class="badge bg-success">Completed</span>
+                                                }
+                                                else if (p.Status == Medicare_Connect.Data.Entities.PaymentStatus.Failed)
+                                                {
+                                                    <span class="badge bg-danger">Failed</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning text-dark">@p.Status</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="small glass-muted">Outstanding bills: <strong>@Model.OutstandingBills</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+

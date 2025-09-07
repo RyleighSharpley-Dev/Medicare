@@ -1,0 +1,22 @@
+@{
+    Layout = "/Views/Shared/_RoleBasedLayout.cshtml";
+    ViewData["Title"] = ViewData["Title"] ?? "Doctors";
+}
+
+@section Sidebar {
+    <partial name="/Areas/Doctors/Views/Shared/_DoctorNav.cshtml" />
+}
+
+@section Styles {
+    <style>
+        /* Additional Doctors area specific styles */
+    </style>
+}
+
+@RenderBody()
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}
+
+

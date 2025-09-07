@@ -1,0 +1,80 @@
+@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Log in";
+    ViewData["BodyClass"] = "login-page";
+}
+
+<div class="container-fluid px-0">
+    <div class="row g-0 min-vh-100">
+        <div class="col-12 col-lg-6 d-none d-lg-block position-relative bg-light">
+            <img src="https://cdn.midjourney.com/bd89b217-ba05-4978-818c-f3e23a824c7f/0_0.png" alt="Healthcare" class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" />
+            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.25) 100%);"></div>
+            <div class="position-absolute bottom-0 start-0 text-white p-4 p-lg-5">
+                <div class="fs-6 text-uppercase opacity-75">Where healthcare meets innovation</div>
+                <h2 class="display-6 fw-semibold mt-1">Healthcare made simple. Care made personal.</h2>
+                <p class="lead mb-0 opacity-75">Experience seamless medical care in one secure digital space.</p>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 d-flex align-items-center justify-content-center p-4 p-lg-5">
+            <div class="w-100" style="max-width: 420px;">
+                <h1 class="h3 mb-3">Welcome back</h1>
+                <p class="text-muted mb-4">Log in to continue to Medicare Connect</p>
+
+                <form id="account" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Email" class="form-label"></label>
+                        <input asp-for="Input.Email" class="form-control form-control-lg" autocomplete="username" />
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label asp-for="Input.Password" class="form-label"></label>
+                            <a class="small" asp-page="./ForgotPassword">Forgot password?</a>
+                        </div>
+                        <div class="input-group input-group-lg">
+                            <input asp-for="Input.Password" class="form-control" autocomplete="current-password" />
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword" aria-label="Show password">Show</button>
+                        </div>
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input class="form-check-input" asp-for="Input.RememberMe" />
+                        <label class="form-check-label" asp-for="Input.RememberMe"></label>
+                    </div>
+
+                    <button id="login-submit" type="submit" class="btn btn-primary btn-lg w-100">Log in</button>
+
+                    <div class="text-center text-muted mt-3">or</div>
+                    <div class="d-grid gap-2 mt-3">
+                        <a class="btn btn-outline-secondary btn-lg" asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Create an account</a>
+                    </div>
+
+                    <input type="hidden" asp-for="ReturnUrl" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const toggle = document.getElementById('togglePassword');
+            if (!toggle) return;
+            toggle.addEventListener('click', function () {
+                const input = document.getElementById('Input_Password');
+                if (!input) return;
+                const isPassword = input.getAttribute('type') === 'password';
+                input.setAttribute('type', isPassword ? 'text' : 'password');
+                this.textContent = isPassword ? 'Hide' : 'Show';
+                this.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+            });
+        })();
+    </script>
+}

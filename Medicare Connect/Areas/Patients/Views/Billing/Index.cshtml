@@ -1,0 +1,281 @@
+@model Medicare_Connect.Areas.Patients.Models.PatientBillingViewModel
+@{
+    ViewData["Title"] = "My Billing & Payments";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">My Billing & Payments</h2>
+                <div class="d-flex gap-2">
+                    <a href="@Url.Action("Outstanding")" class="btn btn-outline-warning">
+                        <i class="bi bi-exclamation-triangle"></i> Outstanding Bills
+                    </a>
+                    <a href="@Url.Action("PaymentHistory")" class="btn btn-outline-info">
+                        <i class="bi bi-clock-history"></i> Payment History
+                    </a>
+                </div>
+            </div>
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Summary Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3 mb-3">
+                                <i class="bi bi-receipt text-primary fs-4"></i>
+                            </div>
+                            <h4 class="card-title">Total Billed</h4>
+                            <h3 class="text-primary mb-0">@Model.Summary.TotalBilled.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</h3>
+                            <small class="text-muted">@Model.Summary.BillingCount billing record(s)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex p-3 mb-3">
+                                <i class="bi bi-check-circle text-success fs-4"></i>
+                            </div>
+                            <h4 class="card-title">Total Paid</h4>
+                            <h3 class="text-success mb-0">@Model.Summary.TotalPaid.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</h3>
+                            <small class="text-muted">@Model.Summary.PaymentCount payment(s)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex p-3 mb-3">
+                                <i class="bi bi-clock text-warning fs-4"></i>
+                            </div>
+                            <h4 class="card-title">Outstanding</h4>
+                            <h3 class="text-warning mb-0">@Model.Summary.OutstandingAmount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</h3>
+                            <small class="text-muted">Pending payment</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="rounded-circle bg-danger bg-opacity-10 d-inline-flex p-3 mb-3">
+                                <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
+                            </div>
+                            <h4 class="card-title">Overdue</h4>
+                            <h3 class="text-danger mb-0">@Model.Summary.OverdueAmount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</h3>
+                            <small class="text-muted">Past due date</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Billing Records -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-receipt text-primary"></i> Billing Records
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.BillingRecords.Any())
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">No billing records found.</p>
+                            <p class="text-muted">Billing records will appear here when services are provided.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Service Type</th>
+                                        <th>Service Date</th>
+                                        <th>Amount</th>
+                                        <th>Insurance</th>
+                                        <th>Your Responsibility</th>
+                                        <th>Payment Status</th>
+                                        <th>Due Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var bill in Model.BillingRecords)
+                                    {
+                                        <tr class="@(bill.IsOverdue ? "table-danger" : "")">
+                                            <td>
+                                                <span class="badge bg-info">@bill.ServiceType</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">@bill.ServiceDate.ToString("MMM dd, yyyy")</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-success fw-bold">@bill.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                            </td>
+                                            <td>
+                                                @if (bill.InsuranceAmount.HasValue)
+                                                {
+                                                    <span class="text-info">@bill.InsuranceAmount.Value.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">None</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="text-warning fw-bold">@bill.PatientResponsibility.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                            </td>
+                                            <td>
+                                                @if (bill.PaymentStatus == "Paid")
+                                                {
+                                                    <span class="badge bg-success">@bill.PaymentStatus</span>
+                                                }
+                                                else if (bill.PaymentStatus == "Overdue")
+                                                {
+                                                    <span class="badge bg-danger">@bill.PaymentStatus</span>
+                                                }
+                                                else if (bill.PaymentStatus == "Pending")
+                                                {
+                                                    <span class="badge bg-warning">@bill.PaymentStatus</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">@bill.PaymentStatus</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (bill.IsOverdue)
+                                                {
+                                                    <span class="text-danger fw-bold">@bill.DueDate.ToString("MMM dd, yyyy")</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">@bill.DueDate.ToString("MMM dd, yyyy")</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("Details", new { id = bill.Id })" class="btn btn-sm btn-outline-info">
+                                                    <i class="bi bi-eye"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Recent Payments -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-credit-card text-success"></i> Recent Payments
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.PaymentRecords.Any())
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-credit-card text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">No payment records found.</p>
+                            <p class="text-muted">Payment records will appear here when you make payments.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Payment Type</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var payment in Model.PaymentRecords.Take(5))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <span class="badge bg-info">@payment.PaymentType</span>
+                                            </td>
+                                            <td>
+                                                <span>@payment.Description</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-success fw-bold">@payment.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                            </td>
+                                            <td>
+                                                @if (payment.Status == "Completed")
+                                                {
+                                                    <span class="badge bg-success">@payment.Status</span>
+                                                }
+                                                else if (payment.Status == "Failed")
+                                                {
+                                                    <span class="badge bg-danger">@payment.Status</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">@payment.Status</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">@payment.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(payment.Notes))
+                                                {
+                                                    <small class="text-muted">@payment.Notes</small>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        @if (Model.PaymentRecords.Count > 5)
+                        {
+                            <div class="text-center mt-3">
+                                <a href="@Url.Action("PaymentHistory")" class="btn btn-outline-info">
+                                    View All Payment History
+                                </a>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

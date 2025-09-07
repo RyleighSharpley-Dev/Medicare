@@ -1,0 +1,69 @@
+@{
+    Layout = "/Views/Shared/_RoleBasedLayout.cshtml";
+    ViewData["Title"] = ViewData["Title"] ?? "Administrative Staff";
+}
+
+@section Sidebar {
+    <partial name="/Areas/AdministrativeStaff/Views/Shared/_AdminStaffNav.cshtml" />
+}
+
+<style>
+    /* Liquid Glass Blue theme */
+    :root {
+        --lg-bg: linear-gradient(135deg, rgba(10, 32, 66, 0.6), rgba(8, 24, 48, 0.6));
+        --lg-card: rgba(255, 255, 255, 0.12);
+        --lg-border: rgba(255, 255, 255, 0.18);
+        --lg-highlight: #4db6ff;
+        --lg-text: #e6f2ff;
+        --lg-muted: #a3c4e6;
+        --lg-shadow: 0 8px 32px 0 rgba(7, 29, 61, 0.37);
+    }
+    body {
+        background: radial-gradient(1000px 600px at 10% -20%, #0a2342 0%, #061629 40%, #041120 75%),
+                    radial-gradient(800px 500px at 110% 10%, #0a2342 0%, #061629 60%, #041120 90%);
+        color: var(--lg-text);
+    }
+    .glass-container {
+        backdrop-filter: blur(12px) saturate(140%);
+        -webkit-backdrop-filter: blur(12px) saturate(140%);
+        background: var(--lg-card);
+        border: 1px solid var(--lg-border);
+        box-shadow: var(--lg-shadow);
+        border-radius: 16px;
+    }
+    .glass-card {
+        backdrop-filter: blur(10px) saturate(150%);
+        -webkit-backdrop-filter: blur(10px) saturate(150%);
+        background: var(--lg-card);
+        border: 1px solid var(--lg-border);
+        box-shadow: var(--lg-shadow);
+        border-radius: 14px;
+    }
+    .glass-title {
+        color: var(--lg-text);
+    }
+    .glass-muted { color: var(--lg-muted); }
+    .stat-value { font-weight: 700; letter-spacing: 0.3px; }
+    .badge {
+        border: 1px solid var(--lg-border);
+    }
+    .btn-outline-primary { color: var(--lg-text); border-color: var(--lg-highlight); }
+    .btn-outline-primary:hover { background: var(--lg-highlight); color: #001528; }
+    .table { color: var(--lg-text); }
+    .table thead th { color: var(--lg-muted); border-color: var(--lg-border); }
+    .table td, .table th { border-color: var(--lg-border); }
+</style>
+
+@RenderSection("Styles", required: false)
+
+<div class="container-fluid py-4">
+    <div class="glass-container p-3 p-md-4">
+        @RenderBody()
+    </div>
+</div>
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}
+
+

@@ -1,0 +1,177 @@
+@model Medicare_Connect.Areas.Nurses.Models.PatientCareViewModel
+@{
+    ViewData["Title"] = $"Patient Care - {Model.PatientName}";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-0">Patient Care</h2>
+                    <p class="text-muted mb-0">@Model.PatientName (@Model.PatientEmail)</p>
+                </div>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Patients
+                </a>
+            </div>
+
+            @if (TempData["CareSaved"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i> Patient care information has been saved successfully.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Patient Care Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Temperature" class="form-label"></label>
+                                        <div class="input-group">
+                                            <input asp-for="Temperature" class="form-control" type="number" step="0.1" />
+                                            <span class="input-group-text">°C</span>
+                                        </div>
+                                        <span asp-validation-for="Temperature" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="BloodPressure" class="form-label"></label>
+                                        <input asp-for="BloodPressure" class="form-control" placeholder="e.g., 120/80" />
+                                        <span asp-validation-for="BloodPressure" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="HeartRate" class="form-label"></label>
+                                        <div class="input-group">
+                                            <input asp-for="HeartRate" class="form-control" type="number" />
+                                            <span class="input-group-text">bpm</span>
+                                        </div>
+                                        <span asp-validation-for="HeartRate" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Weight" class="form-label"></label>
+                                        <div class="input-group">
+                                            <input asp-for="Weight" class="form-control" type="number" step="0.1" />
+                                            <span class="input-group-text">kg</span>
+                                        </div>
+                                        <span asp-validation-for="Weight" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="Height" class="form-label"></label>
+                                        <div class="input-group">
+                                            <input asp-for="Height" class="form-control" type="number" />
+                                            <span class="input-group-text">cm</span>
+                                        </div>
+                                        <span asp-validation-for="Height" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label asp-for="NextFollowUp" class="form-label"></label>
+                                        <input asp-for="NextFollowUp" class="form-control" type="datetime-local" />
+                                        <span asp-validation-for="NextFollowUp" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="VitalSigns" class="form-label"></label>
+                                    <textarea asp-for="VitalSigns" class="form-control" rows="2" 
+                                              placeholder="Additional vital signs observations..."></textarea>
+                                    <span asp-validation-for="VitalSigns" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="NursingNotes" class="form-label"></label>
+                                    <textarea asp-for="NursingNotes" class="form-control" rows="4" 
+                                              placeholder="Enter nursing notes, observations, and care provided..."></textarea>
+                                    <span asp-validation-for="NursingNotes" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="CarePlan" class="form-label"></label>
+                                    <textarea asp-for="CarePlan" class="form-control" rows="3" 
+                                              placeholder="Document the care plan and next steps..."></textarea>
+                                    <span asp-validation-for="CarePlan" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="MedicationsGiven" class="form-label"></label>
+                                    <textarea asp-for="MedicationsGiven" class="form-control" rows="2" 
+                                              placeholder="List medications administered, dosages, and times..."></textarea>
+                                    <span asp-validation-for="MedicationsGiven" class="text-danger"></span>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save"></i> Save Care Information
+                                    </button>
+                                    <button type="reset" class="btn btn-outline-secondary">
+                                        <i class="bi bi-arrow-clockwise"></i> Reset
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">Quick Actions</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="@Url.Action("Index", "Records", new { area = "Doctors", patientKey = Model.PatientKey })" 
+                                   class="btn btn-outline-info">
+                                    <i class="bi bi-journal-medical"></i> View Medical Records
+                                </a>
+                                <a href="@Url.Action("Index", "Appointments", new { area = "Doctors", patientKey = Model.PatientKey })" 
+                                   class="btn btn-outline-primary">
+                                    <i class="bi bi-calendar-check"></i> View Appointments
+                                </a>
+                                <a href="@Url.Action("Index", "Prescriptions", new { area = "Doctors", patientKey = Model.PatientKey })" 
+                                   class="btn btn-outline-warning">
+                                    <i class="bi bi-prescription2"></i> View Prescriptions
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Patient Summary</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="border-end">
+                                        <h4 class="text-primary mb-1">@Model.PatientName.Split(' ').First()</h4>
+                                        <small class="text-muted">Patient</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="text-success mb-1">Active</h4>
+                                    <small class="text-muted">Status</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} 

@@ -1,0 +1,14 @@
+@{
+    var routeValues = ViewContext.RouteData.Values;
+    string currentController = (routeValues["controller"]?.ToString() ?? "").ToLowerInvariant();
+}
+<nav class="nav flex-column">
+    <a class="nav-link px-3 py-2 @(currentController=="dashboard"?"active":"")" asp-area="Managers" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+    <a class="nav-link px-3 py-2 @(currentController=="users"?"active":"")" asp-area="Managers" asp-controller="Users" asp-action="Index">User Management</a>
+    <a class="nav-link px-3 py-2 @(currentController=="analytics"?"active":"")" asp-area="Managers" asp-controller="Analytics" asp-action="Index">Analytics</a>
+    <a class="nav-link px-3 py-2 @(currentController=="permissions"?"active":"")" asp-area="Managers" asp-controller="Permissions" asp-action="Index">Permissions</a>
+    <a class="nav-link px-3 py-2 @(currentController=="system"?"active":"")" asp-area="Managers" asp-controller="System" asp-action="Index">System Performance</a>
+    <a class="nav-link px-3 py-2 @(currentController=="issues"?"active":"")" asp-area="Managers" asp-controller="Issues" asp-action="Index">Issues</a>
+    <a class="nav-link px-3 py-2 @(currentController=="compliance"?"active":"")" asp-area="Managers" asp-controller="Compliance" asp-action="Index">Compliance</a>
+    <a class="nav-link px-3 py-2 @(currentController=="profile"?"active":"")" asp-area="Managers" asp-controller="Profile" asp-action="Index">Profile</a>
+</nav>

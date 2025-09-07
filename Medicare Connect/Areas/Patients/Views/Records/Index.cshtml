@@ -1,0 +1,49 @@
+@model List<Medicare_Connect.Areas.Patients.Models.PatientRecord>
+@{
+    ViewData["Title"] = "Records";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">Imibhalo yezokwelapha (Medical Records)</h2>
+        <a class="btn btn-outline-primary" asp-area="Patients" asp-controller="Dashboard" asp-action="Index">Back to dashboard</a>
+    </div>
+    <p class="text-muted">View your medical records and test results.</p>
+
+    <div class="card dashboard-card border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">No records available yet.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var r in Model)
+                            {
+                                <tr>
+                                    <td>@r.Title<br /><small class="text-muted">@r.Notes</small></td>
+                                    <td>@r.Type</td>
+                                    <td>@r.Date.ToString("ddd, dd MMM yyyy")</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+

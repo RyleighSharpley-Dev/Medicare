@@ -1,0 +1,229 @@
+@model Medicare_Connect.Areas.Patients.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Patient Dashboard";
+    var patientName = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value ?? User.Identity?.Name;
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Sawubona, @patientName</h1>
+            <p class="text-muted mb-0">Welcome to your patient dashboard</p>
+        </div>
+        <div>
+            <span class="badge bg-success rounded-pill px-3 py-2">
+                <i class="bi bi-check-circle me-1"></i> Active Patient
+            </span>
+        </div>
+    </div>
+
+    <!-- Quick Actions Row -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card dashboard-card border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Quick Actions</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a asp-area="Patients" asp-controller="Appointments" asp-action="Index" class="btn btn-primary">
+                            <i class="bi bi-plus-circle me-2"></i>Book Appointment
+                        </a>
+                        <a asp-area="Patients" asp-controller="Prescriptions" asp-action="Index" class="btn btn-outline-primary">
+                            <i class="bi bi-prescription2 me-2"></i>View Prescriptions
+                        </a>
+                        <a asp-area="Patients" asp-controller="Records" asp-action="Index" class="btn btn-outline-primary">
+                            <i class="bi bi-journal-medical me-2"></i>Medical Records
+                        </a>
+                        <a asp-area="Patients" asp-controller="Payments" asp-action="Index" class="btn btn-outline-primary">
+                            <i class="bi bi-credit-card me-2"></i>Make Payment
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Cards Row -->
+    <div class="row g-4 mb-4">
+        <!-- Upcoming Appointments Card -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card dashboard-card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Upcoming Appointments</h5>
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-2">
+                            <i class="bi bi-calendar-check text-primary"></i>
+                        </div>
+                    </div>
+                    <h2 class="mb-1">@Model.UpcomingAppointmentsCount</h2>
+                    <p class="text-muted mb-0">@((Model.NextAppointmentUtc.HasValue ? $"Next: {Model.NextAppointmentUtc:ddd, dd MMM yyyy HH:mm}" : "No upcoming appointments"))</p>
+                    <div class="mt-3">
+                        <a asp-area="Patients" asp-controller="Appointments" asp-action="Index" class="btn btn-sm btn-outline-primary">
+                            View All
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Prescriptions Card -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card dashboard-card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Active Prescriptions</h5>
+                        <div class="rounded-circle bg-success bg-opacity-10 p-2">
+                            <i class="bi bi-prescription2 text-success"></i>
+                        </div>
+                    </div>
+                    <h2 class="mb-1">@Model.ActivePrescriptionsCount</h2>
+                    <p class="text-muted mb-0">@Model.TotalAvailableRefills Refill(s) Available</p>
+                    <div class="mt-3">
+                        <a asp-area="Patients" asp-controller="Prescriptions" asp-action="Index" class="btn btn-sm btn-outline-success">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Payments Card -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card dashboard-card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Recent Payments</h5>
+                        <div class="rounded-circle bg-info bg-opacity-10 p-2">
+                            <i class="bi bi-credit-card text-info"></i>
+                        </div>
+                    </div>
+                    <h2 class="mb-1">@((Model.LastPaymentCents.HasValue ? $"R{Model.LastPaymentCents.Value / 100.0:0.00}" : "R0.00"))</h2>
+                    <p class="text-muted mb-2">@((Model.LastPaymentAtUtc.HasValue ? $"Last payment: {Model.LastPaymentAtUtc:dd MMM yyyy}" : "No payments yet"))</p>
+                    @if (Model.RecentPayments != null && Model.RecentPayments.Any())
+                    {
+                        <div class="small">
+                            @foreach (var p in Model.RecentPayments.Take(3))
+                            {
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-muted">@p.CreatedAt.ToString("dd MMM") — @p.PaymentType</span>
+                                    <span class="fw-semibold">@p.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                </div>
+                            }
+                        </div>
+                    }
+                    <div class="mt-3">
+                        <a asp-area="Patients" asp-controller="Payments" asp-action="Index" class="btn btn-sm btn-outline-info">
+                            Payment History
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Billing Summary Card -->
+        <div class="col-md-6 col-xl-3">
+            <div class="card dashboard-card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Billing Status</h5>
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-2">
+                            <i class="bi bi-receipt text-warning"></i>
+                        </div>
+                    </div>
+                    <h2 class="mb-1">View Bills</h2>
+                    <p class="text-muted mb-0">Check outstanding bills and payment status</p>
+                    <div class="mt-3">
+                        <a asp-area="Patients" asp-controller="Billing" asp-action="Index" class="btn btn-sm btn-outline-warning">
+                            View Billing
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Medical Records and Payments Row -->
+    <div class="row g-4">
+        <!-- Recent Medical Records -->
+        <div class="col-lg-8">
+            <div class="card dashboard-card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title mb-0">Recent Medical Records</h5>
+                        <a asp-area="Patients" asp-controller="Records" asp-action="Index" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Doctor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.RecentRecords == null || !Model.RecentRecords.Any())
+                                {
+                                    <tr><td colspan="4" class="text-center text-muted">No records yet.</td></tr>
+                                }
+                                else
+                                {
+                                    @foreach (var r in Model.RecentRecords)
+                                    {
+                                        <tr>
+                                            <td>@r.Date.ToString("dd MMM yyyy")</td>
+                                            <td>@r.Type</td>
+                                            <td>@(string.IsNullOrWhiteSpace(r.Notes) ? "-" : r.Notes)</td>
+                                            <td><span class="badge bg-success">Completed</span></td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Payments -->
+        <div class="col-lg-4">
+            <div class="card dashboard-card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title mb-0">Your Recent Payments</h5>
+                        <a asp-area="Patients" asp-controller="Payments" asp-action="Index" class="btn btn-sm btn-outline-secondary">View All</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.RecentPayments == null || !Model.RecentPayments.Any())
+                                {
+                                    <tr><td colspan="3" class="text-center text-muted">No payments yet.</td></tr>
+                                }
+                                else
+                                {
+                                    @foreach (var p in Model.RecentPayments)
+                                    {
+                                        <tr>
+                                            <td>@p.CreatedAt.ToString("dd MMM yyyy")</td>
+                                            <td>@p.PaymentType</td>
+                                            <td>@p.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

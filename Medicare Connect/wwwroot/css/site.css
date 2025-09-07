@@ -1,0 +1,142 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+/* Login page helpers */
+.object-fit-cover {
+  object-fit: cover;
+}
+
+/* Login page responsive tweaks */
+.login-page .min-vh-100 { min-height: 100vh; }
+@media (max-width: 991.98px) {
+  .login-page .min-vh-100 { min-height: calc(100vh - 120px); }
+}
+
+/* Landing page (Memora-inspired) */
+.landing-page .navbar,
+.landing-page .footer {
+  background: transparent !important;
+  border: 0 !important;
+}
+
+/* Nav links: bold white */
+.landing-page .navbar .nav-link,
+.landing-page .navbar .navbar-brand,
+.landing-page .navbar .btn-link,
+.landing-page .navbar .dropdown-item {
+  color: #ffffff !important;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+}
+
+/* Push auth links to far right (already default) and add spacing */
+.landing-page .navbar .navbar-collapse { justify-content: flex-start; }
+.landing-page .navbar .navbar-collapse > .navbar-nav:last-child .nav-link,
+.landing-page .navbar .navbar-collapse > .navbar-nav:last-child .btn-link {
+  margin-left: .5rem;
+}
+
+.landing-page .navbar .nav-link:hover,
+.landing-page .navbar .nav-link:focus,
+.landing-page .navbar .navbar-brand:hover,
+.landing-page .navbar .navbar-brand:focus {
+  color: #ffffff !important;
+  opacity: 0.9;
+}
+
+.landing-page header .navbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+}
+
+/* Hide left nav items on landing (keep brand visible) */
+.landing-page .navbar .navbar-nav.flex-grow-1 { display: none !important; }
+
+.landing-page .hero {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.landing-page .hero__video,
+.landing-page .hero__image {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: 0;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  filter: saturate(110%) contrast(105%) brightness(80%);
+  background: #000;
+}
+
+.landing-page .hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 80% at 70% 40%, rgba(255,255,255,0.08), rgba(0,0,0,0.65)),
+              linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);
+  z-index: 1;
+}
+
+.landing-page .hero__content {
+  position: relative;
+  z-index: 2;
+  color: #eef2f7;
+  max-width: 1100px;
+  padding: 6rem 2rem;
+}
+
+.landing-page .hero__eyebrow {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.landing-page .hero__title {
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  margin: 0.5rem 0 1rem;
+}
+
+.landing-page .hero__subtitle {
+  max-width: 640px;
+  font-size: 1.1rem;
+  color: rgba(238, 242, 247, 0.9);
+}
+
+.landing-page .hero__cta .btn {
+  backdrop-filter: blur(6px);
+}

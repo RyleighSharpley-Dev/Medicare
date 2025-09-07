@@ -1,0 +1,305 @@
+@model List<Medicare_Connect.Areas.Patients.Models.Appointment>
+@{
+    ViewData["Title"] = "Appointments";
+    var doctors = ViewData["Doctors"] as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var dbAppointments = ViewData["DbAppointments"] as IEnumerable<Medicare_Connect.Data.Entities.AppointmentEntity> ?? Enumerable.Empty<Medicare_Connect.Data.Entities.AppointmentEntity>();
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Ama-aphoyintimenti (Appointments)</h1>
+            <p class="text-muted mb-0">Book, view, and manage your appointments</p>
+        </div>
+        <div>
+            <a class="btn btn-outline-primary" asp-area="Patients" asp-controller="Dashboard" asp-action="Index">
+                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["ApptSuccess"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["ApptSuccess"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ApptError"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ApptError"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- Booking form -->
+        <div class="col-lg-4">
+            <div class="card dashboard-card border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Book Appointment</h5>
+                    <form asp-action="BookSlot" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label class="form-label">Doctor</label>
+                            <select class="form-select" name="doctorId" id="doctorSelect" required>
+                                <option value="">Select doctor</option>
+                                @foreach (var d in doctors)
+                                {
+                                    <option value="@d.Id">@d.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Date</label>
+                            <input class="form-control" type="date" id="dateSelect" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Available Timeslots</label>
+                            <select class="form-select" name="timeslotId" id="timeslotSelect" required>
+                                <option value="">Select a timeslot</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Appointment Type</label>
+                            <select class="form-select" name="appointmentType" id="appointmentType" required>
+                                <option value="">Select type</option>
+                                <option>General Checkup</option>
+                                <option>Follow-up</option>
+                                <option>Lab Results</option>
+                                <option>Vaccination</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes (optional)</label>
+                            <textarea class="form-control" name="notes" rows="2" placeholder="Reason for visit"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="text-muted">Estimated Price</span>
+                                <strong id="priceDisplay">—</strong>
+                            </div>
+                            <small class="text-muted">Prices are estimated and charged at checkout.</small>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-plus-circle me-2"></i>Book Appointment
+                            </button>
+                        </div>
+                        <input type="hidden" name="doctorIdHidden" id="doctorIdHidden" />
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming and history -->
+        <div class="col-lg-8">
+            <div class="card dashboard-card border-0 mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Upcoming Appointments</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Doctor</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in Model.Where(x => x.AppointmentDate >= DateTime.Now).OrderBy(x => x.AppointmentDate))
+                                {
+                                    <tr>
+                                        <td>@a.AppointmentDate.ToString("ddd, dd MMM yyyy HH:mm")</td>
+                                        <td>@a.AppointmentType</td>
+                                        <td>@a.DoctorName</td>
+                                        <td>
+                                            @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Booked)
+                                            {
+                                                <span class="badge bg-primary">Booked</span>
+                                            }
+                                            else if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Cancelled)
+                                            {
+                                                <span class="badge bg-secondary">Cancelled</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-success">Completed</span>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Booked)
+                                            {
+                                                <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@a.Id">
+                                                    <i class="bi bi-pencil-square me-1"></i>Reschedule
+                                                </a>
+                                                <form asp-action="Cancel" method="post" class="d-inline ms-1">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@a.Id" />
+                                                    <button class="btn btn-sm btn-outline-danger" type="submit">
+                                                        <i class="bi bi-x-circle me-1"></i>Cancel
+                                                    </button>
+                                                </form>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card dashboard-card border-0 mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Your Booked Appointments (Database)</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Payment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in dbAppointments)
+                                {
+                                    <tr>
+                                        <td>@(a.AppointmentDate.Add(a.StartTime).ToString("ddd, dd MMM yyyy HH:mm"))</td>
+                                        <td>@a.AppointmentType</td>
+                                        <td><span class="badge bg-primary">@a.Status</span></td>
+                                        <td>
+                                            @if (a.PaymentStatus == "Completed")
+                                            {
+                                                <span class="badge bg-success">Paid</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark">@a.PaymentStatus</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card dashboard-card border-0">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Appointment History</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Doctor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in Model.Where(x => x.AppointmentDate < DateTime.Now).OrderByDescending(x => x.AppointmentDate))
+                                {
+                                    <tr>
+                                        <td>@a.AppointmentDate.ToString("ddd, dd MMM yyyy HH:mm")</td>
+                                        <td>@a.AppointmentType</td>
+                                        <td>@a.DoctorName</td>
+                                        <td>
+                                            @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Completed)
+                                            {
+                                                <span class="badge bg-success">Completed</span>
+                                            }
+                                            else if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Cancelled)
+                                            {
+                                                <span class="badge bg-secondary">Cancelled</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-primary">Booked</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const prices = {
+                'General Checkup': 500.00,
+                'Follow-up': 300.00,
+                'Lab Results': 200.00,
+                'Vaccination': 400.00
+            };
+            const currency = 'ZAR';
+            const select = document.getElementById('appointmentType');
+            const priceDisplay = document.getElementById('priceDisplay');
+            const doctorSelect = document.getElementById('doctorSelect');
+            const dateSelect = document.getElementById('dateSelect');
+            const timeslotSelect = document.getElementById('timeslotSelect');
+
+            function updatePrice() {
+                const type = select.value;
+                if (!type || !prices[type]) {
+                    priceDisplay.textContent = '—';
+                    return;
+                }
+                priceDisplay.textContent = new Intl.NumberFormat('en-ZA', { style: 'currency', currency }).format(prices[type]);
+            }
+
+            async function loadTimeslots() {
+                timeslotSelect.innerHTML = '<option value="">Loading...</option>';
+                const doctorId = doctorSelect.value;
+                const date = dateSelect.value;
+                if (!doctorId || !date) {
+                    timeslotSelect.innerHTML = '<option value="">Select a timeslot</option>';
+                    return;
+                }
+                try {
+                    const res = await fetch(`@Url.Action("AvailableTimeslots", "Appointments", new { area = "Patients" })?doctorId=${encodeURIComponent(doctorId)}&date=${encodeURIComponent(date)}`);
+                    const data = await res.json();
+                    if (!Array.isArray(data) || data.length === 0) {
+                        timeslotSelect.innerHTML = '<option value="">No slots available</option>';
+                        return;
+                    }
+                    timeslotSelect.innerHTML = '<option value="">Select a timeslot</option>';
+                    for (const s of data) {
+                        const opt = document.createElement('option');
+                        opt.value = s.id;
+                        opt.textContent = s.label;
+                        timeslotSelect.appendChild(opt);
+                    }
+                } catch (e) {
+                    timeslotSelect.innerHTML = '<option value="">Failed to load</option>';
+                }
+            }
+
+            select.addEventListener('change', updatePrice);
+            doctorSelect.addEventListener('change', loadTimeslots);
+            dateSelect.addEventListener('change', loadTimeslots);
+            updatePrice();
+        })();
+    </script>
+}
+
+

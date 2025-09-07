@@ -1,0 +1,177 @@
+@model Medicare_Connect.Areas.AdministrativeStaff.Models.DashboardMetricsViewModel
+@{
+    ViewData["Title"] = "Reports & Analytics";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Reports & Analytics</h2>
+                <a href="@Url.Action("Generate")" class="btn btn-primary">
+                    <i class="bi bi-file-earmark-text"></i> Generate Report
+                </a>
+            </div>
+
+            @if (TempData["ReportGenerated"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i> Report generated successfully!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">@Model.TotalPatients</h4>
+                                    <small>Total Patients</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-people" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">@Model.TotalDoctors</h4>
+                                    <small>Total Doctors</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-person-badge" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">@Model.TotalNurses</h4>
+                                    <small>Total Nurses</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-heart-pulse" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h4 class="mb-0">@Model.TotalAppointments</h4>
+                                    <small>Total Appointments</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-calendar-check" style="font-size: 2rem;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Recent Activities</h5>
+                        </div>
+                        <div class="card-body">
+                            @if (!Model.RecentActivities.Any())
+                            {
+                                <div class="text-center py-4">
+                                    <i class="bi bi-activity text-muted" style="font-size: 3rem;"></i>
+                                    <p class="text-muted mt-2">No recent activities</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="list-group list-group-flush">
+                                    @foreach (var activity in Model.RecentActivities)
+                                    {
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">@activity.Description</h6>
+                                                <small class="text-muted">@activity.User • @activity.Timestamp.ToString("MMM dd, yyyy HH:mm")</small>
+                                            </div>
+                                            <span class="badge bg-primary">@activity.Type</span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">Quick Actions</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="@Url.Action("Generate")" class="btn btn-outline-primary">
+                                    <i class="bi bi-file-earmark-text"></i> Generate Report
+                                </a>
+                                <a href="@Url.Action("Index", "Patients", new { area = "AdministrativeStaff" })" class="btn btn-outline-info">
+                                    <i class="bi bi-people"></i> View Patients
+                                </a>
+                                <a href="@Url.Action("Index", "Appointments", new { area = "AdministrativeStaff" })" class="btn btn-outline-success">
+                                    <i class="bi bi-calendar-check"></i> View Appointments
+                                </a>
+                                <a href="@Url.Action("Index", "Billing", new { area = "AdministrativeStaff" })" class="btn btn-outline-warning">
+                                    <i class="bi bi-receipt"></i> View Billing
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">System Status</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <small class="text-muted">Pending Appointments</small><br>
+                                <strong class="text-warning">@Model.PendingAppointments</strong>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Completed Appointments</small><br>
+                                <strong class="text-success">@Model.CompletedAppointments</strong>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Total Revenue</small><br>
+                                <strong class="text-success">@Model.TotalRevenue.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</strong>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Pending Payments</small><br>
+                                <strong class="text-warning">@Model.PendingPayments.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</strong>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Overdue Bills</small><br>
+                                <strong class="text-danger">@Model.OverdueBills</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

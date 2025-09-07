@@ -1,0 +1,150 @@
+@model dynamic
+@{
+    ViewData["Title"] = $"Patient Details - {Model.FullName}";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Patient Details</h2>
+                <div class="d-flex gap-2">
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Patients
+                    </a>
+                    <button class="btn btn-warning">
+                        <i class="bi bi-pencil"></i> Edit Patient
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto" 
+                                     style="width: 120px; height: 120px;">
+                                    <i class="bi bi-person" style="font-size: 3rem;"></i>
+                                </div>
+                            </div>
+                            <h5 class="card-title">@Model.FullName</h5>
+                            <p class="text-muted">Patient</p>
+                            <p class="text-muted">ID: @Model.Id</p>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Contact Information</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <small class="text-muted">Email</small><br>
+                                <strong>@Model.Email</strong>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Phone</small><br>
+                                <strong>@Model.PhoneNumber</strong>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.EmergencyContactName))
+                            {
+                                <div class="mb-2">
+                                    <small class="text-muted">Emergency Contact</small><br>
+                                    <strong>@Model.EmergencyContactName</strong><br>
+                                    <small>@Model.EmergencyContactPhone</small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Personal Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" class="form-control" value="@Model.FirstName" readonly />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" value="@Model.LastName" readonly />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="text" class="form-control" value="@Model.DateOfBirth" readonly />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Gender</label>
+                                    <input type="text" class="form-control" value="@Model.Gender" readonly />
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Address</label>
+                                <input type="text" class="form-control" value="@Model.Address" readonly />
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">City</label>
+                                    <input type="text" class="form-control" value="@Model.City" readonly />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Postal Code</label>
+                                    <input type="text" class="form-control" value="@Model.PostalCode" readonly />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Insurance Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Insurance Number</label>
+                                    <input type="text" class="form-control" value="@(Model.InsuranceNumber ?? "Not provided")" readonly />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Insurance Provider</label>
+                                    <input type="text" class="form-control" value="@(Model.InsuranceProvider ?? "Not provided")" readonly />
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Primary Care Physician</label>
+                                <input type="text" class="form-control" value="@(Model.PrimaryCarePhysician ?? "Not specified")" readonly />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5 class="mb-0">Medical Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Allergies</label>
+                                <textarea class="form-control" rows="2" readonly>@(Model.Allergies ?? "None reported")</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Medical History</label>
+                                <textarea class="form-control" rows="3" readonly>@(Model.MedicalHistory ?? "No medical history provided")</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Current Medications</label>
+                                <textarea class="form-control" rows="2" readonly>@(Model.CurrentMedications ?? "No current medications")</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

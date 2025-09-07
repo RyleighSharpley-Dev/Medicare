@@ -1,0 +1,141 @@
+@{
+    Layout = null;
+    var title = ViewData["Title"] as string ?? "Medicare Connect";
+    var areaName = ViewContext.RouteData.Values["area"]?.ToString() ?? "";
+    var areaClass = !string.IsNullOrEmpty(areaName) ? $"{areaName.ToLowerInvariant()}-area" : "";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@title - Medicare Connect</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Medicare_Connect.styles.css" asp-append-version="true" />
+    <style>
+        body { background-color: #f8f9fa; }
+        .role-shell { min-height: 100vh; }
+        
+        /* Sidebar styling */
+        .role-sidebar { 
+            color: #fff; 
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            height: calc(100vh - 56px);
+            position: sticky;
+            top: 56px;
+            overflow-y: auto;
+        }
+        .role-sidebar .nav { padding-top: 1rem; }
+        .role-sidebar a { 
+            color: #fff; 
+            text-decoration: none;
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        .role-sidebar a i { 
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        .role-sidebar a.active { 
+            background: rgba(255,255,255,.2); 
+            font-weight: 500;
+        }
+        .role-sidebar a:hover:not(.active) { 
+            background: rgba(255,255,255,.1);
+        }
+        
+        /* Main content area */
+        .main-content {
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+        }
+        
+        /* Cards styling */
+        .dashboard-card {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%;
+            background-color: #fff;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+        .dashboard-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* Role-specific colors */
+        .patients-area .role-sidebar { background: #0d6efd; }
+        .patients-area .btn-primary { background-color: #0d6efd; border-color: #0d6efd; }
+        
+        .doctors-area .role-sidebar { background: #198754; }
+        .doctors-area .btn-primary { background-color: #198754; border-color: #198754; }
+        
+        .nurses-area .role-sidebar { background: #dc3545; }
+        .nurses-area .btn-primary { background-color: #dc3545; border-color: #dc3545; }
+        
+        .pharmacists-area .role-sidebar { background: #fd7e14; }
+        .pharmacists-area .btn-primary { background-color: #fd7e14; border-color: #fd7e14; }
+        
+        .administrativestaff-area .role-sidebar { background: #6610f2; }
+        .administrativestaff-area .btn-primary { background-color: #6610f2; border-color: #6610f2; }
+        
+        .managers-area .role-sidebar { background: #212529; }
+        .managers-area .btn-primary { background-color: #212529; border-color: #212529; }
+        
+        /* Header styling */
+        .navbar {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            padding: 0.5rem 1rem;
+        }
+        
+        /* Responsive adjustments */
+        @@media (max-width: 767.98px) {
+            .role-sidebar {
+                height: auto;
+                position: static;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    @RenderSection("Styles", required: false)
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body class="@areaClass">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Medicare Connect</a>
+                <div class="navbar-collapse collapse d-sm-inline-flex">
+                    <partial name="/Views/Shared/_LoginPartial.cshtml" />
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid role-shell">
+        <div class="row g-0">
+            <aside class="col-12 col-md-3 col-lg-2 role-sidebar">
+                @RenderSection("Sidebar", required: true)
+            </aside>
+            <main class="col-12 col-md-9 col-lg-10 main-content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

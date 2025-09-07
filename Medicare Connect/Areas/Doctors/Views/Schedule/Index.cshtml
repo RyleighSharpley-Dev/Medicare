@@ -1,0 +1,218 @@
+@model List<Medicare_Connect.Data.Entities.DoctorTimeslot>
+@{
+    ViewData["Title"] = "Schedule";
+    var from = (DateTime?)ViewData["From"] ?? DateTime.Today;
+    var to = (DateTime?)ViewData["To"] ?? DateTime.Today.AddDays(7);
+    var monthRef = from.Date;
+    var monthStart = new DateTime(monthRef.Year, monthRef.Month, 1);
+    var firstCell = monthStart.AddDays(-(int)monthStart.DayOfWeek);
+    var totalCells = 42; // 6 weeks view
+    var slotsByDate = Model.GroupBy(s => s.StartTime.Date).ToDictionary(g => g.Key, g => g.ToList());
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">My Schedule</h1>
+            <p class="text-muted mb-0">Create and manage your available timeslots</p>
+        </div>
+        <a class="btn btn-outline-primary" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">
+            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+
+    @if (TempData["Msg"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["Msg"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["MsgError"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["MsgError"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card dashboard-card border-0">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Create Timeslot</h5>
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label class="form-label">Date</label>
+                            <input type="date" class="form-control" name="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Start Time</label>
+                            <input type="time" class="form-control" name="startTime" value="09:00" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Duration (minutes)</label>
+                            <input type="number" class="form-control" name="durationMinutes" value="30" min="15" max="480" step="15" required />
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-plus-circle me-2"></i>Add Timeslot
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <ul class="nav nav-tabs mb-3" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="calendar-tab" data-bs-toggle="tab" data-bs-target="#calendarPane" type="button" role="tab">Calendar</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="list-tab" data-bs-toggle="tab" data-bs-target="#listPane" type="button" role="tab">List</button>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="calendarPane" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="fw-semibold">@monthStart.ToString("MMMM yyyy")</div>
+                        <div>
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Index" asp-route-start="@monthStart.AddMonths(-1).ToString("yyyy-MM-dd")" asp-route-end="@monthStart.AddMonths(-1).AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd")">Prev</a>
+                            <a class="btn btn-sm btn-outline-secondary ms-1" asp-action="Index" asp-route-start="@monthStart.AddMonths(1).ToString("yyyy-MM-dd")" asp-route-end="@monthStart.AddMonths(1).AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd")">Next</a>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered calendar-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Sun</th>
+                                    <th class="text-center">Mon</th>
+                                    <th class="text-center">Tue</th>
+                                    <th class="text-center">Wed</th>
+                                    <th class="text-center">Thu</th>
+                                    <th class="text-center">Fri</th>
+                                    <th class="text-center">Sat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (int r = 0; r < totalCells / 7; r++)
+                                {
+                                    <tr>
+                                        @for (int c = 0; c < 7; c++)
+                                        {
+                                            var cellDate = firstCell.AddDays(r * 7 + c).Date;
+                                            var inMonth = cellDate.Month == monthStart.Month;
+                                            var has = slotsByDate.ContainsKey(cellDate);
+                                            <td class="align-top" style="height: 120px; background-color:@(inMonth ? "" : "#f8f9fa")">
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="small fw-semibold">@cellDate.Day</span>
+                                                    @if (has)
+                                                    {
+                                                        var total = slotsByDate[cellDate].Count;
+                                                        var available = slotsByDate[cellDate].Count(s => s.IsAvailable);
+                                                        <span class="badge bg-@(available>0?"success":"secondary")">@available/@total</span>
+                                                    }
+                                                </div>
+                                                @if (has)
+                                                {
+                                                    <div class="mt-1" style="max-height:70px; overflow:auto;">
+                                                        @foreach (var s in slotsByDate[cellDate].OrderBy(x => x.StartTime))
+                                                        {
+                                                            <div class="small text-nowrap">
+                                                                <span class="badge bg-@(s.IsAvailable?"success":"secondary")">@s.StartTime.ToString("HH:mm")</span>
+                                                                <a class="text-decoration-none ms-1" asp-action="Edit" asp-route-id="@s.Id">edit</a>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="listPane" role="tabpanel">
+                    <div class="card dashboard-card border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title mb-0">Upcoming Timeslots</h5>
+                                <form method="get" class="d-flex align-items-center">
+                                    <div class="input-group">
+                                        <input type="date" class="form-control" name="start" value="@from.ToString("yyyy-MM-dd")" />
+                                        <input type="date" class="form-control" name="end" value="@to.ToString("yyyy-MM-dd")" />
+                                        <button class="btn btn-outline-secondary" type="submit">Filter</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Time</th>
+                                            <th>Duration</th>
+                                            <th>Status</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (!Model.Any())
+                                        {
+                                            <tr>
+                                                <td colspan="5" class="text-muted">No timeslots found in the selected range.</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var s in Model)
+                                            {
+                                                <tr>
+                                                    <td>@s.StartTime.ToString("ddd, dd MMM yyyy")</td>
+                                                    <td>@s.StartTime.ToString("HH:mm") - @s.EndTime.ToString("HH:mm")</td>
+                                                    <td>@s.DurationMinutes mins</td>
+                                                    <td>
+                                                        @if (s.IsAvailable)
+                                                        {
+                                                            <span class="badge bg-success">Available</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-secondary">Booked/Unavailable</span>
+                                                        }
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@s.Id">
+                                                            <i class="bi bi-pencil-square me-1"></i>Edit
+                                                        </a>
+                                                        <form asp-action="ToggleAvailability" method="post" class="d-inline ms-1">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="id" value="@s.Id" />
+                                                            <button class="btn btn-sm btn-outline-warning" type="submit">
+                                                                <i class="bi bi-slash-circle me-1"></i>@(s.IsAvailable ? "Block" : "Unblock")
+                                                            </button>
+                                                        </form>
+                                                        <form asp-action="Delete" method="post" class="d-inline ms-1" onsubmit="return confirm('Delete this timeslot?');">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="id" value="@s.Id" />
+                                                            <button class="btn btn-sm btn-outline-danger" type="submit">
+                                                                <i class="bi bi-trash me-1"></i>Delete
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

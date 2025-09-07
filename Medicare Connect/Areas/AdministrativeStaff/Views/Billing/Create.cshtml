@@ -1,0 +1,130 @@
+@model Medicare_Connect.Areas.AdministrativeStaff.Models.BillingViewModel
+@{
+    ViewData["Title"] = "Create Bill";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Create New Bill</h2>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Billing
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Billing Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PatientId" class="form-label"></label>
+                                <select asp-for="PatientId" class="form-select">
+                                    <option value="">Select Patient</option>
+                                    @foreach (var patient in ViewBag.Patients)
+                                    {
+                                        <option value="@patient.Id">@patient.Name</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="PatientId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ServiceType" class="form-label"></label>
+                                <select asp-for="ServiceType" class="form-select">
+                                    <option value="">Select Service</option>
+                                    <option value="General Checkup">General Checkup</option>
+                                    <option value="Follow-up">Follow-up</option>
+                                    <option value="Lab Results">Lab Results</option>
+                                    <option value="Vaccination">Vaccination</option>
+                                    <option value="Specialist Consultation">Specialist Consultation</option>
+                                    <option value="Emergency Care">Emergency Care</option>
+                                    <option value="Surgery">Surgery</option>
+                                    <option value="Physical Therapy">Physical Therapy</option>
+                                    <option value="Prescription">Prescription</option>
+                                    <option value="Medical Equipment">Medical Equipment</option>
+                                </select>
+                                <span asp-validation-for="ServiceType" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ServiceDate" class="form-label"></label>
+                                <input asp-for="ServiceDate" class="form-control" type="date" />
+                                <span asp-validation-for="ServiceDate" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Amount" class="form-label"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R</span>
+                                    <input asp-for="Amount" class="form-control" type="number" step="0.01" min="0.01" />
+                                </div>
+                                <span asp-validation-for="Amount" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input asp-for="InsuranceCoverage" class="form-check-input" type="checkbox" />
+                                    <label asp-for="InsuranceCoverage" class="form-check-label"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DueDate" class="form-label"></label>
+                                <input asp-for="DueDate" class="form-control" type="date" />
+                                <span asp-validation-for="DueDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="InsuranceAmount" class="form-label"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R</span>
+                                    <input asp-for="InsuranceAmount" class="form-control" type="number" step="0.01" min="0" />
+                                </div>
+                                <span asp-validation-for="InsuranceAmount" class="text-danger"></span>
+                                <small class="form-text text-muted">Leave empty if no insurance coverage</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PaymentStatus" class="form-label"></label>
+                                <select asp-for="PaymentStatus" class="form-select">
+                                    <option value="Pending">Pending</option>
+                                    <option value="Partial">Partial</option>
+                                    <option value="Paid">Paid</option>
+                                    <option value="Overdue">Overdue</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                </select>
+                                <span asp-validation-for="PaymentStatus" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Notes" class="form-label"></label>
+                            <textarea asp-for="Notes" class="form-control" rows="3" 
+                                      placeholder="Additional notes about the service or billing..."></textarea>
+                            <span asp-validation-for="Notes" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Create Bill
+                            </button>
+                            <button type="reset" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+} 

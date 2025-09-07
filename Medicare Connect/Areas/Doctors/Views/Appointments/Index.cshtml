@@ -1,0 +1,105 @@
+@model List<Medicare_Connect.Data.Entities.AppointmentEntity>
+@{
+    ViewData["Title"] = "Appointments";
+    var selectedDate = (DateTime?)ViewData["SelectedDate"] ?? DateTime.Today;
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Appointments</h1>
+            <p class="text-muted mb-0">Review, complete or cancel appointments</p>
+        </div>
+        <div class="d-flex align-items-center">
+            <form asp-action="Index" method="get" class="me-2">
+                <div class="input-group">
+                    <input type="date" class="form-control" name="date" value="@selectedDate.ToString("yyyy-MM-dd")" />
+                    <button class="btn btn-outline-secondary" type="submit">Go</button>
+                </div>
+            </form>
+            <a class="btn btn-outline-primary" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">
+                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Msg"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["Msg"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card dashboard-card border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Patient</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Notes</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-muted">No appointments for the selected date.</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var a in Model)
+                            {
+                                <tr>
+                                    <td>@(a.StartTime.ToString()) - @(a.EndTime.ToString())</td>
+                                    <td>@(a.Patient?.Email ?? a.PatientId)</td>
+                                    <td>@a.AppointmentType</td>
+                                    <td><span class="badge bg-primary">@a.Status</span></td>
+                                    <td>
+                                        @if (a.PaymentStatus == "Completed")
+                                        {
+                                            <span class="badge bg-success">Paid</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">@a.PaymentStatus</span>
+                                        }
+                                    </td>
+                                    <td class="text-truncate" style="max-width: 240px;">@a.Notes</td>
+                                    <td class="text-end">
+                                        @if (a.Status == Medicare_Connect.Data.Entities.AppointmentStatus.Booked || a.Status == Medicare_Connect.Data.Entities.AppointmentStatus.Confirmed)
+                                        {
+                                            <form asp-action="Complete" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@a.Id" />
+                                                <button class="btn btn-sm btn-success" type="submit">
+                                                    <i class="bi bi-check2-circle me-1"></i>Complete
+                                                </button>
+                                            </form>
+                                            <form asp-action="Cancel" method="post" class="d-inline ms-1">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@a.Id" />
+                                                <button class="btn btn-sm btn-outline-danger" type="submit">
+                                                    <i class="bi bi-x-circle me-1"></i>Cancel
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+

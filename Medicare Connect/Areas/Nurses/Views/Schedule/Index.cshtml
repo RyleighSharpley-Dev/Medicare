@@ -1,0 +1,157 @@
+@{
+    ViewData["Title"] = "Schedule";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Nurse Schedule</h2>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary">
+                        <i class="bi bi-calendar-plus"></i> Request Time Off
+                    </button>
+                    <button class="btn btn-outline-primary">
+                        <i class="bi bi-calendar-check"></i> View Calendar
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">This Week's Schedule</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Day</th>
+                                            <th>Shift</th>
+                                            <th>Time</th>
+                                            <th>Department</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <strong>Monday</strong><br>
+                                                <small class="text-muted">Today</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">Day Shift</span>
+                                            </td>
+                                            <td>7:00 AM - 3:00 PM</td>
+                                            <td>Emergency Department</td>
+                                            <td>
+                                                <span class="badge bg-success">Active</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Tuesday</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">Day Shift</span>
+                                            </td>
+                                            <td>7:00 AM - 3:00 PM</td>
+                                            <td>Emergency Department</td>
+                                            <td>
+                                                <span class="badge bg-secondary">Scheduled</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Wednesday</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">Night Shift</span>
+                                            </td>
+                                            <td>11:00 PM - 7:00 AM</td>
+                                            <td>ICU</td>
+                                            <td>
+                                                <span class="badge bg-secondary">Scheduled</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Thursday</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">Day Shift</span>
+                                            </td>
+                                            <td>7:00 AM - 3:00 PM</td>
+                                            <td>Emergency Department</td>
+                                            <td>
+                                                <span class="badge bg-secondary">Scheduled</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Friday</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-warning">Evening Shift</span>
+                                            </td>
+                                            <td>3:00 PM - 11:00 PM</td>
+                                            <td>Emergency Department</td>
+                                            <td>
+                                                <span class="badge bg-secondary">Scheduled</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0">Quick Stats</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h4 class="text-primary mb-1">40</h4>
+                                    <small class="text-muted">Hours This Week</small>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="text-success mb-1">5</h4>
+                                    <small class="text-muted">Shifts</small>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h4 class="text-info mb-1">3</h4>
+                                    <small class="text-muted">Day Shifts</small>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="text-warning mb-1">1</h4>
+                                    <small class="text-muted">Night Shifts</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6 class="mb-0">Upcoming Time Off</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center py-3">
+                                <i class="bi bi-calendar-x text-muted" style="font-size: 2rem;"></i>
+                                <p class="text-muted mt-2">No upcoming time off</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

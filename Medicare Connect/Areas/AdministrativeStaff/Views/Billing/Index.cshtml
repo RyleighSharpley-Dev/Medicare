@@ -1,0 +1,317 @@
+@model List<Medicare_Connect.Areas.AdministrativeStaff.Models.BillingListItem>
+@{
+    ViewData["Title"] = "Billing Management";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Billing Management</h2>
+                <div class="d-flex gap-2">
+                    <a href="@Url.Action("Payments")" class="btn btn-outline-success">
+                        <i class="bi bi-credit-card"></i> View Payments
+                    </a>
+                    @* Hidden for production use
+                    <a href="@Url.Action("SeedSampleData")" class="btn btn-outline-info">
+                        <i class="bi bi-database-add"></i> Seed Sample Data
+                    </a>
+                    *@
+                    <a href="@Url.Action("ExportBillingData")" class="btn btn-outline-success">
+                        <i class="bi bi-download"></i> Export CSV
+                    </a>
+                    <a href="@Url.Action("Create")" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Create Bill
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bulk Actions -->
+            <div class="card mb-4" id="bulkActionsCard" style="display: none;">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <span class="text-muted">
+                                <span id="selectedCount">0</span> billing record(s) selected
+                            </span>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex gap-2 justify-content-end">
+                                <select class="form-select form-select-sm" id="bulkStatusSelect" style="width: auto;">
+                                    <option value="">Select Status</option>
+                                    <option value="Paid">Mark as Paid</option>
+                                    <option value="Pending">Mark as Pending</option>
+                                    <option value="Partial">Mark as Partial</option>
+                                    <option value="Overdue">Mark as Overdue</option>
+                                    <option value="Cancelled">Mark as Cancelled</option>
+                                </select>
+                                <button class="btn btn-sm btn-primary" onclick="applyBulkUpdate()">
+                                    <i class="bi bi-check-circle"></i> Apply
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="clearBulkSelection()">
+                                    <i class="bi bi-x-circle"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["InfoMessage"] != null)
+            {
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <i class="bi bi-info-circle"></i> @TempData["InfoMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Billing Records</h5>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-4">
+                            <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2">No billing records found.</p>
+                            <a href="@Url.Action("Create")" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Create First Bill
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>
+                                            <input type="checkbox" class="form-check-input" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
+                                        </th>
+                                        <th>Patient</th>
+                                        <th>Service Type</th>
+                                        <th>Service Date</th>
+                                        <th>Amount</th>
+                                        <th>Insurance</th>
+                                        <th>Patient Responsibility</th>
+                                        <th>Payment Status</th>
+                                        <th>Due Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var bill in Model)
+                                    {
+                                        <tr class="@(bill.IsOverdue ? "table-danger" : "")">
+                                            <td>
+                                                <input type="checkbox" class="form-check-input billing-checkbox" value="@bill.Id" onchange="updateBulkActions()">
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" 
+                                                         style="width: 32px; height: 32px;">
+                                                        <i class="bi bi-person"></i>
+                                                    </div>
+                                                    <div>
+                                                        <strong>@bill.PatientName</strong>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">@bill.ServiceType</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">@bill.ServiceDate.ToString("MMM dd, yyyy")</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-success fw-bold">@bill.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                            </td>
+                                            <td>
+                                                @if (bill.InsuranceAmount.HasValue)
+                                                {
+                                                    <span class="text-info">@bill.InsuranceAmount.Value.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">None</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="text-warning fw-bold">@bill.PatientResponsibility.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                            </td>
+                                            <td>
+                                                @if (bill.PaymentStatus == "Paid")
+                                                {
+                                                    <span class="badge bg-success">@bill.PaymentStatus</span>
+                                                }
+                                                else if (bill.PaymentStatus == "Overdue")
+                                                {
+                                                    <span class="badge bg-danger">@bill.PaymentStatus</span>
+                                                }
+                                                else if (bill.PaymentStatus == "Pending")
+                                                {
+                                                    <span class="badge bg-warning">@bill.PaymentStatus</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">@bill.PaymentStatus</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (bill.IsOverdue)
+                                                {
+                                                    <span class="text-danger fw-bold">@bill.DueDate.ToString("MMM dd, yyyy")</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">@bill.DueDate.ToString("MMM dd, yyyy")</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="@Url.Action("Details", new { id = bill.Id })" class="btn btn-sm btn-outline-info">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </a>
+                                                    <a href="@Url.Action("Edit", new { id = bill.Id })" class="btn btn-sm btn-outline-warning">
+                                                        <i class="bi bi-pencil"></i> Edit
+                                                    </a>
+                                                    <button class="btn btn-sm btn-outline-success" onclick="updatePaymentStatus('@bill.Id', 'Paid')">
+                                                        <i class="bi bi-credit-card"></i> Mark Paid
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                Showing @Model.Count billing record(s)
+                            </small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updatePaymentStatus(billingId, newStatus) {
+            if (confirm(`Are you sure you want to mark this bill as "${newStatus}"?`)) {
+                fetch('@Url.Action("UpdatePaymentStatus")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: `id=${encodeURIComponent(billingId)}&newStatus=${encodeURIComponent(newStatus)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating the payment status.');
+                });
+            }
+        }
+
+        function toggleSelectAll(checkbox) {
+            const billingCheckboxes = document.querySelectorAll('.billing-checkbox');
+            billingCheckboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+            });
+            updateBulkActions();
+        }
+
+        function updateBulkActions() {
+            const selectedCheckboxes = document.querySelectorAll('.billing-checkbox:checked');
+            const bulkActionsCard = document.getElementById('bulkActionsCard');
+            const selectedCount = document.getElementById('selectedCount');
+            
+            if (selectedCheckboxes.length > 0) {
+                bulkActionsCard.style.display = 'block';
+                selectedCount.textContent = selectedCheckboxes.length;
+            } else {
+                bulkActionsCard.style.display = 'none';
+                selectedCount.textContent = '0';
+            }
+        }
+
+        function applyBulkUpdate() {
+            const selectedCheckboxes = document.querySelectorAll('.billing-checkbox:checked');
+            const newStatus = document.getElementById('bulkStatusSelect').value;
+            
+            if (!newStatus) {
+                alert('Please select a status to apply.');
+                return;
+            }
+            
+            if (selectedCheckboxes.length === 0) {
+                alert('Please select at least one billing record.');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to mark ${selectedCheckboxes.length} billing record(s) as "${newStatus}"?`)) {
+                const billingIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+                
+                fetch('@Url.Action("BulkUpdatePaymentStatus")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: `billingIds=${encodeURIComponent(JSON.stringify(billingIds))}&newStatus=${encodeURIComponent(newStatus)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating the payment statuses.');
+                });
+            }
+        }
+
+        function clearBulkSelection() {
+            const allCheckboxes = document.querySelectorAll('.billing-checkbox, #selectAllCheckbox');
+            allCheckboxes.forEach(cb => {
+                cb.checked = false;
+            });
+            updateBulkActions();
+        }
+    </script>
+} 

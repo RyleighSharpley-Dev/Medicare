@@ -1,0 +1,77 @@
+@model Medicare_Connect.Areas.Patients.Models.SettingsViewModel
+@{
+    ViewData["Title"] = "Settings";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">Izilungiselelo</h2>
+        <a class="btn btn-outline-primary" asp-area="Patients" asp-controller="Dashboard" asp-action="Index">Back to dashboard</a>
+    </div>
+
+    @if (TempData["SettingsSaved"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            Settings updated.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card border-0">
+        <div class="card-body">
+            <form asp-action="Index" method="post">
+                @Html.AntiForgeryToken()
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" asp-for="ReceiveEmailNotifications" />
+                            <label class="form-check-label" asp-for="ReceiveEmailNotifications"></label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" asp-for="ReceiveReminderEmails" />
+                            <label class="form-check-label" asp-for="ReceiveReminderEmails"></label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="PreferredLanguage" class="form-label"></label>
+                        <select asp-for="PreferredLanguage" class="form-select">
+                            <option>English</option>
+                            <option>isiZulu</option>
+                            <option>Sesotho</option>
+                            <option>Xitsonga</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="TimeZone" class="form-label"></label>
+                        <input asp-for="TimeZone" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Currency" class="form-label"></label>
+                        <select asp-for="Currency" class="form-select">
+                            <option>ZAR</option>
+                            <option>USD</option>
+                            <option>EUR</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="DefaultLocation" class="form-label"></label>
+                        <input asp-for="DefaultLocation" class="form-control" />
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" asp-for="AllowMarketing" />
+                            <label class="form-check-label" asp-for="AllowMarketing"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <button class="btn btn-primary" type="submit">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+

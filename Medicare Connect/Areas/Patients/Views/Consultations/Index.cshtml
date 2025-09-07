@@ -1,0 +1,54 @@
+@model List<Medicare_Connect.Areas.Patients.Models.Consultation>
+@using Medicare_Connect.Areas.Patients.Models
+@{
+    ViewData["Title"] = "My Consultations";
+}
+
+<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">My Consultations</h2>
+        <a class="btn btn-outline-primary" asp-area="Patients" asp-controller="Dashboard" asp-action="Index">Back to dashboard</a>
+    </div>
+
+    <div class="card border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>When</th>
+                            <th>Subject</th>
+                            <th>Doctor</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model == null || !Model.Any())
+                        {
+                            <tr><td colspan="6" class="text-center text-muted">No consultations yet.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var c in Model)
+                            {
+                                <tr>
+                                    <td>@c.WhenUtc.ToString("ddd, dd MMM yyyy HH:mm")</td>
+                                    <td>@c.Subject</td>
+                                    <td>@c.DoctorName</td>
+                                    <td>@c.DurationMinutes min</td>
+                                    <td>
+                                        @if (c.Status == ConsultationStatus.Planned) { <span class="badge bg-warning text-dark">Planned</span>; }
+                                        else { <span class="badge bg-success">Completed</span>; }
+                                    </td>
+                                    <td class="text-break" style="max-width: 320px; white-space: pre-wrap;">@c.Notes</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div> 

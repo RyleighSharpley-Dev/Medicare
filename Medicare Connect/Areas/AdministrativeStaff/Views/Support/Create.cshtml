@@ -1,0 +1,101 @@
+@model object
+@{
+    ViewData["Title"] = "Create Support Ticket";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">Create Support Ticket</h2>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Support
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Ticket Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Patient</label>
+                                <select class="form-select">
+                                    <option value="">Select Patient</option>
+                                    <option value="patient1">John Doe (john.doe@example.com)</option>
+                                    <option value="patient2">Jane Smith (jane.smith@example.com)</option>
+                                    <option value="patient3">Bob Wilson (bob.wilson@example.com)</option>
+                                    <option value="patient4">Alice Brown (alice.brown@example.com)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Priority</label>
+                                <select class="form-select">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                    <option value="Urgent">Urgent</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Subject</label>
+                            <input type="text" class="form-control" placeholder="Brief description of the issue..." />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Issue Description</label>
+                            <textarea class="form-control" rows="4" 
+                                      placeholder="Please provide a detailed description of the issue or request..."></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Category</label>
+                                <select class="form-select">
+                                    <option value="">Select Category</option>
+                                    <option value="Appointment">Appointment Related</option>
+                                    <option value="Billing">Billing & Payment</option>
+                                    <option value="Prescription">Prescription & Refills</option>
+                                    <option value="Medical Records">Medical Records</option>
+                                    <option value="Technical">Technical Support</option>
+                                    <option value="General">General Inquiry</option>
+                                    <option value="Complaint">Complaint</option>
+                                    <option value="Feedback">Feedback</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Assigned To</label>
+                                <select class="form-select">
+                                    <option value="">Auto-assign</option>
+                                    <option value="admin1">Admin Staff 1</option>
+                                    <option value="admin2">Admin Staff 2</option>
+                                    <option value="nurse1">Nurse 1</option>
+                                    <option value="nurse2">Nurse 2</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Additional Notes</label>
+                            <textarea class="form-control" rows="2" 
+                                      placeholder="Any additional information or special instructions..."></textarea>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Create Ticket
+                            </button>
+                            <button type="reset" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-clockwise"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
