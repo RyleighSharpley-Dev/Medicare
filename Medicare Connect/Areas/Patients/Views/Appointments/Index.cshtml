@@ -95,150 +95,165 @@
 
         <!-- Upcoming and history -->
         <div class="col-lg-8">
-            <div class="card dashboard-card border-0 mb-4">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title mb-0">Upcoming Appointments</h5>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Type</th>
-                                    <th>Doctor</th>
-                                    <th>Status</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var a in Model.Where(x => x.AppointmentDate >= DateTime.Now).OrderBy(x => x.AppointmentDate))
-                                {
-                                    <tr>
-                                        <td>@a.AppointmentDate.ToString("ddd, dd MMM yyyy HH:mm")</td>
-                                        <td>@a.AppointmentType</td>
-                                        <td>@a.DoctorName</td>
-                                        <td>
-                                            @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Booked)
-                                            {
-                                                <span class="badge bg-primary">Booked</span>
-                                            }
-                                            else if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Cancelled)
-                                            {
-                                                <span class="badge bg-secondary">Cancelled</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-success">Completed</span>
-                                            }
-                                        </td>
-                                        <td class="text-end">
-                                            @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Booked)
-                                            {
-                                                <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@a.Id">
-                                                    <i class="bi bi-pencil-square me-1"></i>Reschedule
-                                                </a>
-                                                <form asp-action="Cancel" method="post" class="d-inline ms-1">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="id" value="@a.Id" />
-                                                    <button class="btn btn-sm btn-outline-danger" type="submit">
-                                                        <i class="bi bi-x-circle me-1"></i>Cancel
-                                                    </button>
-                                                </form>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card dashboard-card border-0 mb-4">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title mb-0">Your Booked Appointments (Database)</h5>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Type</th>
-                                    <th>Status</th>
-                                    <th>Payment</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var a in dbAppointments)
-                                {
-                                    <tr>
-                                        <td>@(a.AppointmentDate.Add(a.StartTime).ToString("ddd, dd MMM yyyy HH:mm"))</td>
-                                        <td>@a.AppointmentType</td>
-                                        <td><span class="badge bg-primary">@a.Status</span></td>
-                                        <td>
-                                            @if (a.PaymentStatus == "Completed")
-                                            {
-                                                <span class="badge bg-success">Paid</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-warning text-dark">@a.PaymentStatus</span>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
             <div class="card dashboard-card border-0">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title mb-0">Appointment History</h5>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Type</th>
-                                    <th>Doctor</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var a in Model.Where(x => x.AppointmentDate < DateTime.Now).OrderByDescending(x => x.AppointmentDate))
-                                {
-                                    <tr>
-                                        <td>@a.AppointmentDate.ToString("ddd, dd MMM yyyy HH:mm")</td>
-                                        <td>@a.AppointmentType</td>
-                                        <td>@a.DoctorName</td>
-                                        <td>
-                                            @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Completed)
-                                            {
-                                                <span class="badge bg-success">Completed</span>
-                                            }
-                                            else if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Cancelled)
-                                            {
-                                                <span class="badge bg-secondary">Cancelled</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-primary">Booked</span>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs mb-3" id="apptTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button" role="tab">
+                                Upcoming
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="db-tab" data-bs-toggle="tab" data-bs-target="#db" type="button" role="tab">
+                                Booked
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab">
+                                History
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="apptTabsContent">
+                        <!-- Upcoming -->
+                        <div class="tab-pane fade show active" id="upcoming" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Type</th>
+                                            <th>Doctor</th>
+                                            <th>Status</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var a in Model.Where(x => x.AppointmentDate >= DateTime.Now).OrderBy(x => x.AppointmentDate))
+                                        {
+                                            <tr>
+                                                <td>@a.AppointmentDate.ToString("ddd, dd MMM yyyy HH:mm")</td>
+                                                <td>@a.AppointmentType</td>
+                                                <td>@a.DoctorName</td>
+                                                <td>
+                                                    @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Booked)
+                                                    {
+                                                        <span class="badge bg-primary">Booked</span>
+                                                    }
+                                                    else if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Cancelled)
+                                                    {
+                                                        <span class="badge bg-secondary">Cancelled</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-success">Completed</span>
+                                                    }
+                                                </td>
+                                                <td class="text-end">
+                                                    @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Booked)
+                                                    {
+                                                        <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@a.Id">
+                                                            <i class="bi bi-pencil-square me-1"></i>Reschedule
+                                                        </a>
+                                                        <form asp-action="Cancel" method="post" class="d-inline ms-1">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="id" value="@a.Id" />
+                                                            <button class="btn btn-sm btn-outline-danger" type="submit">
+                                                                <i class="bi bi-x-circle me-1"></i>Cancel
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Database Appointments -->
+                        <div class="tab-pane fade" id="db" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Type</th>
+                                            <th>Status</th>
+                                            <th>Payment</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var a in dbAppointments)
+                                        {
+                                            <tr>
+                                                <td>@(a.AppointmentDate.Add(a.StartTime).ToString("ddd, dd MMM yyyy HH:mm"))</td>
+                                                <td>@a.AppointmentType</td>
+                                                <td><span class="badge bg-primary">@a.Status</span></td>
+                                                <td>
+                                                    @if (a.PaymentStatus == "Completed")
+                                                    {
+                                                        <span class="badge bg-success">Paid</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-warning text-dark">@a.PaymentStatus</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- History -->
+                        <div class="tab-pane fade" id="history" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Type</th>
+                                            <th>Doctor</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var a in Model.Where(x => x.AppointmentDate < DateTime.Now).OrderByDescending(x => x.AppointmentDate))
+                                        {
+                                            <tr>
+                                                <td>@a.AppointmentDate.ToString("ddd, dd MMM yyyy HH:mm")</td>
+                                                <td>@a.AppointmentType</td>
+                                                <td>@a.DoctorName</td>
+                                                <td>
+                                                    @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Completed)
+                                                    {
+                                                        <span class="badge bg-success">Completed</span>
+                                                    }
+                                                    else if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Cancelled)
+                                                    {
+                                                        <span class="badge bg-secondary">Cancelled</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-primary">Booked</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 

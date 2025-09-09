@@ -51,7 +51,9 @@ public class PaymentsController : Controller
 	{
 		var key = AppointmentStore.GetPatientKey(User);
 		var appt = AppointmentStore.FindById(key, appointmentId);
-		if (appt != null)
+	   
+
+        if (appt != null)
 		{
 			appt.IsPaid = true;
 			
@@ -88,11 +90,17 @@ public class PaymentsController : Controller
 		{
 			var sessionId = appt != null ? appt.StripeSessionId : null;
 			var dbAppt = await _context.Appointments.FirstOrDefaultAsync(a => a.Id == appointmentId || (sessionId != null && a.StripeSessionId == sessionId));
+			var dbPayment = await _context.Payments.FirstOrDefaultAsync(p => p.ReferenceId == dbAppt.Id.ToString());
+			if (dbPayment != null) {
+                dbPayment.Status = PaymentStatus.Completed;
+            }
 			if (dbAppt != null)
 			{
-				dbAppt.PaymentStatus = "Completed";
-				dbAppt.Status = Data.Entities.AppointmentStatus.Confirmed;
+				dbAppt.PaymentStatus = Convert.ToString(PaymentStatus.Completed);
+				dbAppt.Status = Data.Entities.AppointmentStatus.Completed;
 				dbAppt.ConfirmedAt = DateTime.UtcNow;
+				
+				
 				await _context.SaveChangesAsync();
 			}
 		}
@@ -156,7 +164,7 @@ public class PaymentsController : Controller
 		
 		try
 		{
-			var stripeEvent = Stripe.EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], "your_webhook_secret");
+			var stripeEvent = Stripe.EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], "your_webhook_secret");// needs to do this
 			
 			if (stripeEvent.Type == Events.CheckoutSessionCompleted)
 			{
