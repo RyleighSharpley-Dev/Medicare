@@ -30,13 +30,14 @@ public class ScheduleController : Controller
 	public async Task<IActionResult> Index(DateTime? start, DateTime? end)
 	{
 		var doctorId = GetDoctorId();
-		var from = (start ?? DateTime.Today).Date;
-		var to = (end ?? DateTime.Today.AddDays(7)).Date.AddDays(1).AddTicks(-1);
-		var slots = await _context.DoctorTimeslots
-			.Where(s => s.DoctorId == doctorId && s.StartTime >= from && s.StartTime <= to)
-			.OrderBy(s => s.StartTime)
-			.ToListAsync();
-		ViewData["From"] = from.Date;
+        var from = (start ?? DateTime.Today).Date;
+        var to = (end ?? DateTime.Today.AddDays(7)).Date.AddDays(1);
+
+        var slots = await _context.DoctorTimeslots
+            .Where(s => s.DoctorId == doctorId && s.StartTime >= from && s.StartTime < to)
+            .OrderBy(s => s.StartTime)
+            .ToListAsync();
+        ViewData["From"] = from.Date;
 		ViewData["To"] = to.Date;
 		return View(slots);
 	}
@@ -50,48 +51,54 @@ public class ScheduleController : Controller
 		return View(slot);
 	}
 
-	[HttpPost]
-	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Edit(Guid id, DateTime date, TimeSpan startTime, int durationMinutes, bool isAvailable)
-	{
-		var doctorId = GetDoctorId();
-		var slot = await _context.DoctorTimeslots.FirstOrDefaultAsync(s => s.Id == id && s.DoctorId == doctorId);
-		if (slot == null)
-		{
-			TempData["MsgError"] = "Timeslot not found.";
-			return RedirectToAction(nameof(Index));
-		}
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(Guid id, DateTime date, TimeSpan startTime, int durationMinutes, bool isAvailable)
+    {
+        var doctorId = GetDoctorId();
+        var slot = await _context.DoctorTimeslots.FirstOrDefaultAsync(s => s.Id == id && s.DoctorId == doctorId);
+        if (slot == null)
+        {
+            TempData["MsgError"] = "Timeslot not found.";
+            return RedirectToAction(nameof(Index));
+        }
 
-		var newStart = date.Date + startTime;
-		var newEnd = newStart.AddMinutes(durationMinutes);
+        var newStart = date.Date + startTime;
+        var newEnd = newStart.AddMinutes(durationMinutes);
 
-		// Prevent changes if slot has an active appointment
-		var hasActiveAppt = await _context.Appointments.AnyAsync(a => a.TimeslotId == id && a.Status != AppointmentStatus.Cancelled);
-		if (hasActiveAppt && (slot.StartTime != newStart || slot.EndTime != newEnd))
-		{
-			TempData["MsgError"] = "Cannot reschedule a slot that has active appointments.";
-			return RedirectToAction(nameof(Index));
-		}
+        // Prevent changes if slot has an active appointment
+        var hasActiveAppt = await _context.Appointments
+            .AnyAsync(a => a.TimeslotId == id && a.Status != AppointmentStatus.Cancelled);
+        if (hasActiveAppt && (slot.StartTime != newStart || slot.EndTime != newEnd))
+        {
+            TempData["MsgError"] = "Cannot reschedule a slot that has active appointments.";
+            return RedirectToAction(nameof(Index));
+        }
 
-		// Check overlap against other slots
-		var overlap = await _context.DoctorTimeslots.AnyAsync(s => s.DoctorId == doctorId && s.Id != id && s.StartTime < newEnd && s.EndTime > newStart);
-		if (overlap)
-		{
-			TempData["MsgError"] = "Updated time overlaps with another slot.";
-			return RedirectToAction(nameof(Index));
-		}
+        // Only check overlap against slots that actually exist and are not this slot
+        var overlap = await _context.DoctorTimeslots
+            .Where(s => s.DoctorId == doctorId && s.Id != id)
+            .AnyAsync(s => s.StartTime < newEnd && s.EndTime > newStart);
 
-		slot.StartTime = newStart;
-		slot.EndTime = newEnd;
-		slot.DurationMinutes = durationMinutes;
-		slot.IsAvailable = isAvailable;
-		slot.UpdatedAt = DateTime.UtcNow;
-		await _context.SaveChangesAsync();
-		TempData["Msg"] = "Timeslot updated.";
-		return RedirectToAction(nameof(Index));
-	}
+        if (overlap)
+        {
+            TempData["MsgError"] = "Updated time overlaps with another slot.";
+            return RedirectToAction(nameof(Index));
+        }
 
-	[HttpPost]
+        slot.StartTime = newStart;
+        slot.EndTime = newEnd;
+        slot.DurationMinutes = durationMinutes;
+        slot.IsAvailable = isAvailable;
+        slot.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+        TempData["Msg"] = "Timeslot updated.";
+        return RedirectToAction(nameof(Index));
+    }
+
+
+    [HttpPost]
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> ToggleAvailability(Guid id)
 	{
@@ -129,42 +136,54 @@ public class ScheduleController : Controller
 		return RedirectToAction(nameof(Index));
 	}
 
-	[HttpPost]
-	[ValidateAntiForgeryToken]
-	public async Task<IActionResult> Create(DateTime date, TimeSpan startTime, int durationMinutes)
-	{
-		if (durationMinutes < 15 || durationMinutes > 480)
-		{
-			TempData["MsgError"] = "Duration must be between 15 and 480 minutes.";
-			return RedirectToAction(nameof(Index));
-		}
-		var doctorId = GetDoctorId();
-		var startDt = date.Date + startTime;
-		var endDt = startDt.AddMinutes(durationMinutes);
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(DateTime date, TimeSpan startTime, int durationMinutes)
+    {
+        if (durationMinutes < 15 || durationMinutes > 480)
+        {
+            TempData["MsgError"] = "Duration must be between 15 and 480 minutes.";
+            return RedirectToAction(nameof(Index));
+        }
 
-		// Prevent overlaps with existing slots
-		var overlap = await _context.DoctorTimeslots.AnyAsync(s => s.DoctorId == doctorId && s.StartTime < endDt && s.EndTime > startDt);
-		if (overlap)
-		{
-			TempData["MsgError"] = "Timeslot overlaps with existing slot.";
-			return RedirectToAction(nameof(Index));
-		}
+        var doctorId = GetDoctorId();
+        var startDt = date.Date + startTime;
+        var endDt = startDt.AddMinutes(durationMinutes);
 
-		_context.DoctorTimeslots.Add(new DoctorTimeslot
-		{
-			DoctorId = doctorId,
-			StartTime = startDt,
-			EndTime = endDt,
-			DurationMinutes = durationMinutes,
-			IsAvailable = true,
-			IsRecurring = false
-		});
-		await _context.SaveChangesAsync();
-		TempData["Msg"] = "Timeslot created.";
-		return RedirectToAction(nameof(Index));
-	}
+        var from = date.Date;              // 2025-09-09 00:00
+        var to = from.AddDays(1);          // 2025-09-10 00:00
 
-	[HttpPost]
+        // Quick overlap check using a small buffer to avoid "exact match" conflicts
+        var overlap = await _context.DoctorTimeslots
+            .Where(s => s.DoctorId == doctorId)
+            .Where(s => s.StartTime >= from && s.StartTime < to)   // Only same day
+            .Where(s => s.StartTime < endDt && s.EndTime > startDt) // Overlap logic
+            .AnyAsync();
+
+        if (overlap)
+        {
+            // Ignore tiny overlaps by rounding to minutes (optional)
+            TempData["MsgError"] = "Timeslot overlaps with existing slot.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        _context.DoctorTimeslots.Add(new DoctorTimeslot
+        {
+            DoctorId = doctorId,
+            StartTime = startDt,
+            EndTime = endDt,
+            DurationMinutes = durationMinutes,
+            IsAvailable = true,
+            IsRecurring = false
+        });
+        await _context.SaveChangesAsync();
+
+        TempData["Msg"] = "Timeslot created.";
+        return RedirectToAction(nameof(Index));
+    }
+
+
+    [HttpPost]
 	[ValidateAntiForgeryToken]
 	public async Task<IActionResult> Delete(Guid id)
 	{

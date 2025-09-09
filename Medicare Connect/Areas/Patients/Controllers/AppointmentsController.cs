@@ -141,7 +141,9 @@ public class AppointmentsController : Controller
 
 		// Create Stripe checkout similar to existing flow
 		var baseUrl = $"{Request.Scheme}://{Request.Host}";
-		var options = new SessionCreateOptions
+	
+
+        var options = new SessionCreateOptions
 		{
 			Mode = "payment",
 			SuccessUrl = baseUrl + Url.Action("Success", "Payments", new { area = "Patients", appointmentId = entity.Id })!,
@@ -228,8 +230,10 @@ public class AppointmentsController : Controller
 
 		var unitAmountCents = appt.PriceCents;
 
-		var baseUrl = $"{Request.Scheme}://{Request.Host}";
-		var options = new SessionCreateOptions
+		//var baseUrl = $"{Request.Scheme}://{Request.Host}";
+		var baseUrl = "https://5c4lhtj6-7205.uks1.devtunnels.ms";
+
+        var options = new SessionCreateOptions
 		{
 			Mode = "payment",
 			SuccessUrl = baseUrl + Url.Action("Success", "Payments", new { area = "Patients", appointmentId = appt.Id })!,
@@ -256,7 +260,8 @@ public class AppointmentsController : Controller
 		var session = service.Create(options);
 		appt.StripeSessionId = session.Id;
 
-		try
+       
+        try
 		{
 			var payment = new PaymentEntity
 			{
@@ -271,9 +276,12 @@ public class AppointmentsController : Controller
 				CreatedAt = DateTime.UtcNow
 			};
 
+			
 			_context.Payments.Add(payment);
 			await _context.SaveChangesAsync();
-		}
+
+            
+        }
 		catch (Exception ex)
 		{
 			System.Diagnostics.Debug.WriteLine($"Failed to save payment record: {ex.Message}");

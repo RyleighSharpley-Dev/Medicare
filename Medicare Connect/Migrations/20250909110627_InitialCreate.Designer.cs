@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Medicare_Connect.Data.Migrations
+namespace Medicare_Connect.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250907202739_newdb")]
-    partial class newdb
+    [Migration("20250909110627_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
