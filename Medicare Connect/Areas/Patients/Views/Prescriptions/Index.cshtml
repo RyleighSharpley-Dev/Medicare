@@ -1,11 +1,11 @@
 @model List<Medicare_Connect.Areas.Patients.Models.Prescription>
 @using Medicare_Connect.Areas.Patients.Models
 @{
-    // CRITICAL CHANGE: Explicitly bypass intermediate layout
     Layout = "/Views/Shared/_RoleBasedLayout.cshtml";
     ViewData["Title"] = "Prescriptions";
     var refillRequests = ViewBag.RefillRequests as IEnumerable<RefillRequest> ?? Enumerable.Empty<RefillRequest>();
 }
+
 @section Sidebar {
     @{
         var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
@@ -79,154 +79,654 @@
     </li>
 }
 
+@section Styles {
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        /* Main Container */
+        .prescriptions-container {
+            padding: 1.5rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #64748b;
+            margin: 0;
+        }
+
+        /* Modern Buttons */
+        .btn-modern {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+            .btn-modern:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+                color: white;
+                text-decoration: none;
+            }
+
+        .btn-outline {
+            background: transparent;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+            .btn-outline:hover {
+                background: #64748b;
+                color: white;
+                border-color: #64748b;
+                text-decoration: none;
+                transform: translateY(-1px);
+            }
+
+        .btn-refill {
+            background: linear-gradient(135deg, #10b981, #059669);
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+            .btn-refill:hover {
+                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+            }
+
+        .btn-pay {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+            .btn-pay:hover {
+                box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+            }
+
+        /* Alert Styles */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border: none;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .alert-danger {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .alert .btn-close {
+            background: none;
+            border: none;
+            opacity: 0.7;
+            cursor: pointer;
+            padding: 0;
+            margin-left: auto;
+        }
+
+        /* Content Cards */
+        .content-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+            .card-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+            }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .card-body {
+            padding: 0;
+        }
+
+        /* Tables */
+        .table {
+            margin: 0;
+            width: 100%;
+        }
+
+            .table thead {
+                background: #f8fafc;
+            }
+
+                .table thead th {
+                    padding: 1.25rem 1.5rem;
+                    font-weight: 600;
+                    color: #475569;
+                    font-size: 0.875rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    border: none;
+                }
+
+            .table tbody td {
+                padding: 1.25rem 1.5rem;
+                color: #1e293b;
+                border-top: 1px solid #e2e8f0;
+                vertical-align: middle;
+            }
+
+            .table tbody tr:hover {
+                background: #f8fafc;
+            }
+
+            .table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-completed {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .badge-cancelled {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-approved {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-rejected {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .badge-paid {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        /* Medication Info */
+        .medication-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .medication-dosage {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Refill Counter */
+        .refill-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .refill-progress {
+            width: 60px;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .refill-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            transition: width 0.3s ease;
+        }
+
+        /* Payment Section */
+        .payment-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .price-display {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        .payment-note {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Mobile Responsiveness */
+        @@media (max-width: 768px) {
+            .prescriptions-container
+
+        {
+            padding: 1rem;
+        }
+
+        .page-header {
+            padding: 1.5rem;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .table thead th,
+        .table tbody td {
+            padding: 1rem;
+        }
+
+        .payment-info {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        }
+
+        @@media (max-width: 640px) {
+            .table thead
+
+        {
+            display: none;
+        }
+
+        .table tbody td {
+            display: block;
+            padding: 0.75rem 1rem;
+            border: none;
+            position: relative;
+            padding-left: 40%;
+        }
+
+            .table tbody td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 1rem;
+                width: 35%;
+                padding-right: 10px;
+                white-space: nowrap;
+                font-weight: 600;
+                color: #64748b;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+        .table tbody tr {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        }
+
+        /* Utility Classes */
+        .d-flex {
+            display: flex;
+        }
+
+        .justify-content-between {
+            justify-content: space-between;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .text-muted {
+            color: #64748b;
+        }
+
+        .text-end {
+            text-align: right;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+    </style>
+}
+
+<div class="container-fluid prescriptions-container">
+    <!-- Page Header -->
+    <div class="page-header">
         <div>
-            <h1 class="h3 mb-1">Izidakamizwa</h1>
-            <p class="text-muted mb-0">Access and review your digital prescriptions</p>
+            <h1 class="page-title">Izidakamizwa</h1>
+            <p class="page-subtitle">Access and review your digital prescriptions</p>
         </div>
-        <div>
-            <a asp-area="Patients" asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-primary">
-                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
-            </a>
-        </div>
+        <a asp-area="Patients" asp-controller="Dashboard" asp-action="Index" class="btn-outline">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
     </div>
 
+    <!-- Alerts -->
     @if (TempData["RxSuccess"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle me-2"></i>@TempData["RxSuccess"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <i class="bi bi-check-circle"></i>
+            <span>@TempData["RxSuccess"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                <i class="bi bi-x"></i>
+            </button>
         </div>
     }
+
     @if (TempData["RxError"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["RxError"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <i class="bi bi-exclamation-triangle"></i>
+            <span>@TempData["RxError"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                <i class="bi bi-x"></i>
+            </button>
         </div>
     }
 
     <!-- Active Prescriptions -->
-    <div class="card dashboard-card border-0 mb-4">
+    <div class="content-card">
+        <div class="card-header">
+            <h5 class="card-title">
+                <div class="card-icon"><i class="bi bi-prescription2"></i></div>
+                Your Active Prescriptions
+            </h5>
+        </div>
         <div class="card-body">
-            <h5 class="card-title mb-4">Your Prescriptions</h5>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>Medication</th>
-                            <th>Dosage</th>
-                            <th>Date</th>
-                            <th>Refills</th>
-                            <th>Status</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (Model == null || !Model.Any())
-                        {
+            @if (Model == null || !Model.Any())
+            {
+                <div class="empty-state">
+                    <i class="bi bi-prescription2 empty-icon"></i>
+                    <p>No prescriptions available yet</p>
+                    <p class="text-muted">Your prescriptions will appear here when prescribed by your healthcare provider</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
                             <tr>
-                                <td colspan="6" class="text-center text-muted">No prescriptions yet.</td>
+                                <th>Medication</th>
+                                <th>Date Prescribed</th>
+                                <th>Refills Available</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
-                        }
-                        else
-                        {
+                        </thead>
+                        <tbody>
                             @foreach (var rx in Model)
                             {
                                 <tr>
-                                    <td>@rx.Medication</td>
-                                    <td>@rx.Dosage</td>
-                                    <td>@rx.Date.ToString("dd MMM yyyy")</td>
-                                    <td>@rx.RefillsUsed / @rx.RefillsTotal</td>
-                                    <td>
-                                        @if (rx.Status == PrescriptionStatus.Active) { <span class="badge bg-success">Active</span>; } else if (rx.Status == PrescriptionStatus.Completed) { <span class="badge bg-secondary">Completed</span>; } else { <span class="badge bg-secondary">Cancelled</span>; }
+                                    <td data-label="Medication">
+                                        <div class="medication-name">@rx.Medication</div>
+                                        <div class="medication-dosage">@rx.Dosage</div>
                                     </td>
-                                    <td class="text-end">
+                                    <td data-label="Date">@rx.Date.ToString("dd MMM yyyy")</td>
+                                    <td data-label="Refills">
+                                        <div class="refill-info">
+                                            <span>@rx.RefillsUsed / @rx.RefillsTotal</span>
+                                            <div class="refill-progress">
+                                                @{
+                                                    var progressPercent = rx.RefillsTotal > 0 ? (rx.RefillsUsed * 100 / rx.RefillsTotal) : 0;
+                                                }
+                                                <div class="refill-bar" style="width: @progressPercent%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td data-label="Status">
+                                        @if (rx.Status == PrescriptionStatus.Active)
+                                        {
+                                            <span class="status-badge badge-active">Active</span>
+                                        }
+                                        else if (rx.Status == PrescriptionStatus.Completed)
+                                        {
+                                            <span class="status-badge badge-completed">Completed</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-badge badge-cancelled">Cancelled</span>
+                                        }
+                                    </td>
+                                    <td data-label="Actions" class="text-end">
                                         @if (rx.Status == PrescriptionStatus.Active && rx.RefillsUsed < rx.RefillsTotal)
                                         {
                                             <form asp-action="RequestRefill" method="post" class="d-inline">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="prescriptionId" value="@rx.Id" />
-                                                <button class="btn btn-sm btn-outline-primary" type="submit">
-                                                    <i class="bi bi-plus-circle me-1"></i>Request Refill
+                                                <button class="btn-modern btn-refill" type="submit">
+                                                    <i class="bi bi-plus-circle"></i> Request Refill
                                                 </button>
                                             </form>
                                         }
                                     </td>
                                 </tr>
                             }
-                        }
-                    </tbody>
-                </table>
-            </div>
+                        </tbody>
+                    </table>
+                </div>
+            }
         </div>
     </div>
 
     <!-- Refill Requests -->
-    <div class="card dashboard-card border-0">
+    <div class="content-card">
+        <div class="card-header">
+            <h5 class="card-title">
+                <div class="card-icon"><i class="bi bi-arrow-repeat"></i></div>
+                Refill Requests
+            </h5>
+        </div>
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="card-title mb-0">Refill Requests</h5>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>Prescription</th>
-                            <th>Requested</th>
-                            <th>Status</th>
-                            <th>Payment</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (!refillRequests.Any())
-                        {
-                            <tr><td colspan="4" class="text-center text-muted">No refill requests yet.</td></tr>
-                        }
-                        else
-                        {
+            @if (!refillRequests.Any())
+            {
+                <div class="empty-state">
+                    <i class="bi bi-arrow-repeat empty-icon"></i>
+                    <p>No refill requests yet</p>
+                    <p class="text-muted">Your refill requests will appear here when you request prescription refills</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Prescription</th>
+                                <th>Requested Date</th>
+                                <th>Status</th>
+                                <th>Payment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             @foreach (var r in refillRequests)
                             {
                                 var rx = Medicare_Connect.Areas.Patients.Services.PrescriptionStore.FindPrescription(r.PrescriptionId);
                                 var price = (decimal)r.PriceCents / 100m;
                                 <tr>
-                                    <td>@rx?.Medication</td>
-                                    <td>@r.RequestedAt.ToString("dd MMM yyyy HH:mm")</td>
-                                    <td>
-                                        @if (r.Status == RefillRequestStatus.Pending) { <span class="badge bg-warning text-dark">Pending</span>; }
-                                        else if (r.Status == RefillRequestStatus.Approved) { <span class="badge bg-success">Approved</span>; }
-                                        else { <span class="badge bg-secondary">Rejected</span>; }
-                                    </td>
-                                    <td class="text-end">
-                                        @if (!r.IsPaid)
+                                    <td data-label="Prescription">@rx?.Medication</td>
+                                    <td data-label="Requested">@r.RequestedAt.ToString("dd MMM yyyy HH:mm")</td>
+                                    <td data-label="Status">
+                                        @if (r.Status == RefillRequestStatus.Pending)
                                         {
-                                            <div class="d-flex align-items-center justify-content-end gap-2">
-                                                <span class="text-muted">@price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
-                                                <form asp-action="PayRefill" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="refillRequestId" value="@r.Id" />
-                                                    <button class="btn btn-sm btn-primary" type="submit">
-                                                        <i class="bi bi-credit-card me-1"></i>Pay Now
-                                                    </button>
-                                                </form>
-                                            </div>
-                                            <small class="text-muted d-block">Or pay later from Payments</small>
+                                            <span class="status-badge badge-pending">Pending</span>
+                                        }
+                                        else if (r.Status == RefillRequestStatus.Approved)
+                                        {
+                                            <span class="status-badge badge-approved">Approved</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-success">Paid</span>
+                                            <span class="status-badge badge-rejected">Rejected</span>
+                                        }
+                                    </td>
+                                    <td data-label="Payment">
+                                        @if (!r.IsPaid)
+                                        {
+                                            <div class="payment-info">
+                                                <span class="price-display">@price.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                                <form asp-action="PayRefill" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="refillRequestId" value="@r.Id" />
+                                                    <button class="btn-modern btn-pay" type="submit">
+                                                        <i class="bi bi-credit-card"></i> Pay Now
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            <div class="payment-note">Or pay later from Payments</div>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-badge badge-paid">Paid</span>
                                         }
                                     </td>
                                 </tr>
                             }
-                        }
-                    </tbody>
-                </table>
-            </div>
+                        </tbody>
+                    </table>
+                </div>
+            }
         </div>
     </div>
 </div>
-
-

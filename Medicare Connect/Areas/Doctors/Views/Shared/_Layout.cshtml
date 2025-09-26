@@ -3,20 +3,69 @@
     ViewData["Title"] = ViewData["Title"] ?? "Doctors";
 }
 
+<style>
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #ffffff;
+        color: #374151;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+    }
+
+    .medicare-doctor-main-content {
+        min-height: calc(100vh - 120px);
+        padding-top: 0;
+    }
+
+    /* Ensure consistent spacing */
+    .container-fluid {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Remove any default margins that might conflict */
+    .main-content {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Additional Medicare Doctor-specific styles */
+    .medicare-doctor-content-wrapper {
+        background: #ffffff;
+        min-height: 100vh;
+    }
+
+    /* Doctor-specific styling adjustments */
+    .dashboard-card {
+        background-color: #ffffff;
+        box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+</style>
+
 @section Sidebar {
-    <partial name="/Areas/Doctors/Views/Shared/_DoctorNav.cshtml" />
+    <!-- Empty sidebar section to satisfy the layout requirement -->
 }
 
-@section Styles {
-    <style>
-        /* Additional Doctors area specific styles */
-    </style>
-}
+<!-- Render the doctor navigation directly -->
+<partial name="_DoctorNav" />
 
-@RenderBody()
+<div class="medicare-doctor-content-wrapper">
+    <div class="medicare-doctor-main-content">
+        @RenderBody()
+    </div>
+</div>
 
 @section Scripts {
     @await RenderSectionAsync("Scripts", required: false)
 }
-
-

@@ -1,9 +1,9 @@
 @model Medicare_Connect.Areas.Patients.Models.PatientBillingViewModel
 @{
-    // CRITICAL CHANGE: Explicitly bypass intermediate layout
     Layout = "/Views/Shared/_RoleBasedLayout.cshtml";
     ViewData["Title"] = "My Billing & Payments";
 }
+
 @section Sidebar {
     @{
         var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
@@ -77,280 +77,721 @@
     </li>
 }
 
+@section Styles {
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">My Billing & Payments</h2>
-                <div class="d-flex gap-2">
-                    <a href="@Url.Action("Outstanding")" class="btn btn-outline-warning">
-                        <i class="bi bi-exclamation-triangle"></i> Outstanding Bills
-                    </a>
-                    <a href="@Url.Action("PaymentHistory")" class="btn btn-outline-info">
-                        <i class="bi bi-clock-history"></i> Payment History
-                    </a>
-                </div>
-            </div>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
 
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-triangle"></i> @TempData["ErrorMessage"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
+        /* Main Container */
+        .billing-container {
+            padding: 1.5rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        /* Modern Buttons */
+        .btn-modern {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+            .btn-modern:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+                color: white;
+                text-decoration: none;
             }
 
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
+        .btn-outline-warning {
+            background: transparent;
+            color: #f59e0b;
+            border: 2px solid #f59e0b;
+        }
+
+            .btn-outline-warning:hover {
+                background: #f59e0b;
+                color: white;
+                border-color: #f59e0b;
             }
 
-            <!-- Summary Cards -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body text-center">
-                            <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex p-3 mb-3">
-                                <i class="bi bi-receipt text-primary fs-4"></i>
-                            </div>
-                            <h4 class="card-title">Total Billed</h4>
-                            <h3 class="text-primary mb-0">@Model.Summary.TotalBilled.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</h3>
-                            <small class="text-muted">@Model.Summary.BillingCount billing record(s)</small>
-                        </div>
-                    </div>
-                </div>
+        .btn-outline-info {
+            background: transparent;
+            color: #0ea5e9;
+            border: 2px solid #0ea5e9;
+        }
 
-                <div class="col-md-3">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body text-center">
-                            <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex p-3 mb-3">
-                                <i class="bi bi-check-circle text-success fs-4"></i>
-                            </div>
-                            <h4 class="card-title">Total Paid</h4>
-                            <h3 class="text-success mb-0">@Model.Summary.TotalPaid.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</h3>
-                            <small class="text-muted">@Model.Summary.PaymentCount payment(s)</small>
-                        </div>
-                    </div>
-                </div>
+            .btn-outline-info:hover {
+                background: #0ea5e9;
+                color: white;
+                border-color: #0ea5e9;
+            }
 
-                <div class="col-md-3">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body text-center">
-                            <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex p-3 mb-3">
-                                <i class="bi bi-clock text-warning fs-4"></i>
-                            </div>
-                            <h4 class="card-title">Outstanding</h4>
-                            <h3 class="text-warning mb-0">@Model.Summary.OutstandingAmount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</h3>
-                            <small class="text-muted">Pending payment</small>
-                        </div>
-                    </div>
-                </div>
+        /* Alert Styles */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border: none;
+        }
 
-                <div class="col-md-3">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body text-center">
-                            <div class="rounded-circle bg-danger bg-opacity-10 d-inline-flex p-3 mb-3">
-                                <i class="bi bi-exclamation-triangle text-danger fs-4"></i>
-                            </div>
-                            <h4 class="card-title">Overdue</h4>
-                            <h3 class="text-danger mb-0">@Model.Summary.OverdueAmount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</h3>
-                            <small class="text-muted">Past due date</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+        }
 
-            <!-- Billing Records -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-receipt text-primary"></i> Billing Records
-                    </h5>
-                </div>
-                <div class="card-body">
-                    @if (!Model.BillingRecords.Any())
-                    {
-                        <div class="text-center py-4">
-                            <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
-                            <p class="text-muted mt-2">No billing records found.</p>
-                            <p class="text-muted">Billing records will appear here when services are provided.</p>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Service Type</th>
-                                        <th>Service Date</th>
-                                        <th>Amount</th>
-                                        <th>Insurance</th>
-                                        <th>Your Responsibility</th>
-                                        <th>Payment Status</th>
-                                        <th>Due Date</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var bill in Model.BillingRecords)
-                                    {
-                                        <tr class="@(bill.IsOverdue ? "table-danger" : "")">
-                                            <td>
-                                                <span class="badge bg-info">@bill.ServiceType</span>
-                                            </td>
-                                            <td>
-                                                <span class="text-muted">@bill.ServiceDate.ToString("MMM dd, yyyy")</span>
-                                            </td>
-                                            <td>
-                                                <span class="text-success fw-bold">@bill.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
-                                            </td>
-                                            <td>
-                                                @if (bill.InsuranceAmount.HasValue)
-                                                {
-                                                    <span class="text-info">@bill.InsuranceAmount.Value.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">None</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                <span class="text-warning fw-bold">@bill.PatientResponsibility.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
-                                            </td>
-                                            <td>
-                                                @if (bill.PaymentStatus == "Paid")
-                                                {
-                                                    <span class="badge bg-success">@bill.PaymentStatus</span>
-                                                }
-                                                else if (bill.PaymentStatus == "Overdue")
-                                                {
-                                                    <span class="badge bg-danger">@bill.PaymentStatus</span>
-                                                }
-                                                else if (bill.PaymentStatus == "Pending")
-                                                {
-                                                    <span class="badge bg-warning">@bill.PaymentStatus</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary">@bill.PaymentStatus</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                @if (bill.IsOverdue)
-                                                {
-                                                    <span class="text-danger fw-bold">@bill.DueDate.ToString("MMM dd, yyyy")</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">@bill.DueDate.ToString("MMM dd, yyyy")</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                <a href="@Url.Action("Details", new { id = bill.Id })" class="btn btn-sm btn-outline-info">
-                                                    <i class="bi bi-eye"></i> View
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                </div>
-            </div>
+        .alert-danger {
+            background: #fef2f2;
+            color: #dc2626;
+        }
 
-            <!-- Recent Payments -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-credit-card text-success"></i> Recent Payments
-                    </h5>
-                </div>
-                <div class="card-body">
-                    @if (!Model.PaymentRecords.Any())
-                    {
-                        <div class="text-center py-4">
-                            <i class="bi bi-credit-card text-muted" style="font-size: 3rem;"></i>
-                            <p class="text-muted mt-2">No payment records found.</p>
-                            <p class="text-muted">Payment records will appear here when you make payments.</p>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Payment Type</th>
-                                        <th>Description</th>
-                                        <th>Amount</th>
-                                        <th>Status</th>
-                                        <th>Date</th>
-                                        <th>Notes</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var payment in Model.PaymentRecords.Take(5))
-                                    {
-                                        <tr>
-                                            <td>
-                                                <span class="badge bg-info">@payment.PaymentType</span>
-                                            </td>
-                                            <td>
-                                                <span>@payment.Description</span>
-                                            </td>
-                                            <td>
-                                                <span class="text-success fw-bold">@payment.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
-                                            </td>
-                                            <td>
-                                                @if (payment.Status == "Completed")
-                                                {
-                                                    <span class="badge bg-success">@payment.Status</span>
-                                                }
-                                                else if (payment.Status == "Failed")
-                                                {
-                                                    <span class="badge bg-danger">@payment.Status</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-warning">@payment.Status</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                <span class="text-muted">@payment.CreatedAt.ToString("MMM dd, yyyy")</span>
-                                            </td>
-                                            <td>
-                                                @if (!string.IsNullOrEmpty(payment.Notes))
-                                                {
-                                                    <small class="text-muted">@payment.Notes</small>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">-</span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        @if (Model.PaymentRecords.Count > 5)
-                        {
-                            <div class="text-center mt-3">
-                                <a href="@Url.Action("PaymentHistory")" class="btn btn-outline-info">
-                                    View All Payment History
-                                </a>
-                            </div>
-                        }
-                    }
-                </div>
-            </div>
+        .alert .btn-close {
+            background: none;
+            border: none;
+            opacity: 0.7;
+            cursor: pointer;
+            padding: 0;
+            margin-left: auto;
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 1.75rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+            .summary-card:hover {
+                transform: translateY(-2px);
+            }
+
+        .summary-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .icon-primary {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .icon-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .icon-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+
+        .icon-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .summary-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-amount {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .amount-primary {
+            color: #667eea;
+        }
+
+        .amount-success {
+            color: #10b981;
+        }
+
+        .amount-warning {
+            color: #f59e0b;
+        }
+
+        .amount-danger {
+            color: #ef4444;
+        }
+
+        .summary-subtitle {
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        /* Content Cards */
+        .content-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+            .card-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+            }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-body {
+            padding: 0;
+        }
+
+        /* Tables */
+        .table {
+            margin: 0;
+            width: 100%;
+        }
+
+            .table thead {
+                background: #f8fafc;
+            }
+
+                .table thead th {
+                    padding: 1.25rem 1.5rem;
+                    font-weight: 600;
+                    color: #475569;
+                    font-size: 0.875rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    border: none;
+                }
+
+            .table tbody td {
+                padding: 1.25rem 1.5rem;
+                color: #1e293b;
+                border-top: 1px solid #e2e8f0;
+                vertical-align: middle;
+            }
+
+            .table tbody tr:hover {
+                background: #f8fafc;
+            }
+
+            .table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+        .table-danger {
+            background: #fef2f2 !important;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-paid, .badge-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-pending, .badge-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-overdue, .badge-failed, .badge-danger {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        /* Action Center */
+        .action-center {
+            text-align: center;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Mobile Responsiveness */
+        @@media (max-width: 768px) {
+            .billing-container
+
+        {
+            padding: 1rem;
+        }
+
+        .page-header {
+            padding: 1.5rem;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .header-actions {
+            justify-content: center;
+        }
+
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .table thead th,
+        .table tbody td {
+            padding: 1rem;
+        }
+
+        }
+
+        @@media (max-width: 640px) {
+            .table thead
+
+        {
+            display: none;
+        }
+
+        .table tbody td {
+            display: block;
+            padding: 0.75rem 1rem;
+            border: none;
+            position: relative;
+            padding-left: 40%;
+        }
+
+            .table tbody td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 1rem;
+                width: 35%;
+                padding-right: 10px;
+                white-space: nowrap;
+                font-weight: 600;
+                color: #64748b;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+        .table tbody tr {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        }
+
+        /* Utility Classes */
+        .d-flex {
+            display: flex;
+        }
+
+        .justify-content-between {
+            justify-content: space-between;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .text-muted {
+            color: #64748b;
+        }
+
+        .fw-bold {
+            font-weight: 700;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+    </style>
+}
+
+<div class="container-fluid billing-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2 class="page-title">My Billing & Payments</h2>
+        <div class="header-actions">
+            <a href="@Url.Action("Outstanding")" class="btn-modern btn-outline-warning">
+                <i class="bi bi-exclamation-triangle"></i> Outstanding Bills
+            </a>
+            <a href="@Url.Action("PaymentHistory")" class="btn-modern btn-outline-info">
+                <i class="bi bi-clock-history"></i> Payment History
+            </a>
         </div>
     </div>
-</div> 
+
+    <!-- Alerts -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i>
+            <span>@TempData["ErrorMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i>
+            <span>@TempData["SuccessMessage"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>
+    }
+
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="summary-icon icon-primary">
+                <i class="bi bi-receipt"></i>
+            </div>
+            <h4 class="summary-title">Total Billed</h4>
+            <h3 class="summary-amount amount-primary">@Model.Summary.TotalBilled.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</h3>
+            <p class="summary-subtitle">@Model.Summary.BillingCount billing record(s)</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon icon-success">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <h4 class="summary-title">Total Paid</h4>
+            <h3 class="summary-amount amount-success">@Model.Summary.TotalPaid.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</h3>
+            <p class="summary-subtitle">@Model.Summary.PaymentCount payment(s)</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon icon-warning">
+                <i class="bi bi-clock"></i>
+            </div>
+            <h4 class="summary-title">Outstanding</h4>
+            <h3 class="summary-amount amount-warning">@Model.Summary.OutstandingAmount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</h3>
+            <p class="summary-subtitle">Pending payment</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon icon-danger">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <h4 class="summary-title">Overdue</h4>
+            <h3 class="summary-amount amount-danger">@Model.Summary.OverdueAmount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</h3>
+            <p class="summary-subtitle">Past due date</p>
+        </div>
+    </div>
+
+    <!-- Billing Records -->
+    <div class="content-card">
+        <div class="card-header">
+            <h5 class="card-title">
+                <i class="bi bi-receipt text-primary"></i> Billing Records
+            </h5>
+        </div>
+        <div class="card-body">
+            @if (!Model.BillingRecords.Any())
+            {
+                <div class="empty-state">
+                    <i class="bi bi-receipt empty-icon"></i>
+                    <p>No billing records found</p>
+                    <p class="text-muted">Billing records will appear here when services are provided</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Service Type</th>
+                                <th>Service Date</th>
+                                <th>Amount</th>
+                                <th>Insurance</th>
+                                <th>Your Responsibility</th>
+                                <th>Payment Status</th>
+                                <th>Due Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var bill in Model.BillingRecords)
+                            {
+                                <tr class="@(bill.IsOverdue ? "table-danger" : "")">
+                                    <td data-label="Service Type">
+                                        <span class="status-badge badge-info">@bill.ServiceType</span>
+                                    </td>
+                                    <td data-label="Service Date">@bill.ServiceDate.ToString("MMM dd, yyyy")</td>
+                                    <td data-label="Amount">
+                                        <span class="fw-bold amount-success">@bill.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                    </td>
+                                    <td data-label="Insurance">
+                                        @if (bill.InsuranceAmount.HasValue)
+                                        {
+                                            <span class="fw-bold" style="color: #0ea5e9;">@bill.InsuranceAmount.Value.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">None</span>
+                                        }
+                                    </td>
+                                    <td data-label="Your Responsibility">
+                                        <span class="fw-bold amount-warning">@bill.PatientResponsibility.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                    </td>
+                                    <td data-label="Payment Status">
+                                        @if (bill.PaymentStatus == "Paid")
+                                        {
+                                            <span class="status-badge badge-paid">@bill.PaymentStatus</span>
+                                        }
+                                        else if (bill.PaymentStatus == "Overdue")
+                                        {
+                                            <span class="status-badge badge-overdue">@bill.PaymentStatus</span>
+                                        }
+                                        else if (bill.PaymentStatus == "Pending")
+                                        {
+                                            <span class="status-badge badge-pending">@bill.PaymentStatus</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-badge badge-secondary">@bill.PaymentStatus</span>
+                                        }
+                                    </td>
+                                    <td data-label="Due Date">
+                                        @if (bill.IsOverdue)
+                                        {
+                                            <span class="fw-bold amount-danger">@bill.DueDate.ToString("MMM dd, yyyy")</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@bill.DueDate.ToString("MMM dd, yyyy")</span>
+                                        }
+                                    </td>
+                                    <td data-label="Actions">
+                                        <a href="@Url.Action("Details", new { id = bill.Id })" class="btn-modern btn-outline-info" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Recent Payments -->
+    <div class="content-card">
+        <div class="card-header">
+            <h5 class="card-title">
+                <i class="bi bi-credit-card text-success"></i> Recent Payments
+            </h5>
+        </div>
+        <div class="card-body">
+            @if (!Model.PaymentRecords.Any())
+            {
+                <div class="empty-state">
+                    <i class="bi bi-credit-card empty-icon"></i>
+                    <p>No payment records found</p>
+                    <p class="text-muted">Payment records will appear here when you make payments</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Payment Type</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var payment in Model.PaymentRecords.Take(5))
+                            {
+                                <tr>
+                                    <td data-label="Payment Type">
+                                        <span class="status-badge badge-info">@payment.PaymentType</span>
+                                    </td>
+                                    <td data-label="Description">@payment.Description</td>
+                                    <td data-label="Amount">
+                                        <span class="fw-bold amount-success">@payment.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                    </td>
+                                    <td data-label="Status">
+                                        @if (payment.Status == "Completed")
+                                        {
+                                            <span class="status-badge badge-completed">@payment.Status</span>
+                                        }
+                                        else if (payment.Status == "Failed")
+                                        {
+                                            <span class="status-badge badge-failed">@payment.Status</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-badge badge-warning">@payment.Status</span>
+                                        }
+                                    </td>
+                                    <td data-label="Date">@payment.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                    <td data-label="Notes">
+                                        @if (!string.IsNullOrEmpty(payment.Notes))
+                                        {
+                                            <span class="text-muted">@payment.Notes</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+
+        @if (Model.PaymentRecords.Count > 5)
+        {
+            <div class="action-center">
+                <a href="@Url.Action("PaymentHistory")" class="btn-modern btn-outline-info">
+                    View All Payment History
+                </a>
+            </div>
+        }
+    </div>
+</div>

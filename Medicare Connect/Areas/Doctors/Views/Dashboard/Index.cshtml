@@ -1,6 +1,9 @@
-@using Medicare_Connect.Areas.Patients.Models
+﻿@using Medicare_Connect.Areas.Patients.Models
 @using Medicare_Connect.Areas.Patients.Services
+
 @{
+    // CRITICAL CHANGE: Explicitly bypass intermediate layout
+    Layout = "/Views/Shared/_RoleBasedLayout.cshtml";
     ViewData["Title"] = "Doctor Dashboard";
 
     // Pull appointments from the shared in-memory store via AppointmentStore API
@@ -25,62 +28,491 @@
     var today = mine.Where(a => a.AppointmentDate.Date == DateTime.Today && a.Status == AppointmentStatus.Booked).Count();
     var completedThisWeek = mine.Where(a => a.Status == AppointmentStatus.Completed && a.AppointmentDate >= DateTime.Today.AddDays(-7)).Count();
 }
+@section Sidebar {
+    @{
+        var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
+    }
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "dashboard" ? "active" : "")" asp-area="Patients" asp-controller="Dashboard" asp-action="Index">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "profile" ? "active" : "")" asp-area="Doctors" asp-controller="Profile" asp-action="Index">
+            <i class="bi bi-person"></i> Profile
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "appointments" ? "active" : "")" asp-area="Doctors" asp-controller="Appointments" asp-action="Index">
+            <i class="bi bi-calendar-check"></i> Appointments
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "records" ? "active" : "")" asp-area="Doctors" asp-controller="Records" asp-action="Index">
+            <i class="bi bi-journal-medical"></i> Records
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "prescriptions" ? "active" : "")" asp-area="Doctors" asp-controller="Prescriptions" asp-action="Index">
+            <i class="bi bi-prescription2"></i> Prescriptions
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "payments" ? "active" : "")" asp-area="Doctors" asp-controller="Patients" asp-action="Index">
+            <i class="bi bi-person"></i> Patients
+        </a>
+    </li>
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-1">Sawubona Dokotela, @doctorName</h1>
-            <p class="text-muted mb-0">Overview of your schedule and recent activity</p>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "reminders" ? "active" : "")" asp-area="Doctors" asp-controller="Reminders" asp-action="Index">
+            <i class="bi bi-bell"></i> Reminders
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "consultations" ? "active" : "")" asp-area="Doctors" asp-controller="Consultations" asp-action="Index">
+            <i class="bi bi-journal-text"></i> Consultations
+        </a>
+    </li>
+   
+    <li class="nav-item dropdown ms-lg-auto">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-translate"></i> Language
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+                <form method="get" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index" class="px-3 py-2">
+                    <select class="form-select form-select-sm" name="culture" onchange="this.form.submit();">
+                        <option value="en" selected="@(Context.Request.Query["culture"] == "en")">English</option>
+                        <option value="zu" selected="@(Context.Request.Query["culture"] == "zu")">isiZulu</option>
+                        <option value="st" selected="@(Context.Request.Query["culture"] == "st")">Sesotho</option>
+                        <option value="ts" selected="@(Context.Request.Query["culture"] == "ts")">Xitsonga</option>
+                    </select>
+                </form>
+            </li>
+        </ul>
+    </li>
+}
+
+<style>
+    :root {
+        --primary-color: #2563eb;
+        --primary-light: #3b82f6;
+        --primary-dark: #1d4ed8;
+        --success-color: #059669;
+        --warning-color: #d97706;
+        --danger-color: #dc2626;
+        --info-color: #0891b2;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --border-radius: 12px;
+        --border-radius-sm: 8px;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #ffffff;
+        color: var(--gray-700);
+        line-height: 1.6;
+    }
+
+    .medicare-doctor-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .medicare-doctor-header {
+        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .doctor-welcome {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+        .doctor-welcome h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+            .doctor-welcome h1::before {
+                content: "👩‍⚕️";
+                font-size: 1.75rem;
+            }
+
+        .doctor-welcome p {
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+            font-size: 1.125rem;
+        }
+
+    .medicare-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--gray-200);
+        transition: all 0.2s ease;
+        overflow: hidden;
+    }
+
+        .medicare-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+    .medicare-card-body {
+        padding: 1.5rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .stat-card-info h6 {
+        color: var(--gray-500);
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin: 0 0 0.5rem 0;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .stat-card-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--gray-800);
+        margin: 0;
+        line-height: 1;
+    }
+
+    .stat-card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+        .stat-card-icon.today {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color);
+        }
+
+        .stat-card-icon.upcoming {
+            background: rgba(168, 85, 247, 0.1);
+            color: #7c3aed;
+        }
+
+        .stat-card-icon.completed {
+            background: rgba(5, 150, 105, 0.1);
+            color: var(--success-color);
+        }
+
+    .appointments-card {
+        margin-bottom: 2rem;
+    }
+
+    .appointments-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+    .appointments-card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .appointments-card-title::before {
+            content: "📋";
+            font-size: 1.5rem;
+        }
+
+    .medicare-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius-sm);
+        font-weight: 500;
+        text-decoration: none;
+        border: 1px solid;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+
+    .medicare-btn-outline {
+        background: white;
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+        .medicare-btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-1px);
+            text-decoration: none;
+        }
+
+    .medicare-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+
+        .medicare-table th {
+            background: var(--gray-50);
+            padding: 1rem 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-700);
+            border-bottom: 1px solid var(--gray-200);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .medicare-table td {
+            padding: 1rem 0.75rem;
+            border-bottom: 1px solid var(--gray-100);
+            vertical-align: middle;
+        }
+
+        .medicare-table tr:hover {
+            background: var(--gray-50);
+        }
+
+        .medicare-table .empty-state {
+            text-align: center;
+            color: var(--gray-500);
+            font-style: italic;
+            padding: 3rem;
+        }
+
+    .patient-name {
+        font-weight: 600;
+        color: var(--gray-800);
+    }
+
+    .appointment-date {
+        color: var(--gray-600);
+        font-weight: 500;
+    }
+
+    .appointment-type {
+        background: #f0f9ff;
+        color: #0369a1;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    /* Mobile Responsiveness */
+    @@media (max-width: 768px) {
+        .medicare-doctor-container
+
+    {
+        padding: 1rem 0.5rem;
+    }
+
+    .medicare-doctor-header {
+        padding: 1.5rem;
+    }
+
+    .doctor-welcome {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+        .doctor-welcome h1 {
+            font-size: 1.5rem;
+        }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .appointments-card-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .medicare-table th,
+    .medicare-table td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .stat-card-content {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .stat-card-value {
+        font-size: 2rem;
+    }
+
+    }
+
+    @@media (max-width: 480px) {
+        .doctor-welcome h1::before
+
+    {
+        display: none;
+    }
+
+    .appointments-card-title::before {
+        display: none;
+    }
+
+    .medicare-table th,
+    .medicare-table td {
+        padding: 0.5rem 0.25rem;
+    }
+
+    .stat-card-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    }</style>
+
+<div class="medicare-doctor-container">
+    <div class="medicare-doctor-header">
+        <div class="doctor-welcome">
+            <div>
+                <h1>Sawubona Dokotela, @doctorName</h1>
+                <p>Overview of your schedule and recent activity</p>
+            </div>
         </div>
     </div>
 
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card dashboard-card border-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="text-muted mb-0">Today's Appointments</h6>
-                        <i class="bi bi-calendar2-day text-primary"></i>
+    <!-- Statistics Grid -->
+    <div class="stats-grid">
+        <!-- Today's Appointments -->
+        <div class="medicare-card stat-card">
+            <div class="medicare-card-body">
+                <div class="stat-card-content">
+                    <div class="stat-card-info">
+                        <h6>Today's Appointments</h6>
+                        <div class="stat-card-value">@today</div>
                     </div>
-                    <h2 class="mb-0">@today</h2>
+                    <div class="stat-card-icon today">
+                        <i class="bi bi-calendar2-day"></i>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card dashboard-card border-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="text-muted mb-0">Upcoming (next 5)</h6>
-                        <i class="bi bi-clock-history text-primary"></i>
+
+        <!-- Upcoming Appointments -->
+        <div class="medicare-card stat-card">
+            <div class="medicare-card-body">
+                <div class="stat-card-content">
+                    <div class="stat-card-info">
+                        <h6>Upcoming (next 5)</h6>
+                        <div class="stat-card-value">@upcoming.Count</div>
                     </div>
-                    <h2 class="mb-0">@upcoming.Count</h2>
+                    <div class="stat-card-icon upcoming">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card dashboard-card border-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h6 class="text-muted mb-0">Completed (7 days)</h6>
-                        <i class="bi bi-check2-circle text-success"></i>
+
+        <!-- Completed This Week -->
+        <div class="medicare-card stat-card">
+            <div class="medicare-card-body">
+                <div class="stat-card-content">
+                    <div class="stat-card-info">
+                        <h6>Completed (7 days)</h6>
+                        <div class="stat-card-value">@completedThisWeek</div>
                     </div>
-                    <h2 class="mb-0">@completedThisWeek</h2>
+                    <div class="stat-card-icon completed">
+                        <i class="bi bi-check2-circle"></i>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card dashboard-card border-0">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="card-title mb-0">Next Appointments</h5>
-                <a class="btn btn-sm btn-outline-primary" asp-area="Doctors" asp-controller="Appointments" asp-action="Index">Manage</a>
+    <!-- Appointments Table -->
+    <div class="medicare-card appointments-card">
+        <div class="medicare-card-body">
+            <div class="appointments-card-header">
+                <h5 class="appointments-card-title">Next Appointments</h5>
+                <a class="medicare-btn medicare-btn-outline" asp-area="Doctors" asp-controller="Appointments" asp-action="Index">
+                    <i class="bi bi-gear"></i>Manage
+                </a>
             </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
+            <div style="overflow-x: auto;">
+                <table class="medicare-table">
                     <thead>
                         <tr>
-                            <th>Date</th>
+                            <th>Date & Time</th>
                             <th>Patient</th>
                             <th>Type</th>
                             <th>Status</th>
@@ -90,18 +522,32 @@
                         @if (!upcoming.Any())
                         {
                             <tr>
-                                <td colspan="4" class="text-muted">No upcoming appointments</td>
+                                <td colspan="4" class="empty-state">
+                                    <div>
+                                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">📅</div>
+                                        <div>No upcoming appointments</div>
+                                        <small style="color: var(--gray-400);">Your schedule is clear for the next few days</small>
+                                    </div>
+                                </td>
                             </tr>
                         }
                         else
                         {
-                            foreach (var a in upcoming)
+                            @foreach (var a in upcoming)
                             {
                                 <tr>
-                                    <td>@a.AppointmentDate.ToString("ddd, dd MMM yyyy HH:mm")</td>
-                                    <td>@(string.IsNullOrWhiteSpace(a.PatientDisplayName) ? a.PatientKey : a.PatientDisplayName)</td>
-                                    <td>@a.AppointmentType</td>
-                                    <td><span class="badge bg-primary">Booked</span></td>
+                                    <td>
+                                        <div class="appointment-date">@a.AppointmentDate.ToString("ddd, dd MMM yyyy HH:mm")</div>
+                                    </td>
+                                    <td>
+                                        <div class="patient-name">@(string.IsNullOrWhiteSpace(a.PatientDisplayName) ? a.PatientKey : a.PatientDisplayName)</div>
+                                    </td>
+                                    <td>
+                                        <span class="appointment-type">@a.AppointmentType</span>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge">Booked</span>
+                                    </td>
                                 </tr>
                             }
                         }
@@ -111,5 +557,3 @@
         </div>
     </div>
 </div>
-
-

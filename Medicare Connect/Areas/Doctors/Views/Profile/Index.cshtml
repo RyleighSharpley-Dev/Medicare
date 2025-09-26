@@ -1,27 +1,91 @@
 @model Medicare_Connect.Areas.Doctors.Models.DoctorProfileViewModel
 @{
     ViewData["Title"] = "My Profile";
-    Layout = "/Areas/Doctors/Views/Shared/_Layout.cshtml";
+    Layout = "/Views/Shared/_RoleBasedLayout.cshtml";
 }
 
-<div class="container py-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="h4 mb-0">My Profile</h2>
+@section Sidebar {
+    @{
+        var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
+    }
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "dashboard" ? "active" : "")" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "profile" ? "active" : "")" asp-area="Doctors" asp-controller="Profile" asp-action="Index">
+            <i class="bi bi-person"></i> Profile
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "appointments" ? "active" : "")" asp-area="Doctors" asp-controller="Appointments" asp-action="Index">
+            <i class="bi bi-calendar-check"></i> Appointments
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "records" ? "active" : "")" asp-area="Doctors" asp-controller="Records" asp-action="Index">
+            <i class="bi bi-journal-medical"></i> Records
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "prescriptions" ? "active" : "")" asp-area="Doctors" asp-controller="Prescriptions" asp-action="Index">
+            <i class="bi bi-prescription2"></i> Prescriptions
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "payments" ? "active" : "")" asp-area="Doctors" asp-controller="Patients" asp-action="Index">
+            <i class="bi bi-person"></i> Patients
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "reminders" ? "active" : "")" asp-area="Doctors" asp-controller="Reminders" asp-action="Index">
+            <i class="bi bi-bell"></i> Reminders
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "consultations" ? "active" : "")" asp-area="Doctors" asp-controller="Consultations" asp-action="Index">
+            <i class="bi bi-journal-text"></i> Consultations
+        </a>
+    </li>
+    <li class="nav-item dropdown ms-lg-auto">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-translate"></i> Language
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+                <form method="get" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index" class="px-3 py-2">
+                    <select class="form-select form-select-sm" name="culture" onchange="this.form.submit();">
+                        <option value="en" selected="@(Context.Request.Query["culture"] == "en")">English</option>
+                        <option value="zu" selected="@(Context.Request.Query["culture"] == "zu")">isiZulu</option>
+                        <option value="st" selected="@(Context.Request.Query["culture"] == "st")">Sesotho</option>
+                        <option value="ts" selected="@(Context.Request.Query["culture"] == "ts")">Xitsonga</option>
+                    </select>
+                </form>
+            </li>
+        </ul>
+    </li>
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 fw-bold mb-0 border-start border-3 border-primary ps-3">My Profile</h2>
     </div>
 
     @if (TempData["DoctorStatusMessage"] is string msg)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
             @msg
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
     <div class="row g-4">
+        <!-- Profile Photo -->
         <div class="col-md-4">
-            <div class="card border-0">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
                 <div class="card-body text-center">
-                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px; overflow: hidden;">
+                    <div class="rounded-circle border border-3 border-primary shadow-sm d-flex align-items-center justify-content-center mx-auto mb-3 overflow-hidden" style="width: 130px; height: 130px; transition: transform .3s;">
                         @if (!string.IsNullOrEmpty(Model.ProfilePhotoPath))
                         {
                             <img src="@Model.ProfilePhotoPath" alt="Profile Photo" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;" />
@@ -31,60 +95,64 @@
                             <i class="bi bi-person-circle text-primary" style="font-size: 4rem;"></i>
                         }
                     </div>
-                    <form asp-action="RemoveProfilePhoto" method="post">
+                    <form asp-action="RemoveProfilePhoto" method="post" class="mt-2">
                         @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-outline-danger btn-sm" @(string.IsNullOrEmpty(Model.ProfilePhotoPath) ? "disabled" : null)>
+                        <button type="submit" class="btn btn-outline-danger btn-sm px-3" @(string.IsNullOrEmpty(Model.ProfilePhotoPath) ? "disabled" : null)>
                             <i class="bi bi-trash"></i> Remove photo
                         </button>
                     </form>
                 </div>
             </div>
         </div>
+
+        <!-- Profile Form -->
         <div class="col-md-8">
-            <div class="card border-0">
+            <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-body">
                     <form asp-action="Index" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label asp-for="FullName" class="form-label"></label>
-                                <input asp-for="FullName" class="form-control" />
+                                <label asp-for="FullName" class="form-label fw-semibold"></label>
+                                <input asp-for="FullName" class="form-control shadow-sm" />
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="Email" class="form-label"></label>
-                                <input asp-for="Email" class="form-control" />
+                                <label asp-for="Email" class="form-label fw-semibold"></label>
+                                <input asp-for="Email" class="form-control shadow-sm" />
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="PhoneNumber" class="form-label"></label>
-                                <input asp-for="PhoneNumber" class="form-control" />
+                                <label asp-for="PhoneNumber" class="form-label fw-semibold"></label>
+                                <input asp-for="PhoneNumber" class="form-control shadow-sm" />
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="Department" class="form-label"></label>
-                                <input asp-for="Department" class="form-control" />
+                                <label asp-for="Department" class="form-label fw-semibold"></label>
+                                <input asp-for="Department" class="form-control shadow-sm" />
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="Specialty" class="form-label"></label>
-                                <input asp-for="Specialty" class="form-control" />
+                                <label asp-for="Specialty" class="form-label fw-semibold"></label>
+                                <input asp-for="Specialty" class="form-control shadow-sm" />
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="OfficeLocation" class="form-label"></label>
-                                <input asp-for="OfficeLocation" class="form-control" />
+                                <label asp-for="OfficeLocation" class="form-label fw-semibold"></label>
+                                <input asp-for="OfficeLocation" class="form-control shadow-sm" />
                             </div>
                             <div class="col-12">
-                                <label asp-for="Bio" class="form-label"></label>
-                                <textarea asp-for="Bio" class="form-control" rows="3"></textarea>
+                                <label asp-for="Bio" class="form-label fw-semibold"></label>
+                                <textarea asp-for="Bio" class="form-control shadow-sm" rows="3"></textarea>
                             </div>
                             <div class="col-12">
-                                <label asp-for="ProfilePhoto" class="form-label"></label>
-                                <input asp-for="ProfilePhoto" class="form-control" type="file" accept="image/*" />
+                                <label asp-for="ProfilePhoto" class="form-label fw-semibold"></label>
+                                <input asp-for="ProfilePhoto" class="form-control shadow-sm" type="file" accept="image/*" />
                             </div>
                         </div>
-                        <div class="d-flex justify-content-end mt-3">
-                            <button class="btn btn-primary" type="submit">Save profile</button>
+                        <div class="d-flex justify-content-end mt-4">
+                            <button class="btn btn-primary px-4" type="submit">
+                                <i class="bi bi-save me-2"></i> Save profile
+                            </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-</div> 
+</div>

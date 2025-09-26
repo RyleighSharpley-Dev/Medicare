@@ -79,129 +79,549 @@
     </li>
 }
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-        <div>
-            <h2 class="h4 mb-0">Your Payments</h2>
-            <p class="text-muted mb-2">View booked appointments and payment status.</p>
-        </div>
-        <div class="mt-2">
-            <a class="btn btn-outline-primary me-2" asp-area="Patients" asp-controller="Dashboard" asp-action="Index">Back to dashboard</a>
-            <button class="btn btn-primary me-1" id="downloadAppointmentsPdf"><i class="bi bi-file-earmark-arrow-down me-1"></i>Download Appointments PDF</button>
-            <button class="btn btn-success" id="downloadPaymentsPdf"><i class="bi bi-file-earmark-arrow-down me-1"></i>Download Payment History PDF</button>
+@section Styles {
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        /* Main Container */
+        .payments-container {
+            padding: 1.5rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        /* Modern Buttons */
+        .btn-modern {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+            .btn-modern:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+                color: white;
+                text-decoration: none;
+            }
+
+        .btn-outline {
+            background: transparent;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+            .btn-outline:hover {
+                background: #64748b;
+                color: white;
+                border-color: #64748b;
+                text-decoration: none;
+                transform: translateY(-1px);
+            }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+            .btn-success:hover {
+                box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+            }
+
+        /* Alert Styles */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border: none;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .alert-danger {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .alert .btn-close {
+            background: none;
+            border: none;
+            opacity: 0.7;
+            cursor: pointer;
+            padding: 0;
+            margin-left: auto;
+        }
+
+            .alert .btn-close:hover {
+                opacity: 1;
+            }
+
+        /* Content Cards */
+        .content-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+            .card-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+            }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .card-body {
+            padding: 0;
+        }
+
+        /* Tables */
+        .table {
+            margin: 0;
+            width: 100%;
+        }
+
+            .table thead {
+                background: #f8fafc;
+            }
+
+                .table thead th {
+                    padding: 1.25rem 1.5rem;
+                    font-weight: 600;
+                    color: #475569;
+                    font-size: 0.875rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    border: none;
+                }
+
+            .table tbody td {
+                padding: 1.25rem 1.5rem;
+                color: #1e293b;
+                border-top: 1px solid #e2e8f0;
+                vertical-align: middle;
+            }
+
+            .table tbody tr:hover {
+                background: #f8fafc;
+            }
+
+            .table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-paid {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-failed {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .badge-primary {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Mobile Responsiveness */
+        @@media (max-width: 768px) {
+            .payments-container
+
+        {
+            padding: 1rem;
+        }
+
+        .page-header {
+            padding: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+        }
+
+        .header-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+
+            .header-actions .btn-modern,
+            .header-actions .btn-outline {
+                width: 100%;
+                justify-content: center;
+            }
+
+        .table thead th,
+        .table tbody td {
+            padding: 1rem;
+        }
+
+        }
+
+        @@media (max-width: 640px) {
+            .table thead
+
+        {
+            display: none;
+        }
+
+        .table tbody td {
+            display: block;
+            padding: 0.75rem 1rem;
+            border: none;
+            position: relative;
+            padding-left: 40%;
+        }
+
+            .table tbody td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 1rem;
+                width: 35%;
+                padding-right: 10px;
+                white-space: nowrap;
+                font-weight: 600;
+                color: #64748b;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+        .table tbody tr {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .empty-state {
+            padding: 2rem 1rem;
+        }
+
+        }
+
+        /* Utility Classes */
+        .d-flex {
+            display: flex;
+        }
+
+        .justify-content-between {
+            justify-content: space-between;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .text-muted {
+            color: #64748b;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+    </style>
+}
+
+<div class="container-fluid payments-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h2 class="page-title">Your Payments</h2>
+                <p class="page-subtitle mb-0">View booked appointments and payment status</p>
+            </div>
+            <div class="header-actions">
+                <a class="btn-outline" asp-area="Patients" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+                <button class="btn-modern" id="downloadAppointmentsPdf">
+                    <i class="bi bi-file-earmark-arrow-down"></i> Download Appointments
+                </button>
+                <button class="btn-modern btn-success" id="downloadPaymentsPdf">
+                    <i class="bi bi-file-earmark-arrow-down"></i> Download Payments
+                </button>
+            </div>
         </div>
     </div>
 
+    <!-- Success Alert -->
     @if (TempData["ApptSuccess"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle me-2"></i>@TempData["ApptSuccess"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <i class="bi bi-check-circle"></i>
+            <span>@TempData["ApptSuccess"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                <i class="bi bi-x"></i>
+            </button>
         </div>
     }
+
+    <!-- Error Alert -->
     @if (TempData["ApptError"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ApptError"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <i class="bi bi-exclamation-triangle"></i>
+            <span>@TempData["ApptError"]</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                <i class="bi bi-x"></i>
+            </button>
         </div>
     }
 
-    <div class="card dashboard-card border-0 mb-4" id="appointmentsContainer">
+    <!-- Appointments Card -->
+    <div class="content-card" id="appointmentsContainer">
+        <div class="card-header">
+            <h5 class="card-title">
+                <div class="card-icon"><i class="bi bi-calendar-check"></i></div>
+                Booked Appointments
+            </h5>
+        </div>
         <div class="card-body">
-            <h5 class="card-title mb-3">Booked Appointments</h5>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle" id="appointmentsTable">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Type</th>
-                            <th>Status</th>
-                            <th>Payment</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (!dbAppointments.Any())
-                        {
+            @if (!dbAppointments.Any())
+            {
+                <div class="empty-state">
+                    <i class="bi bi-calendar-x empty-icon"></i>
+                    <p>No appointments found</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table" id="appointmentsTable">
+                        <thead>
                             <tr>
-                                <td colspan="4" class="text-muted">No appointments found.</td>
+                                <th>Date & Time</th>
+                                <th>Appointment Type</th>
+                                <th>Status</th>
+                                <th>Payment</th>
                             </tr>
-                        }
-                        else
-                        {
+                        </thead>
+                        <tbody>
                             @foreach (var a in dbAppointments)
                             {
                                 <tr>
-                                    <td>@(a.AppointmentDate.Add(a.StartTime).ToString("ddd, dd MMM yyyy HH:mm"))</td>
-                                    <td>@a.AppointmentType</td>
-                                    <td><span class="badge bg-primary">@a.Status</span></td>
-                                    <td>
+                                    <td data-label="Date & Time">
+                                        @(a.AppointmentDate.Add(a.StartTime).ToString("ddd, dd MMM yyyy HH:mm"))
+                                    </td>
+                                    <td data-label="Type">@a.AppointmentType</td>
+                                    <td data-label="Status">
+                                        <span class="status-badge badge-primary">@a.Status</span>
+                                    </td>
+                                    <td data-label="Payment">
                                         @if (a.PaymentStatus == "Completed")
                                         {
-                                            <span class="badge bg-success">Paid</span>
+                                            <span class="status-badge badge-paid">Paid</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-warning text-dark">@a.PaymentStatus</span>
+                                            <span class="status-badge badge-pending">@a.PaymentStatus</span>
                                         }
                                     </td>
                                 </tr>
                             }
-                        }
-                    </tbody>
-                </table>
-            </div>
+                        </tbody>
+                    </table>
+                </div>
+            }
         </div>
     </div>
 
-    <div class="card dashboard-card border-0" id="paymentsContainer">
+    <!-- Payment History Card -->
+    <div class="content-card" id="paymentsContainer">
+        <div class="card-header">
+            <h5 class="card-title">
+                <div class="card-icon"><i class="bi bi-credit-card"></i></div>
+                Payment History
+            </h5>
+        </div>
         <div class="card-body">
-            <h5 class="card-title mb-3">Payment History</h5>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle" id="paymentsTable">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Type</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (!paymentHistory.Any())
-                        {
+            @if (!paymentHistory.Any())
+            {
+                <div class="empty-state">
+                    <i class="bi bi-credit-card-2-front empty-icon"></i>
+                    <p>No payment history found</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table" id="paymentsTable">
+                        <thead>
                             <tr>
-                                <td colspan="4" class="text-muted">No payments found.</td>
+                                <th>Date & Time</th>
+                                <th>Payment Type</th>
+                                <th>Amount</th>
+                                <th>Status</th>
                             </tr>
-                        }
-                        else
-                        {
+                        </thead>
+                        <tbody>
                             @foreach (var p in paymentHistory)
                             {
                                 <tr>
-                                    <td>@p.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
-                                    <td>@p.PaymentType</td>
-                                    <td>@p.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</td>
-                                    <td>
+                                    <td data-label="Date & Time">@p.CreatedAt.ToString("dd MMM yyyy HH:mm")</td>
+                                    <td data-label="Type">@p.PaymentType</td>
+                                    <td data-label="Amount">@p.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</td>
+                                    <td data-label="Status">
                                         @if (p.Status == Medicare_Connect.Data.Entities.PaymentStatus.Completed)
                                         {
-                                            <span class="badge bg-success">Completed</span>
+                                            <span class="status-badge badge-completed">Completed</span>
                                         }
                                         else if (p.Status == Medicare_Connect.Data.Entities.PaymentStatus.Failed)
                                         {
-                                            <span class="badge bg-danger">Failed</span>
+                                            <span class="status-badge badge-failed">Failed</span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-warning text-dark">@p.Status</span>
+                                            <span class="status-badge badge-pending">@p.Status</span>
                                         }
                                     </td>
                                 </tr>
                             }
-                        }
-                    </tbody>
-                </table>
-            </div>
+                        </tbody>
+                    </table>
+                </div>
+            }
         </div>
     </div>
 </div>

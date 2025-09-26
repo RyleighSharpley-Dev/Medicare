@@ -1,37 +1,117 @@
-@model List<Medicare_Connect.Areas.Patients.Models.PatientRecord>
+﻿@model List<Medicare_Connect.Areas.Patients.Models.PatientRecord>
 @{
+    Layout = "/Views/Shared/_RoleBasedLayout.cshtml";
     ViewData["Title"] = "Patient Records";
     var patients = ViewBag.Patients as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
     var patientKey = ViewBag.PatientKey as string;
     var patientName = ViewBag.PatientName as string;
 }
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="h4 mb-0">Patient Records</h2>
-        <a class="btn btn-outline-primary" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">Back to dashboard</a>
+@section Styles {
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8fafc, #eef2f7);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        h2, h5 {
+            font-weight: 600;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+            .dashboard-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            }
+
+        .table thead {
+            background: #f1f5f9;
+            font-size: 0.9rem;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+
+        .table-hover tbody tr:hover {
+            background: #f9fafb;
+            transform: scale(1.01);
+            transition: all .15s ease;
+        }
+
+        .badge {
+            border-radius: 20px;
+            font-weight: 500;
+            padding: .35em .75em;
+        }
+
+        .form-select, .form-control {
+            border-radius: .6rem;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        .btn-primary {
+            border-radius: .6rem;
+            font-weight: 600;
+            padding: .6rem 1.2rem;
+        }
+
+        .btn-outline-primary {
+            border-radius: .6rem;
+            font-weight: 500;
+        }
+
+        .alert {
+            border-radius: .75rem;
+        }
+    </style>
+}
+
+@section Sidebar {
+    @{
+        var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
+    }
+    <li class="nav-item"><a class="nav-link @(currentController == "dashboard" ? "active" : "")" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link @(currentController == "profile" ? "active" : "")" asp-area="Doctors" asp-controller="Profile" asp-action="Index"><i class="bi bi-person"></i> Profile</a></li>
+    <li class="nav-item"><a class="nav-link @(currentController == "appointments" ? "active" : "")" asp-area="Doctors" asp-controller="Appointments" asp-action="Index"><i class="bi bi-calendar-check"></i> Appointments</a></li>
+    <li class="nav-item"><a class="nav-link @(currentController == "records" ? "active" : "")" asp-area="Doctors" asp-controller="Records" asp-action="Index"><i class="bi bi-journal-medical"></i> Records</a></li>
+    <li class="nav-item"><a class="nav-link @(currentController == "prescriptions" ? "active" : "")" asp-area="Doctors" asp-controller="Prescriptions" asp-action="Index"><i class="bi bi-prescription2"></i> Prescriptions</a></li>
+    <li class="nav-item"><a class="nav-link @(currentController == "payments" ? "active" : "")" asp-area="Doctors" asp-controller="Patients" asp-action="Index"><i class="bi bi-person"></i> Patients</a></li>
+    <li class="nav-item"><a class="nav-link @(currentController == "reminders" ? "active" : "")" asp-area="Doctors" asp-controller="Reminders" asp-action="Index"><i class="bi bi-bell"></i> Reminders</a></li>
+    <li class="nav-item"><a class="nav-link @(currentController == "consultations" ? "active" : "")" asp-area="Doctors" asp-controller="Consultations" asp-action="Index"><i class="bi bi-journal-text"></i> Consultations</a></li>
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h4 border-start border-4 border-primary ps-3">Patient Records</h2>
+        <a class="btn btn-outline-primary" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">← Back to dashboard</a>
     </div>
-    <p class="text-muted">Select a patient to view their records. Add new entries via the form (no file upload).</p>
+    <p class="text-muted mb-4">Select a patient to view their records, or add new entries using the form.</p>
 
     @if (TempData["RecSuccess"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
             <i class="bi bi-check-circle me-2"></i>@TempData["RecSuccess"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
     @if (TempData["RecError"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
             <i class="bi bi-exclamation-triangle me-2"></i>@TempData["RecError"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
 
     <div class="row g-4">
-        <!-- Left: patient selector + add form -->
+        <!-- Patient selector + Add Record -->
         <div class="col-lg-4">
-            <div class="card dashboard-card border-0 mb-4">
+            <div class="card dashboard-card mb-4">
                 <div class="card-body">
                     <h5 class="card-title mb-3">Select Patient</h5>
                     <form asp-action="For" method="get">
@@ -46,19 +126,17 @@
                             </select>
                         </div>
                         <div class="d-grid">
-                            <button class="btn btn-primary" type="submit">
-                                <i class="bi bi-people me-2"></i>Load Records
-                            </button>
+                            <button class="btn btn-primary" type="submit"><i class="bi bi-people me-2"></i>Load Records</button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            <div class="card dashboard-card border-0 @(string.IsNullOrWhiteSpace(patientKey) ? "opacity-50" : string.Empty)">
+            <div class="card dashboard-card @(string.IsNullOrWhiteSpace(patientKey) ? "opacity-50" : "")">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="card-title mb-0">Add Record</h5>
-                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#addRecordForm" aria-expanded="true">
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#addRecordForm">
                             <i class="bi bi-plus-circle me-1"></i>Toggle
                         </button>
                     </div>
@@ -103,9 +181,9 @@
             </div>
         </div>
 
-        <!-- Right: records table -->
+        <!-- Records table -->
         <div class="col-lg-8">
-            <div class="card dashboard-card border-0">
+            <div class="card dashboard-card">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="card-title mb-0">Patient Records</h5>
@@ -189,4 +267,4 @@
             </div>
         </div>
     </div>
-</div> 
+</div>

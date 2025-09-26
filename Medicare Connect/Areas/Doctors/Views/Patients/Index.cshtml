@@ -1,40 +1,111 @@
 @model List<Medicare_Connect.Areas.Doctors.Models.DoctorPatientViewModel>
 @{
+    Layout = "/Views/Shared/_RoleBasedLayout.cshtml";
     ViewData["Title"] = "Patients";
     var q = ViewBag.Query as string ?? string.Empty;
 }
 
+@section Sidebar {
+    @{
+        var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
+    }
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "dashboard" ? "active" : "")" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "profile" ? "active" : "")" asp-area="Doctors" asp-controller="Profile" asp-action="Index">
+            <i class="bi bi-person"></i> Profile
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "appointments" ? "active" : "")" asp-area="Doctors" asp-controller="Appointments" asp-action="Index">
+            <i class="bi bi-calendar-check"></i> Appointments
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "records" ? "active" : "")" asp-area="Doctors" asp-controller="Records" asp-action="Index">
+            <i class="bi bi-journal-medical"></i> Records
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "prescriptions" ? "active" : "")" asp-area="Doctors" asp-controller="Prescriptions" asp-action="Index">
+            <i class="bi bi-prescription2"></i> Prescriptions
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "patients" ? "active" : "")" asp-area="Doctors" asp-controller="Patients" asp-action="Index">
+            <i class="bi bi-people"></i> Patients
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "reminders" ? "active" : "")" asp-area="Doctors" asp-controller="Reminders" asp-action="Index">
+            <i class="bi bi-bell"></i> Reminders
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "consultations" ? "active" : "")" asp-area="Doctors" asp-controller="Consultations" asp-action="Index">
+            <i class="bi bi-journal-text"></i> Consultations
+        </a>
+    </li>
+
+    <li class="nav-item dropdown ms-lg-auto">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-translate"></i> Language
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+                <form method="get" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index" class="px-3 py-2">
+                    <select class="form-select form-select-sm" name="culture" onchange="this.form.submit();">
+                        <option value="en" selected="@(Context.Request.Query["culture"] == "en")">English</option>
+                        <option value="zu" selected="@(Context.Request.Query["culture"] == "zu")">isiZulu</option>
+                        <option value="st" selected="@(Context.Request.Query["culture"] == "st")">Sesotho</option>
+                        <option value="ts" selected="@(Context.Request.Query["culture"] == "ts")">Xitsonga</option>
+                    </select>
+                </form>
+            </li>
+        </ul>
+    </li>
+}
+
 <div class="container-fluid">
+    <!-- Page header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 mb-1">Patients</h1>
+            <h1 class="h3 mb-1"><i class="bi bi-people-fill text-primary me-2"></i>Patients</h1>
             <p class="text-muted mb-0">All patients. Use the search to filter.</p>
         </div>
         <div>
-            <a class="btn btn-outline-primary" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">
+            <a class="btn btn-outline-primary rounded-pill" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">
                 <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
             </a>
         </div>
     </div>
 
-    <div class="card dashboard-card border-0 mb-3">
+    <!-- Search card -->
+    <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
             <form method="get" class="row g-2 align-items-center">
                 <div class="col-sm-10">
-                    <input class="form-control" type="text" name="q" placeholder="Search by name or email" value="@q" />
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input class="form-control border-start-0" type="text" name="q" placeholder="Search by name or email" value="@q" />
+                    </div>
                 </div>
                 <div class="col-sm-2 d-grid">
-                    <button class="btn btn-primary" type="submit"><i class="bi bi-search me-2"></i>Search</button>
+                    <button class="btn btn-primary rounded-pill" type="submit">Search</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div class="card dashboard-card border-0">
-        <div class="card-body">
+    <!-- Patients table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-primary">
                         <tr>
                             <th>Patient</th>
                             <th>Total Appointments</th>
@@ -45,14 +116,22 @@
                     <tbody>
                         @if (!Model.Any())
                         {
-                            <tr><td colspan="4" class="text-muted">No patients found</td></tr>
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-5">
+                                    <i class="bi bi-person-x display-5 d-block mb-2"></i>
+                                    <span class="fs-6">No patients found</span>
+                                </td>
+                            </tr>
                         }
                         else
                         {
                             foreach (var p in Model)
                             {
                                 <tr>
-                                    <td>@p.DisplayName</td>
+                                    <td>
+                                        <i class="bi bi-person-circle text-secondary me-2"></i>
+                                        @p.DisplayName
+                                    </td>
                                     <td>@p.TotalAppointments</td>
                                     <td>@(p.NextAppointment?.ToString("ddd, dd MMM yyyy HH:mm") ?? "-")</td>
                                     <td>@(p.LastAppointment?.ToString("ddd, dd MMM yyyy HH:mm") ?? "-")</td>
@@ -65,5 +144,3 @@
         </div>
     </div>
 </div>
-
-

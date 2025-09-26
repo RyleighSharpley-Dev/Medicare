@@ -82,106 +82,495 @@
 <style>
     :root {
         --primary-color: #2563eb;
-        --success-color: #16a34a;
-        --info-color: #0ea5e9;
-        --warning-color: #f59e0b;
-        --text-color: #333;
-        --bg-color: #fff;
-        --card-bg: #ffffff;
-        --card-shadow: rgba(0, 0, 0, 0.08);
-        --border-radius: 0.75rem;
+        --primary-light: #3b82f6;
+        --primary-dark: #1d4ed8;
+        --success-color: #059669;
+        --warning-color: #d97706;
+        --danger-color: #dc2626;
+        --info-color: #0891b2;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --border-radius: 12px;
+        --border-radius-sm: 8px;
     }
 
-    .dashboard-card {
-        background-color: var(--card-bg);
-        box-shadow: 0 4px 12px var(--card-shadow);
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #ffffff;
+        color: var(--gray-700);
+        line-height: 1.6;
+    }
+
+    .medicare-appointments-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .medicare-appointments-header {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
         border-radius: var(--border-radius);
-        padding: 1rem;
-        transition: transform 0.2s;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: var(--shadow-lg);
     }
 
-        .dashboard-card:hover {
-            transform: translateY(-3px);
+    .appointments-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+        .appointments-header-content h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
-    .card-title {
+            .appointments-header-content h1::before {
+                content: "📅";
+                font-size: 1.75rem;
+            }
+
+        .appointments-header-content p {
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+            font-size: 1.125rem;
+        }
+
+    .medicare-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: var(--border-radius-sm);
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.875rem;
+        white-space: nowrap;
+    }
+
+    .medicare-btn-outline {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+        .medicare-btn-outline:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+            text-decoration: none;
+        }
+
+    .medicare-btn-primary {
+        background: var(--primary-color);
+        color: white;
+        border: 1px solid var(--primary-color);
+    }
+
+        .medicare-btn-primary:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+    .medicare-btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+    }
+
+    .medicare-btn-secondary {
+        background: var(--gray-100);
+        color: var(--gray-700);
+        border: 1px solid var(--gray-300);
+    }
+
+        .medicare-btn-secondary:hover {
+            background: var(--gray-200);
+            color: var(--gray-800);
+            text-decoration: none;
+        }
+
+    .medicare-btn-danger {
+        background: white;
+        color: var(--danger-color);
+        border: 1px solid var(--danger-color);
+    }
+
+        .medicare-btn-danger:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+    .alert-modern {
+        padding: 1rem 1.25rem;
+        border-radius: var(--border-radius-sm);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .alert-success {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+    }
+
+    .alert-danger {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+    }
+
+    .medicare-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid var(--gray-200);
+        transition: all 0.2s ease;
+        overflow: hidden;
+    }
+
+        .medicare-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+    .medicare-card-body {
+        padding: 1.5rem;
+    }
+
+    .booking-card {
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+    }
+
+    .card-title-modern {
+        color: var(--gray-800);
+        font-size: 1.125rem;
         font-weight: 600;
-        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .booking-title::before {
+        content: "📝";
+        font-size: 1.25rem;
+    }
+
+    .appointments-title::before {
+        content: "📋";
+        font-size: 1.25rem;
+    }
+
+    .medicare-form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--border-radius-sm);
+        font-size: 0.875rem;
+        background: white;
+        color: var(--gray-700);
         margin-bottom: 1rem;
     }
 
-    .btn-primary {
-        background-color: var(--primary-color);
-        border: none;
-        transition: all 0.2s;
-    }
-
-        .btn-primary:hover {
-            background-color: #1e40af;
+        .medicare-form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
-    .table-hover tbody tr:hover {
-        background-color: rgba(37, 99, 235, 0.05);
+    .medicare-form-label {
+        display: block;
+        font-weight: 500;
+        color: var(--gray-700);
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
     }
 
-    .badge {
-        font-size: 0.85rem;
-        padding: 0.35rem 0.65rem;
-        border-radius: 0.5rem;
+    .price-display {
+        background: var(--gray-100);
+        padding: 1rem;
+        border-radius: var(--border-radius-sm);
+        margin-bottom: 1rem;
+        border: 1px solid var(--gray-200);
     }
 
-    .nav-tabs .nav-link.active {
-        color: var(--primary-color);
-        font-weight: 600;
+    .price-display-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
     }
-    @@media (max-width: 992px) {
-        .row.g-4
+
+    .price-value {
+        font-weight: 700;
+        color: var(--success-color);
+        font-size: 1.125rem;
+    }
+
+    .medicare-tabs {
+        border-bottom: 1px solid var(--gray-200);
+        margin-bottom: 1.5rem;
+        display: flex;
+        gap: 0;
+    }
+
+    .medicare-tab {
+        background: none;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        color: var(--gray-500);
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s ease;
+        font-size: 0.875rem;
+    }
+
+        .medicare-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .medicare-tab:hover {
+            color: var(--gray-700);
+            background: var(--gray-50);
+        }
+
+    .medicare-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+
+        .medicare-table th {
+            background: var(--gray-50);
+            padding: 1rem 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-700);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .medicare-table td {
+            padding: 1rem 0.75rem;
+            border-bottom: 1px solid var(--gray-100);
+            vertical-align: middle;
+        }
+
+        .medicare-table tr:hover {
+            background: var(--gray-50);
+        }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+
+    .badge-primary {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-success {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-secondary {
+        background: var(--gray-200);
+        color: var(--gray-700);
+    }
+
+    .badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .tab-content {
+        min-height: 300px;
+    }
+
+    .tab-pane {
+        display: none;
+    }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+    .appointments-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    /* Mobile Responsiveness */
+    @@media (max-width: 768px) {
+        .medicare-appointments-container
 
     {
+        padding: 1rem 0.5rem;
+    }
+
+    .medicare-appointments-header {
+        padding: 1.5rem;
+    }
+
+    .appointments-header-content {
         flex-direction: column;
+        align-items: stretch;
+    }
+
+        .appointments-header-content h1 {
+            font-size: 1.5rem;
+        }
+
+    .appointments-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .medicare-tabs {
+        flex-wrap: wrap;
+    }
+
+    .medicare-tab {
+        flex: 1;
+        min-width: 80px;
+        padding: 0.75rem 0.5rem;
+        text-align: center;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .medicare-btn {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .medicare-table th,
+    .medicare-table td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    }
+
+    @@media (max-width: 480px) {
+        .appointments-header-content h1::before
+
+    {
+        display: none;
+    }
+
+    .booking-title::before,
+    .appointments-title::before {
+        display: none;
+    }
+
+    .price-display-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
     }
 
     }
 </style>
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-        <div>
-            <h1 class="h3 mb-1">Ama-aphoyintimenti (Appointments)</h1>
-            <p class="text-muted mb-0">Book, view, and manage your appointments</p>
-        </div>
-        <div class="mt-2">
-            <a class="btn btn-outline-primary" asp-area="Patients" asp-controller="Dashboard" asp-action="Index">
-                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
-            </a>
+
+
+<div class="medicare-appointments-container">
+    <div class="medicare-appointments-header">
+        <div class="appointments-header-content">
+            <div>
+                <h1>Ama-aphoyintimenti (Appointments)</h1>
+                <p>Book, view, and manage your appointments</p>
+            </div>
+            <div>
+                <a class="medicare-btn medicare-btn-outline" asp-area="Patients" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-arrow-left"></i>Back to Dashboard
+                </a>
+            </div>
         </div>
     </div>
 
     @if (TempData["ApptSuccess"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle me-2"></i>@TempData["ApptSuccess"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="alert-modern alert-success">
+            <i class="bi bi-check-circle"></i>
+            <div>
+                @TempData["ApptSuccess"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" style="float: right; background: none; border: none; font-size: 1.2rem; cursor: pointer;">&times;</button>
+            </div>
         </div>
     }
     @if (TempData["ApptError"] != null)
     {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ApptError"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="alert-modern alert-danger">
+            <i class="bi bi-exclamation-triangle"></i>
+            <div>
+                @TempData["ApptError"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" style="float: right; background: none; border: none; font-size: 1.2rem; cursor: pointer;">&times;</button>
+            </div>
         </div>
     }
 
-    <div class="row g-4">
-        <!-- Booking form -->
-        <div class="col-lg-4">
-            <div class="dashboard-card">
-                <h5 class="card-title">Book Appointment</h5>
+    <div class="appointments-grid">
+        <!-- Booking Form -->
+        <div class="medicare-card booking-card">
+            <div class="medicare-card-body">
+                <h5 class="card-title-modern booking-title">Book Appointment</h5>
                 <form asp-action="BookSlot" method="post">
                     @Html.AntiForgeryToken()
-                    <div class="mb-3">
-                        <label class="form-label">Doctor</label>
-                        <select class="form-select" name="doctorId" id="doctorSelect" required>
+                    <div>
+                        <label class="medicare-form-label">Doctor</label>
+                        <select class="medicare-form-control" name="doctorId" id="doctorSelect" required>
                             <option value="">Select doctor</option>
                             @foreach (var d in doctors)
                             {
@@ -189,19 +578,19 @@
                             }
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Date</label>
-                        <input class="form-control" type="date" id="dateSelect" required />
+                    <div>
+                        <label class="medicare-form-label">Date</label>
+                        <input class="medicare-form-control" type="date" id="dateSelect" required />
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Available Timeslots</label>
-                        <select class="form-select" name="timeslotId" id="timeslotSelect" required>
+                    <div>
+                        <label class="medicare-form-label">Available Timeslots</label>
+                        <select class="medicare-form-control" name="timeslotId" id="timeslotSelect" required>
                             <option value="">Select a timeslot</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Appointment Type</label>
-                        <select class="form-select" name="appointmentType" id="appointmentType" required>
+                    <div>
+                        <label class="medicare-form-label">Appointment Type</label>
+                        <select class="medicare-form-control" name="appointmentType" id="appointmentType" required>
                             <option value="">Select type</option>
                             <option>General Checkup</option>
                             <option>Follow-up</option>
@@ -209,20 +598,20 @@
                             <option>Vaccination</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Notes (optional)</label>
-                        <textarea class="form-control" name="notes" rows="2" placeholder="Reason for visit"></textarea>
+                    <div>
+                        <label class="medicare-form-label">Notes (optional)</label>
+                        <textarea class="medicare-form-control" name="notes" rows="2" placeholder="Reason for visit" style="resize: vertical; min-height: 80px;"></textarea>
                     </div>
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <span class="text-muted">Estimated Price</span>
-                            <strong id="priceDisplay">—</strong>
+                    <div class="price-display">
+                        <div class="price-display-row">
+                            <span class="medicare-form-label" style="margin: 0;">Estimated Price</span>
+                            <strong class="price-value" id="priceDisplay">—</strong>
                         </div>
-                        <small class="text-muted">Prices are estimated and charged at checkout.</small>
+                        <small style="color: var(--gray-500); font-size: 0.75rem;">Prices are estimated and charged at checkout.</small>
                     </div>
-                    <div class="d-grid">
-                        <button class="btn btn-primary" type="submit">
-                            <i class="bi bi-plus-circle me-2"></i>Book Appointment
+                    <div style="margin-top: 1.5rem;">
+                        <button class="medicare-btn medicare-btn-primary" type="submit" style="width: 100%; justify-content: center;">
+                            <i class="bi bi-plus-circle"></i>Book Appointment
                         </button>
                     </div>
                     <input type="hidden" name="doctorIdHidden" id="doctorIdHidden" />
@@ -230,155 +619,150 @@
             </div>
         </div>
 
-        <!-- Upcoming / Booked / History -->
-        <div class="col-lg-8">
-            <div class="dashboard-card">
-                <ul class="nav nav-tabs mb-3" id="apptTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="upcoming-tab" data-bs-toggle="tab" data-bs-target="#upcoming" type="button">Upcoming</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="db-tab" data-bs-toggle="tab" data-bs-target="#db" type="button">Booked</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button">History</button>
-                    </li>
-                </ul>
+        <!-- Appointments List -->
+        <div class="medicare-card">
+            <div class="medicare-card-body">
+                <h5 class="card-title-modern appointments-title">Your Appointments</h5>
 
-                <div class="tab-content" id="apptTabsContent">
-                    <!-- Upcoming -->
-                    <div class="tab-pane fade show active" id="upcoming">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
+                <div class="medicare-tabs">
+                    <button class="medicare-tab active" onclick="showTab('upcoming')">Upcoming</button>
+                    <button class="medicare-tab" onclick="showTab('booked')">Booked</button>
+                    <button class="medicare-tab" onclick="showTab('history')">History</button>
+                </div>
+
+                <!-- Upcoming Tab -->
+                <div class="tab-pane active" id="upcoming">
+                    <div style="overflow-x: auto;">
+                        <table class="medicare-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Doctor</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in Model.Where(x => x.AppointmentDate >= DateTime.Now).OrderBy(x => x.AppointmentDate))
+                                {
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Type</th>
-                                        <th>Doctor</th>
-                                        <th>Status</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var a in Model.Where(x => x.AppointmentDate >= DateTime.Now).OrderBy(x => x.AppointmentDate))
-                                    {
-                                        <tr>
-                                            <td>@a.AppointmentDate.ToString("ddd, dd MMM yyyy HH:mm")</td>
-                                            <td>@a.AppointmentType</td>
-                                            <td>@a.DoctorName</td>
-                                            <td>
-                                                @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Booked)
-                                                {
-                                                    <span class="badge bg-primary">Booked</span>
-                                                }
-                                                else if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Cancelled)
-                                                {
-                                                    <span class="badge bg-secondary">Cancelled</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-success">Completed</span>
-                                                }
-                                            </td>
-                                            <td class="text-end">
-                                                @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Booked)
-                                                {
-                                                    <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@a.Id">
-                                                        <i class="bi bi-pencil-square me-1"></i>Reschedule
+                                        <td>@a.AppointmentDate.ToString("ddd, dd MMM yyyy HH:mm")</td>
+                                        <td>@a.AppointmentType</td>
+                                        <td>@a.DoctorName</td>
+                                        <td>
+                                            @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Booked)
+                                            {
+                                                <span class="status-badge badge-primary">Booked</span>
+                                            }
+                                            else if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Cancelled)
+                                            {
+                                                <span class="status-badge badge-secondary">Cancelled</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge badge-success">Completed</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Booked)
+                                            {
+                                                <div class="action-buttons">
+                                                    <a class="medicare-btn medicare-btn-sm medicare-btn-secondary" asp-action="Edit" asp-route-id="@a.Id">
+                                                        <i class="bi bi-pencil-square"></i>Reschedule
                                                     </a>
-                                                    <form asp-action="Cancel" method="post" class="d-inline ms-1">
+                                                    <form asp-action="Cancel" method="post" style="display: inline;">
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="id" value="@a.Id" />
-                                                        <button class="btn btn-sm btn-outline-danger" type="submit">
-                                                            <i class="bi bi-x-circle me-1"></i>Cancel
+                                                        <button class="medicare-btn medicare-btn-sm medicare-btn-danger" type="submit">
+                                                            <i class="bi bi-x-circle"></i>Cancel
                                                         </button>
                                                     </form>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Booked / DB -->
-                    <div class="tab-pane fade" id="db">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Type</th>
-                                        <th>Status</th>
-                                        <th>Payment</th>
+                                                </div>
+                                            }
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var a in dbAppointments)
-                                    {
-                                        <tr>
-                                            <td>@(a.AppointmentDate.Add(a.StartTime).ToString("ddd, dd MMM yyyy HH:mm"))</td>
-                                            <td>@a.AppointmentType</td>
-                                            <td><span class="badge bg-primary">@a.Status</span></td>
-                                            <td>
-                                                @if (a.PaymentStatus == "Completed")
-                                                {
-                                                    <span class="badge bg-success">Paid</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-warning text-dark">@a.PaymentStatus</span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- History -->
-                    <div class="tab-pane fade" id="history">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Type</th>
-                                        <th>Doctor</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var a in Model.Where(x => x.AppointmentDate < DateTime.Now).OrderByDescending(x => x.AppointmentDate))
-                                    {
-                                        <tr>
-                                            <td>@a.AppointmentDate.ToString("ddd, dd MMM yyyy HH:mm")</td>
-                                            <td>@a.AppointmentType</td>
-                                            <td>@a.DoctorName</td>
-                                            <td>
-                                                @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Completed)
-                                                {
-                                                    <span class="badge bg-success">Completed</span>
-                                                }
-                                                else if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Cancelled)
-                                                {
-                                                    <span class="badge bg-secondary">Cancelled</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-primary">Booked</span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
+                                }
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
+                <!-- Booked Tab -->
+                <div class="tab-pane" id="booked">
+                    <div style="overflow-x: auto;">
+                        <table class="medicare-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Payment</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in dbAppointments)
+                                {
+                                    <tr>
+                                        <td>@(a.AppointmentDate.Add(a.StartTime).ToString("ddd, dd MMM yyyy HH:mm"))</td>
+                                        <td>@a.AppointmentType</td>
+                                        <td><span class="status-badge badge-primary">@a.Status</span></td>
+                                        <td>
+                                            @if (a.PaymentStatus == "Completed")
+                                            {
+                                                <span class="status-badge badge-success">Paid</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge badge-warning">@a.PaymentStatus</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- History Tab -->
+                <div class="tab-pane" id="history">
+                    <div style="overflow-x: auto;">
+                        <table class="medicare-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Doctor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in Model.Where(x => x.AppointmentDate < DateTime.Now).OrderByDescending(x => x.AppointmentDate))
+                                {
+                                    <tr>
+                                        <td>@a.AppointmentDate.ToString("ddd, dd MMM yyyy HH:mm")</td>
+                                        <td>@a.AppointmentType</td>
+                                        <td>@a.DoctorName</td>
+                                        <td>
+                                            @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Completed)
+                                            {
+                                                <span class="status-badge badge-success">Completed</span>
+                                            }
+                                            else if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Cancelled)
+                                            {
+                                                <span class="status-badge badge-secondary">Cancelled</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge badge-primary">Booked</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -386,6 +770,26 @@
 
 @section Scripts {
     <script>
+        // Tab functionality
+        function showTab(tabName) {
+            // Hide all tab panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('.medicare-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab pane
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Original appointment booking functionality
         (function () {
             const prices = {
                 'General Checkup': 500.00,

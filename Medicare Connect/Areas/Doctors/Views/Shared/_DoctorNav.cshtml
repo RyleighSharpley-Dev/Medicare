@@ -1,14 +1,405 @@
+﻿@using System.Security.Claims
+@using System.IO
 @{
     var routeValues = ViewContext.RouteData.Values;
     string currentController = (routeValues["controller"]?.ToString() ?? "").ToLowerInvariant();
 }
-<nav class="nav flex-column">
-    <a class="nav-link px-3 py-2 @(currentController=="dashboard"?"active":"")" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
-    <a class="nav-link px-3 py-2 @(currentController=="patients"?"active":"")" asp-area="Doctors" asp-controller="Patients" asp-action="Index">Patients</a>
-    <a class="nav-link px-3 py-2 @(currentController=="appointments"?"active":"")" asp-area="Doctors" asp-controller="Appointments" asp-action="Index">Appointments</a>
-    <a class="nav-link px-3 py-2 @(currentController=="schedule"?"active":"")" asp-area="Doctors" asp-controller="Schedule" asp-action="Index">Schedule</a>
-    <a class="nav-link px-3 py-2 @(currentController=="prescriptions"?"active":"")" asp-area="Doctors" asp-controller="Prescriptions" asp-action="Index">Prescriptions</a>
-    <a class="nav-link px-3 py-2 @(currentController=="records"?"active":"")" asp-area="Doctors" asp-controller="Records" asp-action="Index">Medical Records</a>
-    <a class="nav-link px-3 py-2 @(currentController=="consultations"?"active":"")" asp-area="Doctors" asp-controller="Consultations" asp-action="Index">Consultations</a>
-    <a class="nav-link px-3 py-2 @(currentController=="profile"?"active":"")" asp-area="Doctors" asp-controller="Profile" asp-action="Index">Profile</a>
+@{
+    // Check if profile photo exists
+    // Use same stable key logic as controller fallbacks
+    var userId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier)
+               ?? (User.FindFirstValue(System.Security.Claims.ClaimTypes.Email) ?? User.Identity?.Name);
+    if (!string.IsNullOrWhiteSpace(userId) && userId.Contains('@'))
+    {
+        userId = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(userId)).TrimEnd('=')
+                    .Replace('+', '-')
+                    .Replace('/', '_');
+    }
+    if (string.IsNullOrWhiteSpace(userId))
+    {
+        userId = "unknown";
+    }
+    var uploadsFolder = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profile-photos");
+    var profilePhotoPath = "";
+    var fullNameClaim = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value;
+    var displayName = !string.IsNullOrWhiteSpace(fullNameClaim) ? fullNameClaim : (User.Identity?.Name ?? "");
+
+    if (System.IO.Directory.Exists(uploadsFolder))
+    {
+        var files = System.IO.Directory.GetFiles(uploadsFolder)
+            .Where(f => System.IO.Path.GetFileNameWithoutExtension(f) == userId)
+            .ToList();
+
+        if (files.Any())
+        {
+            var fileName = System.IO.Path.GetFileName(files.First());
+            profilePhotoPath = $"/uploads/profile-photos/{fileName}";
+        }
+    }
+}
+
+<style>
+    :root {
+        --primary-color: #2563eb;
+        --primary-light: #3b82f6;
+        --primary-dark: #1d4ed8;
+        --success-color: #059669;
+        --warning-color: #d97706;
+        --danger-color: #dc2626;
+        --info-color: #0891b2;
+        --doctor-primary: #7c3aed;
+        --doctor-light: #a855f7;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --border-radius: 12px;
+        --border-radius-sm: 8px;
+    }
+
+    .medicare-doctor-navbar {
+        background: linear-gradient(135deg, var(--doctor-primary) 0%, var(--doctor-light) 100%);
+        box-shadow: var(--shadow-lg);
+        padding: 0;
+        margin-bottom: 2rem;
+    }
+
+    .medicare-doctor-navbar-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .medicare-doctor-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: white;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1.5rem;
+    }
+
+        .medicare-doctor-brand:hover {
+            color: white;
+            text-decoration: none;
+        }
+
+        .medicare-doctor-brand::before {
+            content: "⚕️";
+            font-size: 1.75rem;
+        }
+
+    .medicare-doctor-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .medicare-doctor-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        border-radius: var(--border-radius-sm);
+        transition: all 0.2s ease;
+        font-weight: 500;
+        font-size: 0.875rem;
+        white-space: nowrap;
+    }
+
+        .medicare-doctor-nav-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+        }
+
+        .medicare-doctor-nav-link.active {
+            color: var(--doctor-primary);
+            background: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .medicare-doctor-nav-link i {
+            font-size: 1rem;
+        }
+
+    .medicare-doctor-profile-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .medicare-doctor-profile-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: white;
+    }
+
+    .medicare-doctor-profile-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        flex-shrink: 0;
+    }
+
+        .medicare-doctor-profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .medicare-doctor-profile-text h6 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .medicare-doctor-profile-text small {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.75rem;
+    }
+
+    .medicare-doctor-language-selector {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .medicare-doctor-language-selector label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.75rem;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+    .medicare-doctor-language-select {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.375rem 0.75rem;
+        border-radius: var(--border-radius-sm);
+        font-size: 0.75rem;
+        min-width: 100px;
+    }
+
+        .medicare-doctor-language-select:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+        }
+
+        .medicare-doctor-language-select option {
+            background: var(--gray-800);
+            color: white;
+        }
+
+    /* Mobile Navigation */
+    .medicare-doctor-mobile-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.25rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: var(--border-radius-sm);
+    }
+
+        .medicare-doctor-mobile-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+    @@media (max-width: 768px) {
+        .medicare-doctor-navbar-container
+
+    {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+
+    .medicare-doctor-navbar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .medicare-doctor-mobile-toggle {
+        display: block;
+    }
+
+    .medicare-doctor-nav {
+        display: none;
+        flex-direction: column;
+        gap: 0.25rem;
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+        .medicare-doctor-nav.show {
+            display: flex;
+        }
+
+    .medicare-doctor-nav-link {
+        justify-content: flex-start;
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .medicare-doctor-profile-section {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    .medicare-doctor-profile-info {
+        justify-content: center;
+    }
+
+    .medicare-doctor-language-selector {
+        justify-content: center;
+    }
+
+    }
+
+    @@media (max-width: 480px) {
+        .medicare-doctor-brand
+
+    {
+        font-size: 1.25rem;
+    }
+
+    .medicare-doctor-brand::before {
+        font-size: 1.5rem;
+    }
+
+    .medicare-doctor-profile-text {
+        text-align: center;
+    }
+
+    }</style>
+
+<nav class="medicare-doctor-navbar">
+    <div class="medicare-doctor-navbar-container">
+        <div class="medicare-doctor-navbar-header">
+            <a href="/Doctors/Dashboard" class="medicare-doctor-brand">
+                Medicare
+            </a>
+            <button class="medicare-doctor-mobile-toggle" onclick="toggleDoctorMobileNav()">
+                <i class="bi bi-list" id="doctorMobileToggleIcon"></i>
+            </button>
+        </div>
+
+        <div class="medicare-doctor-nav" id="doctorMobileNav">
+            <a class="medicare-doctor-nav-link @(currentController == "dashboard" ? "active" : "")" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a class="medicare-doctor-nav-link @(currentController == "patients" ? "active" : "")" asp-area="Doctors" asp-controller="Patients" asp-action="Index">
+                <i class="bi bi-people"></i> Patients
+            </a>
+            <a class="medicare-doctor-nav-link @(currentController == "appointments" ? "active" : "")" asp-area="Doctors" asp-controller="Appointments" asp-action="Index">
+                <i class="bi bi-calendar-check"></i> Appointments
+            </a>
+            <a class="medicare-doctor-nav-link @(currentController == "schedule" ? "active" : "")" asp-area="Doctors" asp-controller="Schedule" asp-action="Index">
+                <i class="bi bi-calendar3"></i> Schedule
+            </a>
+            <a class="medicare-doctor-nav-link @(currentController == "prescriptions" ? "active" : "")" asp-area="Doctors" asp-controller="Prescriptions" asp-action="Index">
+                <i class="bi bi-prescription2"></i> Prescriptions
+            </a>
+            <a class="medicare-doctor-nav-link @(currentController == "records" ? "active" : "")" asp-area="Doctors" asp-controller="Records" asp-action="Index">
+                <i class="bi bi-journal-medical"></i> Medical Records
+            </a>
+            <a class="medicare-doctor-nav-link @(currentController == "consultations" ? "active" : "")" asp-area="Doctors" asp-controller="Consultations" asp-action="Index">
+                <i class="bi bi-chat-dots"></i> Consultations
+            </a>
+            <a class="medicare-doctor-nav-link @(currentController == "profile" ? "active" : "")" asp-area="Doctors" asp-controller="Profile" asp-action="Index">
+                <i class="bi bi-person-badge"></i> Profile
+            </a>
+        </div>
+
+        <div class="medicare-doctor-profile-section">
+            <div class="medicare-doctor-profile-info">
+                <div class="medicare-doctor-profile-avatar">
+                    @if (!string.IsNullOrEmpty(profilePhotoPath))
+                    {
+                        <img src="@profilePhotoPath" alt="Profile Photo" />
+                    }
+                    else
+                    {
+                        <i class="bi bi-person-circle" style="color: rgba(255,255,255,0.8); font-size: 1.5rem;"></i>
+                    }
+                </div>
+                <div class="medicare-doctor-profile-text">
+                    <h6>Dr. @displayName</h6>
+                    <small>Doctor</small>
+                </div>
+            </div>
+
+            <div class="medicare-doctor-language-selector">
+                <form method="get" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">
+                    <label>Language:</label>
+                    <select class="medicare-doctor-language-select" name="culture" onchange="this.form.action=this.form.action+'?culture='+this.value; this.form.submit();">
+                        <option value="en" selected="@(Context.Request.Query["culture"] == "en")">English</option>
+                        <option value="zu" selected="@(Context.Request.Query["culture"] == "zu")">isiZulu</option>
+                        <option value="st" selected="@(Context.Request.Query["culture"] == "st")">Sesotho</option>
+                        <option value="ts" selected="@(Context.Request.Query["culture"] == "ts")">Xitsonga</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
 </nav>
+
+<script>
+    function toggleDoctorMobileNav() {
+        const mobileNav = document.getElementById('doctorMobileNav');
+        const toggleIcon = document.getElementById('doctorMobileToggleIcon');
+
+        if (mobileNav.classList.contains('show')) {
+            mobileNav.classList.remove('show');
+            toggleIcon.className = 'bi bi-list';
+        } else {
+            mobileNav.classList.add('show');
+            toggleIcon.className = 'bi bi-x';
+        }
+    }
+
+    // Close mobile nav when clicking on a link
+    document.querySelectorAll('.medicare-doctor-nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            const mobileNav = document.getElementById('doctorMobileNav');
+            const toggleIcon = document.getElementById('doctorMobileToggleIcon');
+            mobileNav.classList.remove('show');
+            toggleIcon.className = 'bi bi-list';
+        });
+    });
+</script>
