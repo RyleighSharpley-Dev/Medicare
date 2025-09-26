@@ -3,160 +3,636 @@
     ViewData["Title"] = "Register New Patient";
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Register New Patient</h2>
-                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Back to Patients
-                </a>
-            </div>
+@section Styles {
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Patient Information</h5>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="FirstName" class="form-label"></label>
-                                <input asp-for="FirstName" class="form-control" />
-                                <span asp-validation-for="FirstName" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="LastName" class="form-label"></label>
-                                <input asp-for="LastName" class="form-control" />
-                                <span asp-validation-for="LastName" class="text-danger"></span>
-                            </div>
-                        </div>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Email" class="form-label"></label>
-                                <input asp-for="Email" class="form-control" type="email" />
-                                <span asp-validation-for="Email" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="PhoneNumber" class="form-label"></label>
-                                <input asp-for="PhoneNumber" class="form-control" type="tel" />
-                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-                            </div>
-                        </div>
+        /* Main Container */
+        .registration-container {
+            width: 100%;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="DateOfBirth" class="form-label"></label>
-                                <input asp-for="DateOfBirth" class="form-control" type="date" />
-                                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Gender" class="form-label"></label>
-                                <select asp-for="Gender" class="form-select">
-                                    <option value="">Select Gender</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Other">Other</option>
-                                    <option value="Prefer not to say">Prefer not to say</option>
-                                </select>
-                                <span asp-validation-for="Gender" class="text-danger"></span>
-                            </div>
-                        </div>
+        /* Header Section */
+        .page-header {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
 
-                        <div class="mb-3">
-                            <label asp-for="Address" class="form-label"></label>
-                            <input asp-for="Address" class="form-control" />
-                            <span asp-validation-for="Address" class="text-danger"></span>
-                        </div>
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="City" class="form-label"></label>
-                                <input asp-for="City" class="form-control" />
-                                <span asp-validation-for="City" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="PostalCode" class="form-label"></label>
-                                <input asp-for="PostalCode" class="form-control" />
-                                <span asp-validation-for="PostalCode" class="text-danger"></span>
-                            </div>
-                        </div>
+        /* Modern Buttons */
+        .btn-modern {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.875rem 1.75rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
 
-                        <hr class="my-4">
-                        <h6>Emergency Contact Information</h6>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="EmergencyContactName" class="form-label"></label>
-                                <input asp-for="EmergencyContactName" class="form-control" />
-                                <span asp-validation-for="EmergencyContactName" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="EmergencyContactPhone" class="form-label"></label>
-                                <input asp-for="EmergencyContactPhone" class="form-control" type="tel" />
-                                <span asp-validation-for="EmergencyContactPhone" class="text-danger"></span>
-                            </div>
-                        </div>
+            .btn-modern:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+                color: white;
+                text-decoration: none;
+            }
 
-                        <hr class="my-4">
-                        <h6>Insurance Information</h6>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="InsuranceNumber" class="form-label"></label>
-                                <input asp-for="InsuranceNumber" class="form-control" />
-                                <span asp-validation-for="InsuranceNumber" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="InsuranceProvider" class="form-label"></label>
-                                <input asp-for="InsuranceProvider" class="form-control" />
-                                <span asp-validation-for="InsuranceProvider" class="text-danger"></span>
-                            </div>
-                        </div>
+        .btn-outline {
+            background: transparent;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
 
-                        <div class="mb-3">
-                            <label asp-for="PrimaryCarePhysician" class="form-label"></label>
-                            <input asp-for="PrimaryCarePhysician" class="form-control" />
-                            <span asp-validation-for="PrimaryCarePhysician" class="text-danger"></span>
-                        </div>
+            .btn-outline:hover {
+                background: #64748b;
+                color: white;
+                border-color: #64748b;
+                text-decoration: none;
+                transform: translateY(-1px);
+            }
 
-                        <hr class="my-4">
-                        <h6>Medical Information</h6>
-                        <div class="mb-3">
-                            <label asp-for="Allergies" class="form-label"></label>
-                            <textarea asp-for="Allergies" class="form-control" rows="2" 
-                                      placeholder="List any known allergies..."></textarea>
-                            <span asp-validation-for="Allergies" class="text-danger"></span>
-                        </div>
+        .btn-reset {
+            background: #f1f5f9;
+            color: #475569;
+            border: 2px solid #e2e8f0;
+        }
 
-                        <div class="mb-3">
-                            <label asp-for="MedicalHistory" class="form-label"></label>
-                            <textarea asp-for="MedicalHistory" class="form-control" rows="3" 
-                                      placeholder="Brief medical history..."></textarea>
-                            <span asp-validation-for="MedicalHistory" class="text-danger"></span>
-                        </div>
+            .btn-reset:hover {
+                background: #475569;
+                color: white;
+                border-color: #475569;
+            }
 
-                        <div class="mb-3">
-                            <label asp-for="CurrentMedications" class="form-label"></label>
-                            <textarea asp-for="CurrentMedications" class="form-control" rows="2" 
-                                      placeholder="List current medications..."></textarea>
-                            <span asp-validation-for="CurrentMedications" class="text-danger"></span>
-                        </div>
+        /* Form Container */
+        .form-container {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
 
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-person-plus"></i> Register Patient
-                            </button>
-                            <button type="reset" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-clockwise"></i> Reset
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        /* Section Headers */
+        .section-header {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+            .section-header:before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+            }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        /* Form Sections */
+        .form-section {
+            padding: 2rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+            .form-section:last-child {
+                border-bottom: none;
+            }
+
+        .subsection-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #ffffff;
+            color: #1e293b;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+                transform: translateY(-1px);
+            }
+
+            .form-control::placeholder {
+                color: #9ca3af;
+            }
+
+        .form-select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #ffffff;
+            color: #1e293b;
+            cursor: pointer;
+        }
+
+            .form-select:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+                transform: translateY(-1px);
+            }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Validation Styles */
+        .text-danger {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .form-control.input-validation-error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+            .form-control.input-validation-error:focus {
+                border-color: #ef4444;
+                box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+            }
+
+        /* Grid System */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+            .form-row.single {
+                grid-template-columns: 1fr;
+            }
+
+        /* Action Buttons */
+        .form-actions {
+            padding: 1.5rem 2rem;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-start;
+        }
+
+        /* Progress Indicator */
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+            .progress-step.active {
+                color: #667eea;
+            }
+
+            .progress-step .step-number {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background: #e2e8f0;
+                color: #64748b;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+
+            .progress-step.active .step-number {
+                background: #667eea;
+                color: white;
+            }
+
+        /* Mobile Responsiveness */
+        @@media (max-width: 768px) {
+            .registration-container
+
+        {
+            padding: 1rem;
+        }
+
+        .page-header {
+            padding: 1.5rem;
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-section {
+            padding: 1.5rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            padding: 1.5rem;
+        }
+
+        .progress-indicator {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        }
+
+        @@media (max-width: 480px) {
+            .section-title
+
+        {
+            font-size: 1.125rem;
+        }
+
+        .subsection-title {
+            font-size: 1rem;
+        }
+
+        }
+
+        /* Utility Classes */
+        .d-flex {
+            display: flex;
+        }
+
+        .justify-content-between {
+            justify-content: space-between;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .gap-2 {
+            gap: 0.5rem;
+        }
+    </style>
+}
+
+<div class="registration-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2 class="page-title">Register New Patient</h2>
+        <a href="@Url.Action("Index")" class="btn-outline">
+            <i class="bi bi-arrow-left"></i> Back to Patients
+        </a>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="progress-indicator">
+        <div class="progress-step active">
+            <span class="step-number">1</span>
+            Personal Info
         </div>
+        <div class="progress-step">
+            <span class="step-number">2</span>
+            Emergency Contact
+        </div>
+        <div class="progress-step">
+            <span class="step-number">3</span>
+            Insurance
+        </div>
+        <div class="progress-step">
+            <span class="step-number">4</span>
+            Medical History
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <div class="section-header">
+            <h5 class="section-title">
+                <div class="section-icon"><i class="bi bi-person"></i></div>
+                Patient Registration Form
+            </h5>
+        </div>
+
+        <form method="post">
+            <!-- Personal Information Section -->
+            <div class="form-section">
+                <h6 class="subsection-title">
+                    <i class="bi bi-person-circle"></i> Personal Information
+                </h6>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="FirstName" class="form-label"></label>
+                        <input asp-for="FirstName" class="form-control" placeholder="Enter first name" />
+                        <span asp-validation-for="FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="LastName" class="form-label"></label>
+                        <input asp-for="LastName" class="form-control" placeholder="Enter last name" />
+                        <span asp-validation-for="LastName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" type="email" placeholder="patient@example.com" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PhoneNumber" class="form-label"></label>
+                        <input asp-for="PhoneNumber" class="form-control" type="tel" placeholder="+27 XX XXX XXXX" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="DateOfBirth" class="form-label"></label>
+                        <input asp-for="DateOfBirth" class="form-control" type="date" />
+                        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Gender" class="form-label"></label>
+                        <select asp-for="Gender" class="form-select">
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
+                        </select>
+                        <span asp-validation-for="Gender" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-group">
+                        <label asp-for="Address" class="form-label"></label>
+                        <input asp-for="Address" class="form-control" placeholder="Street address" />
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="City" class="form-label"></label>
+                        <input asp-for="City" class="form-control" placeholder="City" />
+                        <span asp-validation-for="City" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PostalCode" class="form-label"></label>
+                        <input asp-for="PostalCode" class="form-control" placeholder="Postal code" />
+                        <span asp-validation-for="PostalCode" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Contact Section -->
+            <div class="form-section">
+                <h6 class="subsection-title">
+                    <i class="bi bi-person-exclamation"></i> Emergency Contact Information
+                </h6>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="EmergencyContactName" class="form-label"></label>
+                        <input asp-for="EmergencyContactName" class="form-control" placeholder="Contact person name" />
+                        <span asp-validation-for="EmergencyContactName" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="EmergencyContactPhone" class="form-label"></label>
+                        <input asp-for="EmergencyContactPhone" class="form-control" type="tel" placeholder="+27 XX XXX XXXX" />
+                        <span asp-validation-for="EmergencyContactPhone" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insurance Information Section -->
+            <div class="form-section">
+                <h6 class="subsection-title">
+                    <i class="bi bi-shield-check"></i> Insurance Information
+                </h6>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="InsuranceNumber" class="form-label"></label>
+                        <input asp-for="InsuranceNumber" class="form-control" placeholder="Insurance policy number" />
+                        <span asp-validation-for="InsuranceNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="InsuranceProvider" class="form-label"></label>
+                        <input asp-for="InsuranceProvider" class="form-control" placeholder="Insurance company name" />
+                        <span asp-validation-for="InsuranceProvider" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-group">
+                        <label asp-for="PrimaryCarePhysician" class="form-label"></label>
+                        <input asp-for="PrimaryCarePhysician" class="form-control" placeholder="Primary care doctor name" />
+                        <span asp-validation-for="PrimaryCarePhysician" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical Information Section -->
+            <div class="form-section">
+                <h6 class="subsection-title">
+                    <i class="bi bi-heart-pulse"></i> Medical Information
+                </h6>
+
+                <div class="form-group">
+                    <label asp-for="Allergies" class="form-label"></label>
+                    <textarea asp-for="Allergies" class="form-control" rows="3"
+                              placeholder="List any known allergies (food, medication, environmental)..."></textarea>
+                    <span asp-validation-for="Allergies" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="MedicalHistory" class="form-label"></label>
+                    <textarea asp-for="MedicalHistory" class="form-control" rows="4"
+                              placeholder="Brief medical history, previous surgeries, chronic conditions..."></textarea>
+                    <span asp-validation-for="MedicalHistory" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="CurrentMedications" class="form-label"></label>
+                    <textarea asp-for="CurrentMedications" class="form-control" rows="3"
+                              placeholder="List current medications with dosages..."></textarea>
+                    <span asp-validation-for="CurrentMedications" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn-modern">
+                    <i class="bi bi-person-plus"></i> Register Patient
+                </button>
+                <button type="reset" class="btn-reset btn-outline">
+                    <i class="bi bi-arrow-clockwise"></i> Reset Form
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-} 
+
+    <script>
+        // Progress indicator update based on form sections
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.form-section');
+            const steps = document.querySelectorAll('.progress-step');
+
+            // Simple form validation visual feedback
+            const inputs = document.querySelectorAll('.form-control, .form-select');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.value.trim() !== '') {
+                        this.style.borderColor = '#10b981';
+                    } else {
+                        this.style.borderColor = '#e2e8f0';
+                    }
+                });
+            });
+
+            // Reset form styling
+            const resetBtn = document.querySelector('button[type="reset"]');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function() {
+                    setTimeout(() => {
+                        inputs.forEach(input => {
+                            input.style.borderColor = '#e2e8f0';
+                        });
+                    }, 100);
+                });
+            }
+        });
+    </script>
+}

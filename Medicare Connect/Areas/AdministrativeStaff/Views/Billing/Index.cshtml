@@ -1,217 +1,705 @@
-@model List<Medicare_Connect.Areas.AdministrativeStaff.Models.BillingListItem>
+﻿@model List<Medicare_Connect.Areas.AdministrativeStaff.Models.BillingListItem>
 @{
     ViewData["Title"] = "Billing Management";
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Billing Management</h2>
-                <div class="d-flex gap-2">
-                    <a href="@Url.Action("Payments")" class="btn btn-outline-success">
-                        <i class="bi bi-credit-card"></i> View Payments
-                    </a>
-                    @* Hidden for production use
-                    <a href="@Url.Action("SeedSampleData")" class="btn btn-outline-info">
-                        <i class="bi bi-database-add"></i> Seed Sample Data
-                    </a>
-                    *@
-                    <a href="@Url.Action("ExportBillingData")" class="btn btn-outline-success">
-                        <i class="bi bi-download"></i> Export CSV
-                    </a>
-                    <a href="@Url.Action("Create")" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Create Bill
-                    </a>
-                </div>
+<style>
+    :root {
+        --primary-color: #2563eb;
+        --primary-light: #3b82f6;
+        --primary-dark: #1d4ed8;
+        --success-color: #059669;
+        --warning-color: #d97706;
+        --danger-color: #dc2626;
+        --info-color: #0891b2;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --border-radius: 12px;
+        --border-radius-sm: 8px;
+    }
+
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #ffffff;
+        color: var(--gray-700);
+        line-height: 1.6;
+    }
+
+    .medicare-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .medicare-header {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: var(--shadow-lg);
+    }
+
+        .medicare-header h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+            .medicare-header h2::before {
+                content: "💊";
+                font-size: 1.75rem;
+            }
+
+    .header-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .modern-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        border-radius: var(--border-radius-sm);
+        font-weight: 500;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.875rem;
+        white-space: nowrap;
+    }
+
+    .modern-btn-primary {
+        background: white;
+        color: var(--primary-color);
+        box-shadow: var(--shadow-sm);
+    }
+
+        .modern-btn-primary:hover {
+            background: var(--gray-50);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+            color: var(--primary-dark);
+        }
+
+    .modern-btn-outline {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+        .modern-btn-outline:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: white;
+        }
+
+    .bulk-actions-card {
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .bulk-actions-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .bulk-selected-count {
+        color: var(--gray-600);
+        font-weight: 500;
+    }
+
+    .bulk-actions-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .modern-select {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--border-radius-sm);
+        font-size: 0.875rem;
+        background: white;
+        color: var(--gray-700);
+        min-width: 160px;
+    }
+
+        .modern-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+    .alert-modern {
+        padding: 1rem 1.25rem;
+        border-radius: var(--border-radius-sm);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .alert-success {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+    }
+
+    .alert-info {
+        background: #f0f9ff;
+        border: 1px solid #bae6fd;
+        color: #0c4a6e;
+    }
+
+    .alert-danger {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+    }
+
+    .main-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        border: 1px solid var(--gray-200);
+    }
+
+    .card-header-modern {
+        background: var(--gray-50);
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--gray-200);
+    }
+
+        .card-header-modern h5 {
+            margin: 0;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--gray-500);
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .modern-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+
+        .modern-table th {
+            background: var(--gray-50);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-700);
+            border-bottom: 1px solid var(--gray-200);
+            white-space: nowrap;
+        }
+
+        .modern-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-100);
+            vertical-align: middle;
+        }
+
+        .modern-table tr:hover {
+            background: var(--gray-50);
+        }
+
+    .table-row-overdue {
+        background: #fef2f2 !important;
+    }
+
+        .table-row-overdue:hover {
+            background: #fee2e2 !important;
+        }
+
+    .patient-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .patient-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 500;
+        flex-shrink: 0;
+    }
+
+    .patient-name {
+        font-weight: 600;
+        color: var(--gray-800);
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+
+    .badge-success {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .badge-warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-danger {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .badge-info {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .badge-secondary {
+        background: var(--gray-200);
+        color: var(--gray-700);
+    }
+
+    .service-badge {
+        background: #e0f2fe;
+        color: #01579b;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--border-radius-sm);
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .amount-display {
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .amount-primary {
+        color: var(--success-color);
+    }
+
+    .amount-warning {
+        color: var(--warning-color);
+    }
+
+    .amount-info {
+        color: var(--info-color);
+    }
+
+    .date-display {
+        color: var(--gray-500);
+        font-size: 0.875rem;
+    }
+
+    .date-overdue {
+        color: var(--danger-color);
+        font-weight: 600;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.25rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-action {
+        padding: 0.375rem 0.75rem;
+        border-radius: var(--border-radius-sm);
+        font-size: 0.75rem;
+        font-weight: 500;
+        border: 1px solid;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-view {
+        background: #f0f9ff;
+        border-color: #0891b2;
+        color: #0891b2;
+    }
+
+        .btn-view:hover {
+            background: #0891b2;
+            color: white;
+        }
+
+    .btn-edit {
+        background: #fefbf2;
+        border-color: #d97706;
+        color: #d97706;
+    }
+
+        .btn-edit:hover {
+            background: #d97706;
+            color: white;
+        }
+
+    .btn-paid {
+        background: #f0fdf4;
+        border-color: #059669;
+        color: #059669;
+    }
+
+        .btn-paid:hover {
+            background: #059669;
+            color: white;
+        }
+
+    .table-stats {
+        padding: 1.5rem 2rem;
+        background: var(--gray-50);
+        border-top: 1px solid var(--gray-200);
+        color: var(--gray-600);
+        font-size: 0.875rem;
+    }
+
+    .modern-checkbox {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary-color);
+        cursor: pointer;
+    }
+
+    /* Mobile Responsiveness */
+    @@media (max-width: 768px) {
+        .medicare-container
+
+    {
+        padding: 1rem 0.5rem;
+    }
+
+    .medicare-header {
+        padding: 1.5rem;
+    }
+
+        .medicare-header h2 {
+            font-size: 1.5rem;
+        }
+
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .modern-btn {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .bulk-actions-content {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .bulk-actions-controls {
+        flex-direction: column;
+    }
+
+    .modern-select {
+        width: 100%;
+    }
+
+    .table-container {
+        margin: 0 -1rem;
+    }
+
+    .modern-table {
+        min-width: 800px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .btn-action {
+        justify-content: center;
+        width: 100%;
+    }
+
+    }
+
+    @@media (max-width: 480px) {
+        .medicare-header h2::before
+
+    {
+        display: none;
+    }
+
+    .patient-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .modern-table th,
+    .modern-table td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    }</style>
+
+<div class="medicare-container">
+    <div class="medicare-header">
+        <h2>Billing Management</h2>
+        <div class="header-actions">
+            <a href="@Url.Action("Payments")" class="modern-btn modern-btn-outline">
+                <i class="bi bi-credit-card"></i> View Payments
+            </a>
+            @* Hidden for production use
+            <a href="@Url.Action("SeedSampleData")" class="modern-btn modern-btn-outline">
+                <i class="bi bi-database-add"></i> Seed Sample Data
+            </a>
+            *@
+            <a href="@Url.Action("ExportBillingData")" class="modern-btn modern-btn-outline">
+                <i class="bi bi-download"></i> Export CSV
+            </a>
+            <a href="@Url.Action("Create")" class="modern-btn modern-btn-primary">
+                <i class="bi bi-plus-circle"></i> Create Bill
+            </a>
+        </div>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="bulk-actions-card" id="bulkActionsCard" style="display: none;">
+        <div class="bulk-actions-content">
+            <div class="bulk-selected-count">
+                <i class="bi bi-check-square"></i>
+                <span id="selectedCount">0</span> billing record(s) selected
             </div>
-
-            <!-- Bulk Actions -->
-            <div class="card mb-4" id="bulkActionsCard" style="display: none;">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <span class="text-muted">
-                                <span id="selectedCount">0</span> billing record(s) selected
-                            </span>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-flex gap-2 justify-content-end">
-                                <select class="form-select form-select-sm" id="bulkStatusSelect" style="width: auto;">
-                                    <option value="">Select Status</option>
-                                    <option value="Paid">Mark as Paid</option>
-                                    <option value="Pending">Mark as Pending</option>
-                                    <option value="Partial">Mark as Partial</option>
-                                    <option value="Overdue">Mark as Overdue</option>
-                                    <option value="Cancelled">Mark as Cancelled</option>
-                                </select>
-                                <button class="btn btn-sm btn-primary" onclick="applyBulkUpdate()">
-                                    <i class="bi bi-check-circle"></i> Apply
-                                </button>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="clearBulkSelection()">
-                                    <i class="bi bi-x-circle"></i> Clear
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            }
-
-            @if (TempData["InfoMessage"] != null)
-            {
-                <div class="alert alert-info alert-dismissible fade show" role="alert">
-                    <i class="bi bi-info-circle"></i> @TempData["InfoMessage"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            }
-
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-triangle"></i> @TempData["ErrorMessage"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            }
-
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Billing Records</h5>
-                </div>
-                <div class="card-body">
-                    @if (!Model.Any())
-                    {
-                        <div class="text-center py-4">
-                            <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
-                            <p class="text-muted mt-2">No billing records found.</p>
-                            <a href="@Url.Action("Create")" class="btn btn-primary">
-                                <i class="bi bi-plus-circle"></i> Create First Bill
-                            </a>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>
-                                            <input type="checkbox" class="form-check-input" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
-                                        </th>
-                                        <th>Patient</th>
-                                        <th>Service Type</th>
-                                        <th>Service Date</th>
-                                        <th>Amount</th>
-                                        <th>Insurance</th>
-                                        <th>Patient Responsibility</th>
-                                        <th>Payment Status</th>
-                                        <th>Due Date</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var bill in Model)
-                                    {
-                                        <tr class="@(bill.IsOverdue ? "table-danger" : "")">
-                                            <td>
-                                                <input type="checkbox" class="form-check-input billing-checkbox" value="@bill.Id" onchange="updateBulkActions()">
-                                            </td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" 
-                                                         style="width: 32px; height: 32px;">
-                                                        <i class="bi bi-person"></i>
-                                                    </div>
-                                                    <div>
-                                                        <strong>@bill.PatientName</strong>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-info">@bill.ServiceType</span>
-                                            </td>
-                                            <td>
-                                                <span class="text-muted">@bill.ServiceDate.ToString("MMM dd, yyyy")</span>
-                                            </td>
-                                            <td>
-                                                <span class="text-success fw-bold">@bill.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
-                                            </td>
-                                            <td>
-                                                @if (bill.InsuranceAmount.HasValue)
-                                                {
-                                                    <span class="text-info">@bill.InsuranceAmount.Value.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">None</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                <span class="text-warning fw-bold">@bill.PatientResponsibility.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
-                                            </td>
-                                            <td>
-                                                @if (bill.PaymentStatus == "Paid")
-                                                {
-                                                    <span class="badge bg-success">@bill.PaymentStatus</span>
-                                                }
-                                                else if (bill.PaymentStatus == "Overdue")
-                                                {
-                                                    <span class="badge bg-danger">@bill.PaymentStatus</span>
-                                                }
-                                                else if (bill.PaymentStatus == "Pending")
-                                                {
-                                                    <span class="badge bg-warning">@bill.PaymentStatus</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary">@bill.PaymentStatus</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                @if (bill.IsOverdue)
-                                                {
-                                                    <span class="text-danger fw-bold">@bill.DueDate.ToString("MMM dd, yyyy")</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">@bill.DueDate.ToString("MMM dd, yyyy")</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <a href="@Url.Action("Details", new { id = bill.Id })" class="btn btn-sm btn-outline-info">
-                                                        <i class="bi bi-eye"></i> View
-                                                    </a>
-                                                    <a href="@Url.Action("Edit", new { id = bill.Id })" class="btn btn-sm btn-outline-warning">
-                                                        <i class="bi bi-pencil"></i> Edit
-                                                    </a>
-                                                    <button class="btn btn-sm btn-outline-success" onclick="updatePaymentStatus('@bill.Id', 'Paid')">
-                                                        <i class="bi bi-credit-card"></i> Mark Paid
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <div class="mt-3">
-                            <small class="text-muted">
-                                Showing @Model.Count billing record(s)
-                            </small>
-                        </div>
-                    }
-                </div>
+            <div class="bulk-actions-controls">
+                <select class="modern-select" id="bulkStatusSelect">
+                    <option value="">Select Status</option>
+                    <option value="Paid">Mark as Paid</option>
+                    <option value="Pending">Mark as Pending</option>
+                    <option value="Partial">Mark as Partial</option>
+                    <option value="Overdue">Mark as Overdue</option>
+                    <option value="Cancelled">Mark as Cancelled</option>
+                </select>
+                <button class="modern-btn modern-btn-primary" onclick="applyBulkUpdate()">
+                    <i class="bi bi-check-circle"></i> Apply
+                </button>
+                <button class="modern-btn modern-btn-outline" onclick="clearBulkSelection()" style="background: white; color: var(--gray-600); border-color: var(--gray-300);">
+                    <i class="bi bi-x-circle"></i> Clear
+                </button>
             </div>
         </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert-modern alert-success">
+            <i class="bi bi-check-circle"></i>
+            <div>
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" style="float: right; background: none; border: none; font-size: 1.2rem; cursor: pointer;">&times;</button>
+            </div>
+        </div>
+    }
+
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div class="alert-modern alert-info">
+            <i class="bi bi-info-circle"></i>
+            <div>
+                @TempData["InfoMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" style="float: right; background: none; border: none; font-size: 1.2rem; cursor: pointer;">&times;</button>
+            </div>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert-modern alert-danger">
+            <i class="bi bi-exclamation-triangle"></i>
+            <div>
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" style="float: right; background: none; border: none; font-size: 1.2rem; cursor: pointer;">&times;</button>
+            </div>
+        </div>
+    }
+
+    <div class="main-card">
+        <div class="card-header-modern">
+            <h5>📋 Billing Records</h5>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon">🏥</div>
+                <h3 style="color: var(--gray-700); margin-bottom: 0.5rem;">No billing records found</h3>
+                <p style="margin-bottom: 2rem;">Start managing your clinic's billing by creating your first bill.</p>
+                <a href="@Url.Action("Create")" class="modern-btn modern-btn-primary" style="background: var(--primary-color); color: white;">
+                    <i class="bi bi-plus-circle"></i> Create First Bill
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="table-container">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">
+                                <input type="checkbox" class="modern-checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this)">
+                            </th>
+                            <th>Patient</th>
+                            <th>Service Type</th>
+                            <th>Service Date</th>
+                            <th>Amount</th>
+                            <th>Insurance</th>
+                            <th>Patient Responsibility</th>
+                            <th>Payment Status</th>
+                            <th>Due Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var bill in Model)
+                        {
+                            <tr class="@(bill.IsOverdue ? "table-row-overdue" : "")">
+                                <td>
+                                    <input type="checkbox" class="modern-checkbox billing-checkbox" value="@bill.Id" onchange="updateBulkActions()">
+                                </td>
+                                <td>
+                                    <div class="patient-info">
+                                        <div class="patient-avatar">
+                                            @bill.PatientName.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <div class="patient-name">@bill.PatientName</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="service-badge">@bill.ServiceType</span>
+                                </td>
+                                <td>
+                                    <span class="date-display">@bill.ServiceDate.ToString("MMM dd, yyyy")</span>
+                                </td>
+                                <td>
+                                    <span class="amount-display amount-primary">@bill.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                </td>
+                                <td>
+                                    @if (bill.InsuranceAmount.HasValue)
+                                    {
+                                        <span class="amount-display amount-info">@bill.InsuranceAmount.Value.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="date-display">None</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="amount-display amount-warning">@bill.PatientResponsibility.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                                </td>
+                                <td>
+                                    @if (bill.PaymentStatus == "Paid")
+                                    {
+                                        <span class="status-badge badge-success">@bill.PaymentStatus</span>
+                                    }
+                                    else if (bill.PaymentStatus == "Overdue")
+                                    {
+                                        <span class="status-badge badge-danger">@bill.PaymentStatus</span>
+                                    }
+                                    else if (bill.PaymentStatus == "Pending")
+                                    {
+                                        <span class="status-badge badge-warning">@bill.PaymentStatus</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge badge-secondary">@bill.PaymentStatus</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (bill.IsOverdue)
+                                    {
+                                        <span class="date-display date-overdue">@bill.DueDate.ToString("MMM dd, yyyy")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="date-display">@bill.DueDate.ToString("MMM dd, yyyy")</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="@Url.Action("Details", new { id = bill.Id })" class="btn-action btn-view">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                        <a href="@Url.Action("Edit", new { id = bill.Id })" class="btn-action btn-edit">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </a>
+                                        <button class="btn-action btn-paid" onclick="updatePaymentStatus('@bill.Id', 'Paid')">
+                                            <i class="bi bi-credit-card"></i> Mark Paid
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-stats">
+                <i class="bi bi-info-circle"></i>
+                Showing @Model.Count billing record(s)
+            </div>
+        }
     </div>
 </div>
 
@@ -255,7 +743,7 @@
             const selectedCheckboxes = document.querySelectorAll('.billing-checkbox:checked');
             const bulkActionsCard = document.getElementById('bulkActionsCard');
             const selectedCount = document.getElementById('selectedCount');
-            
+
             if (selectedCheckboxes.length > 0) {
                 bulkActionsCard.style.display = 'block';
                 selectedCount.textContent = selectedCheckboxes.length;
@@ -268,20 +756,20 @@
         function applyBulkUpdate() {
             const selectedCheckboxes = document.querySelectorAll('.billing-checkbox:checked');
             const newStatus = document.getElementById('bulkStatusSelect').value;
-            
+
             if (!newStatus) {
                 alert('Please select a status to apply.');
                 return;
             }
-            
+
             if (selectedCheckboxes.length === 0) {
                 alert('Please select at least one billing record.');
                 return;
             }
-            
+
             if (confirm(`Are you sure you want to mark ${selectedCheckboxes.length} billing record(s) as "${newStatus}"?`)) {
                 const billingIds = Array.from(selectedCheckboxes).map(cb => cb.value);
-                
+
                 fetch('@Url.Action("BulkUpdatePaymentStatus")', {
                     method: 'POST',
                     headers: {
@@ -314,4 +802,4 @@
             updateBulkActions();
         }
     </script>
-} 
+}

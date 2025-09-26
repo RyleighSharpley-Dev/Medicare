@@ -1,103 +1,88 @@
-@using System.Security.Claims
-@using System.IO
+﻿@using System.Security.Claims
 @{
-    var routeValues = ViewContext.RouteData.Values;
-    string currentController = (routeValues["controller"]?.ToString() ?? "").ToLowerInvariant();
-}
-@{
-    // Check if profile photo exists
-    // Use same stable key logic as controller fallbacks
-    var userId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier)
-               ?? (User.FindFirstValue(System.Security.Claims.ClaimTypes.Email) ?? User.Identity?.Name);
-    if (!string.IsNullOrWhiteSpace(userId) && userId.Contains('@'))
-    {
-        userId = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(userId)).TrimEnd('=')
-                    .Replace('+', '-')
-                    .Replace('/', '_');
-    }
-    if (string.IsNullOrWhiteSpace(userId))
-    {
-        userId = "unknown";
-    }
-    var uploadsFolder = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profile-photos");
-    var profilePhotoPath = "";
+    // Reuse the same profile logic for consistency if needed in navbar (e.g., for user name)
     var fullNameClaim = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value;
     var displayName = !string.IsNullOrWhiteSpace(fullNameClaim) ? fullNameClaim : (User.Identity?.Name ?? "");
-    
-    if (System.IO.Directory.Exists(uploadsFolder))
-    {
-        var files = System.IO.Directory.GetFiles(uploadsFolder)
-            .Where(f => System.IO.Path.GetFileNameWithoutExtension(f) == userId)
-            .ToList();
-            
-        if (files.Any())
-        {
-            var fileName = System.IO.Path.GetFileName(files.First());
-            profilePhotoPath = $"/uploads/profile-photos/{fileName}";
-        }
-    }
 }
-<div class="px-3 pt-4 pb-2">
-    <div class="d-flex align-items-center">
-        <div class="rounded-circle bg-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; overflow: hidden;">
-            @if (!string.IsNullOrEmpty(profilePhotoPath))
-            {
-                <img src="@profilePhotoPath" alt="Profile Photo" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;" />
-            }
-            else
-            {
-                <i class="bi bi-person-circle text-primary fs-4"></i>
-            }
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container-fluid">
+        <span class="navbar-brand mb-0 h5 text-white d-none d-lg-block">@displayName</span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#patientNavbar" aria-controls="patientNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="patientNavbar">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() == "dashboard" ? "active" : "")"
+                       asp-area="Patients" asp-controller="Dashboard" asp-action="Index">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() == "profile" ? "active" : "")"
+                       asp-area="Patients" asp-controller="Profile" asp-action="Index">
+                        <i class="bi bi-person"></i> Profile
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() == "appointments" ? "active" : "")"
+                       asp-area="Patients" asp-controller="Appointments" asp-action="Index">
+                        <i class="bi bi-calendar-check"></i> Appointments
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() == "records" ? "active" : "")"
+                       asp-area="Patients" asp-controller="Records" asp-action="Index">
+                        <i class="bi bi-journal-medical"></i> Records
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() == "prescriptions" ? "active" : "")"
+                       asp-area="Patients" asp-controller="Prescriptions" asp-action="Index">
+                        <i class="bi bi-prescription2"></i> Prescriptions
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() == "payments" ? "active" : "")"
+                       asp-area="Patients" asp-controller="Payments" asp-action="Index">
+                        <i class="bi bi-credit-card"></i> Payments
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() == "billing" ? "active" : "")"
+                       asp-area="Patients" asp-controller="Billing" asp-action="Index">
+                        <i class="bi bi-receipt"></i> Billing
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() == "reminders" ? "active" : "")"
+                       asp-area="Patients" asp-controller="Reminders" asp-action="Index">
+                        <i class="bi bi-bell"></i> Reminders
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() == "consultations" ? "active" : "")"
+                       asp-area="Patients" asp-controller="Consultations" asp-action="Index">
+                        <i class="bi bi-journal-text"></i> Consultations
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString()?.ToLowerInvariant() == "settings" ? "active" : "")"
+                       asp-area="Patients" asp-controller="Settings" asp-action="Index">
+                        <i class="bi bi-gear"></i> Settings
+                    </a>
+                </li>
+            </ul>
+            <form class="d-flex" method="get" asp-area="Patients" asp-controller="Dashboard" asp-action="Index">
+                <label class="form-label text-white small me-2 mb-0">Language</label>
+                <select class="form-select form-select-sm" name="culture" onchange="this.form.submit();">
+                    <option value="en" selected="@(ViewContext.HttpContext.Request.Query["culture"] == "en")">English</option>
+                    <option value="zu" selected="@(ViewContext.HttpContext.Request.Query["culture"] == "zu")">isiZulu</option>
+                    <option value="st" selected="@(ViewContext.HttpContext.Request.Query["culture"] == "st")">Sesotho</option>
+                    <option value="ts" selected="@(ViewContext.HttpContext.Request.Query["culture"] == "ts")">Xitsonga</option>
+                </select>
+            </form>
         </div>
-        <div>
-            <h6 class="mb-0 text-white fw-bold">@displayName</h6>
-            <small class="text-white-50">Patient</small>
-        </div>
-    </div>
-</div>
-<hr class="border-white-50 mx-3 my-2">
-<nav class="nav flex-column">
-    <a class="nav-link @(currentController=="dashboard"?"active":"")" asp-area="Patients" asp-controller="Dashboard" asp-action="Index">
-        <i class="bi bi-speedometer2"></i> Dashboard
-    </a>
-    <a class="nav-link @(currentController=="profile"?"active":"")" asp-area="Patients" asp-controller="Profile" asp-action="Index">
-        <i class="bi bi-person"></i> Profile
-    </a>
-    <a class="nav-link @(currentController=="appointments"?"active":"")" asp-area="Patients" asp-controller="Appointments" asp-action="Index">
-        <i class="bi bi-calendar-check"></i> Appointments
-    </a>
-    <a class="nav-link @(currentController=="records"?"active":"")" asp-area="Patients" asp-controller="Records" asp-action="Index">
-        <i class="bi bi-journal-medical"></i> Records
-    </a>
-    <a class="nav-link @(currentController=="prescriptions"?"active":"")" asp-area="Patients" asp-controller="Prescriptions" asp-action="Index">
-        <i class="bi bi-prescription2"></i> Prescriptions
-    </a>
-    <a class="nav-link @(currentController=="payments"?"active":"")" asp-area="Patients" asp-controller="Payments" asp-action="Index">
-        <i class="bi bi-credit-card"></i> Payments
-    </a>
-    <a class="nav-link @(currentController=="billing"?"active":"")" asp-area="Patients" asp-controller="Billing" asp-action="Index">
-        <i class="bi bi-receipt"></i> Billing
-    </a>
-    <a class="nav-link @(currentController=="reminders"?"active":"")" asp-area="Patients" asp-controller="Reminders" asp-action="Index">
-        <i class="bi bi-bell"></i> Reminders
-    </a>
-    <a class="nav-link @(currentController=="consultations"?"active":"")" asp-area="Patients" asp-controller="Consultations" asp-action="Index">
-        <i class="bi bi-journal-text"></i> Consultations
-    </a>
-    <a class="nav-link @(currentController=="settings"?"active":"")" asp-area="Patients" asp-controller="Settings" asp-action="Index">
-        <i class="bi bi-gear"></i> Settings
-    </a>
-    <div class="px-3 mt-3">
-        <form method="get" asp-area="Patients" asp-controller="Dashboard" asp-action="Index">
-            <label class="form-label text-white-50 small mb-1">Language</label>
-            <select class="form-select form-select-sm" name="culture" onchange="this.form.action=this.form.action+'?culture='+this.value; this.form.submit();">
-                <option value="en">English</option>
-                <option value="zu">isiZulu</option>
-                <option value="st">Sesotho</option>
-                <option value="ts">Xitsonga</option>
-            </select>
-        </form>
     </div>
 </nav>
-
-

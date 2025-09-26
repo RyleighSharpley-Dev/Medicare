@@ -5,112 +5,497 @@
 
 @section Styles {
     <style>
-        /* Dashboard-only text color override */
-        .dash-black, .dash-black .glass-title, .dash-black .glass-muted, .dash-black .table, .dash-black .table thead th {
-            color: #111 !important;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .dash-black .glass-muted { color: #555 !important; }
-        .dash-black .badge.bg-light.text-dark { color: #111 !important; border-color: rgba(0,0,0,0.1) !important; }
-        .dash-black .btn-outline-primary { color: #0d6efd !important; border-color: #0d6efd !important; }
-        .dash-black .btn-outline-primary:hover { background: #0d6efd !important; color: #fff !important; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        /* Dashboard Layout */
+        .dashboard-container {
+            width: 100%;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Section */
+        .dashboard-header {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dashboard-subtitle {
+            color: #64748b;
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        /* Modern Button */
+        .btn-modern {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+            .btn-modern:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+                color: white;
+                text-decoration: none;
+            }
+
+        .btn-modern-outline {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+        }
+
+            .btn-modern-outline:hover {
+                background: #667eea;
+                color: white;
+                text-decoration: none;
+                transform: translateY(-1px);
+            }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .stat-card:before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+            }
+
+            .stat-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1;
+        }
+
+        /* Content Cards */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .content-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            height: fit-content;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 0;
+        }
+
+        /* Tables */
+        .table {
+            margin: 0;
+            width: 100%;
+        }
+
+            .table thead {
+                background: #f8fafc;
+            }
+
+                .table thead th {
+                    padding: 1rem 1.5rem;
+                    font-weight: 600;
+                    color: #475569;
+                    font-size: 0.875rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    border: none;
+                }
+
+            .table tbody td {
+                padding: 1rem 1.5rem;
+                color: #1e293b;
+                border-top: 1px solid #e2e8f0;
+                vertical-align: middle;
+            }
+
+            .table tbody tr:hover {
+                background: #f8fafc;
+            }
+
+            .table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+        /* Badges */
+        .badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+            .badge.bg-light {
+                background: #f1f5f9 !important;
+                color: #475569 !important;
+            }
+
+            .badge.bg-success {
+                background: #10b981 !important;
+                color: white !important;
+            }
+
+            .badge.bg-danger {
+                background: #ef4444 !important;
+                color: white !important;
+            }
+
+            .badge.bg-warning {
+                background: #f59e0b !important;
+                color: white !important;
+            }
+
+        /* Payment Summary */
+        .payment-summary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1rem 1.5rem;
+            margin: 0;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .card-footer {
+            background: #f8fafc;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e2e8f0;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1.5rem;
+            color: #64748b;
+        }
+
+            .empty-state i {
+                font-size: 3rem;
+                margin-bottom: 1rem;
+                opacity: 0.5;
+            }
+
+        /* Mobile Responsiveness */
+        @@media (max-width: 1024px) {
+            .content-grid
+
+        {
+            grid-template-columns: 1fr;
+        }
+
+        }
+
+        @@media (max-width: 768px) {
+            .dashboard-container
+
+        {
+            padding: 1rem;
+        }
+
+        .dashboard-header {
+            padding: 1.5rem;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .dashboard-title {
+            font-size: 1.75rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-card {
+            padding: 1.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.875rem;
+        }
+
+        .content-card {
+            border-radius: 12px;
+        }
+
+        .table thead th,
+        .table tbody td {
+            padding: 0.75rem 1rem;
+        }
+
+        .table thead th {
+            font-size: 0.75rem;
+        }
+
+        }
+
+        @@media (max-width: 480px) {
+            .stats-grid
+
+        {
+            grid-template-columns: 1fr;
+        }
+
+        .table-responsive {
+            font-size: 0.875rem;
+        }
+
+        .table thead th,
+        .table tbody td {
+            padding: 0.5rem 0.75rem;
+        }
+
+        }
+
+        /* Utility Classes */
+        .d-flex {
+            display: flex;
+        }
+
+        .justify-content-between {
+            justify-content: space-between;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .me-2 {
+            margin-right: 0.5rem;
+        }
+
+        .fs-6 {
+            font-size: 1rem;
+        }
+
+        .small {
+            font-size: 0.875rem;
+        }
+
+        .h-100 {
+            height: 100%;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
     </style>
 }
 
-<div class="dash-black">
-<div class="container py-2 py-md-3">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-1 glass-title">Sawubona, @User.Identity?.Name</h1>
-            <p class="glass-muted mb-0">Overview of users, appointments, billing and payments</p>
+<div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1 class="dashboard-title">Sawubona, @User.Identity?.Name</h1>
+            <p class="dashboard-subtitle">Overview of users, appointments, billing and payments</p>
         </div>
-        <a class="btn btn-outline-primary" asp-area="AdministrativeStaff" asp-controller="Reports" asp-action="Index">
-            <i class="bi bi-graph-up me-2"></i>Reports
+        <a class="btn-modern" asp-area="AdministrativeStaff" asp-controller="Reports" asp-action="Index">
+            <i class="bi bi-graph-up"></i>Reports
         </a>
     </div>
 
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="glass-card">
-                <div class="card-body">
-                    <div class="glass-muted small">Total Users</div>
-                    <div class="fs-4 stat-value">@Model.TotalUsers</div>
-                </div>
-            </div>
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value">@Model.TotalUsers</div>
         </div>
-        <div class="col-md-3">
-            <div class="glass-card">
-                <div class="card-body">
-                    <div class="glass-muted small">Patients</div>
-                    <div class="fs-4 stat-value">@Model.TotalPatients</div>
-                </div>
-            </div>
+        <div class="stat-card">
+            <div class="stat-label">Patients</div>
+            <div class="stat-value">@Model.TotalPatients</div>
         </div>
-        <div class="col-md-3">
-            <div class="glass-card">
-                <div class="card-body">
-                    <div class="glass-muted small">Doctors</div>
-                    <div class="fs-4 stat-value">@Model.TotalDoctors</div>
-                </div>
-            </div>
+        <div class="stat-card">
+            <div class="stat-label">Doctors</div>
+            <div class="stat-value">@Model.TotalDoctors</div>
         </div>
-        <div class="col-md-3">
-            <div class="glass-card">
-                <div class="card-body">
-                    <div class="glass-muted small">Appointments Today</div>
-                    <div class="fs-4 stat-value">@Model.UpcomingAppointments</div>
-                </div>
-            </div>
+        <div class="stat-card">
+            <div class="stat-label">Appointments Today</div>
+            <div class="stat-value">@Model.UpcomingAppointments</div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-6">
-            <div class="glass-card h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title mb-0 glass-title">Next Appointments</h5>
-                        <a class="btn btn-sm btn-outline-primary" asp-area="AdministrativeStaff" asp-controller="Appointments" asp-action="Index">Manage</a>
+    <!-- Content Grid -->
+    <div class="content-grid">
+        <!-- Appointments Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <h5 class="card-title">Next Appointments</h5>
+                <a class="btn-modern-outline" asp-area="AdministrativeStaff" asp-controller="Appointments" asp-action="Index">Manage</a>
+            </div>
+            <div class="card-body">
+                @if (!Model.NextAppointments.Any())
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-calendar-x"></i>
+                        <p>No upcoming appointments scheduled</p>
                     </div>
+                }
+                else
+                {
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
+                        <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Date</th>
+                                    <th>Date & Time</th>
                                     <th>Type</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (!Model.NextAppointments.Any())
+                                @foreach (var a in Model.NextAppointments)
                                 {
-                                    <tr><td colspan="3" class="glass-muted">No upcoming appointments.</td></tr>
-                                }
-                                else
-                                {
-                                    @foreach (var a in Model.NextAppointments)
-                                    {
-                                        <tr>
-                                            <td>@(a.AppointmentDate.Add(a.StartTime).ToString("ddd, dd MMM yyyy HH:mm"))</td>
-                                            <td>@a.AppointmentType</td>
-                                            <td><span class="badge bg-light text-dark">@a.Status</span></td>
-                                        </tr>
-                                    }
+                                    <tr>
+                                        <td>@(a.AppointmentDate.Add(a.StartTime).ToString("ddd, dd MMM yyyy HH:mm"))</td>
+                                        <td>@a.AppointmentType</td>
+                                        <td><span class="badge bg-light">@a.Status</span></td>
+                                    </tr>
                                 }
                             </tbody>
                         </table>
                     </div>
-                </div>
+                }
             </div>
         </div>
-        <div class="col-lg-6">
-            <div class="glass-card h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title mb-0 glass-title">Payments Today</h5>
-                        <div class="fs-6 stat-value">@Model.PaymentsTodayAmount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</div>
+
+        <!-- Payments Section -->
+        <div class="content-card">
+            <div class="card-header">
+                <h5 class="card-title">Payments Today</h5>
+                <div class="payment-summary">@Model.PaymentsTodayAmount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</div>
+            </div>
+            <div class="card-body">
+                @if (!Model.RecentPayments.Any())
+                {
+                    <div class="empty-state">
+                        <i class="bi bi-credit-card-2-front"></i>
+                        <p>No recent payments today</p>
                     </div>
+                }
+                else
+                {
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
+                        <table class="table">
                             <thead>
                                 <tr>
                                     <th>Time</th>
@@ -120,44 +505,39 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (!Model.RecentPayments.Any())
+                                @foreach (var p in Model.RecentPayments)
                                 {
-                                    <tr><td colspan="4" class="glass-muted">No recent payments.</td></tr>
-                                }
-                                else
-                                {
-                                    @foreach (var p in Model.RecentPayments)
-                                    {
-                                        <tr>
-                                            <td>@p.CreatedAt.ToString("HH:mm")</td>
-                                            <td>@p.PaymentType</td>
-                                            <td>@p.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</td>
-                                            <td>
-                                                @if (p.Status == Medicare_Connect.Data.Entities.PaymentStatus.Completed)
-                                                {
-                                                    <span class="badge bg-success">Completed</span>
-                                                }
-                                                else if (p.Status == Medicare_Connect.Data.Entities.PaymentStatus.Failed)
-                                                {
-                                                    <span class="badge bg-danger">Failed</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-warning text-dark">@p.Status</span>
-                                                }
-                                            </td>
-                                        </tr>
-                                    }
+                                    <tr>
+                                        <td>@p.CreatedAt.ToString("HH:mm")</td>
+                                        <td>@p.PaymentType</td>
+                                        <td>@p.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</td>
+                                        <td>
+                                            @if (p.Status == Medicare_Connect.Data.Entities.PaymentStatus.Completed)
+                                            {
+                                                <span class="badge bg-success">Completed</span>
+                                            }
+                                            else if (p.Status == Medicare_Connect.Data.Entities.PaymentStatus.Failed)
+                                            {
+                                                <span class="badge bg-danger">Failed</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning">@p.Status</span>
+                                            }
+                                        </td>
+                                    </tr>
                                 }
                             </tbody>
                         </table>
                     </div>
-                    <div class="small glass-muted">Outstanding bills: <strong>@Model.OutstandingBills</strong></div>
-                </div>
+                }
             </div>
+            @if (Model.OutstandingBills > 0)
+            {
+                <div class="card-footer">
+                    <strong>Outstanding bills: @Model.OutstandingBills</strong>
+                </div>
+            }
         </div>
     </div>
 </div>
-</div>
-
-

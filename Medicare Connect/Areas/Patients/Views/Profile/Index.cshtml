@@ -1,26 +1,597 @@
 @model Medicare_Connect.Areas.Patients.Models.PatientProfileViewModel
 @{
+    // CRITICAL CHANGE: Explicitly bypass intermediate layout
+    Layout = "/Views/Shared/_RoleBasedLayout.cshtml";
     ViewData["Title"] = "Profile";
 }
+@section Sidebar {
+    @{
+        var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
+    }
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "dashboard" ? "active" : "")" asp-area="Patients" asp-controller="Dashboard" asp-action="Index">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "profile" ? "active" : "")" asp-area="Patients" asp-controller="Profile" asp-action="Index">
+            <i class="bi bi-person"></i> Profile
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "appointments" ? "active" : "")" asp-area="Patients" asp-controller="Appointments" asp-action="Index">
+            <i class="bi bi-calendar-check"></i> Appointments
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "records" ? "active" : "")" asp-area="Patients" asp-controller="Records" asp-action="Index">
+            <i class="bi bi-journal-medical"></i> Records
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "prescriptions" ? "active" : "")" asp-area="Patients" asp-controller="Prescriptions" asp-action="Index">
+            <i class="bi bi-prescription2"></i> Prescriptions
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "payments" ? "active" : "")" asp-area="Patients" asp-controller="Payments" asp-action="Index">
+            <i class="bi bi-credit-card"></i> Payments
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "billing" ? "active" : "")" asp-area="Patients" asp-controller="Billing" asp-action="Index">
+            <i class="bi bi-receipt"></i> Billing
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "reminders" ? "active" : "")" asp-area="Patients" asp-controller="Reminders" asp-action="Index">
+            <i class="bi bi-bell"></i> Reminders
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "consultations" ? "active" : "")" asp-area="Patients" asp-controller="Consultations" asp-action="Index">
+            <i class="bi bi-journal-text"></i> Consultations
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "settings" ? "active" : "")" asp-area="Patients" asp-controller="Settings" asp-action="Index">
+            <i class="bi bi-gear"></i> Settings
+        </a>
+    </li>
+    <li class="nav-item dropdown ms-lg-auto">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-translate"></i> Language
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+                <form method="get" asp-area="Patients" asp-controller="Dashboard" asp-action="Index" class="px-3 py-2">
+                    <select class="form-select form-select-sm" name="culture" onchange="this.form.submit();">
+                        <option value="en" selected="@(Context.Request.Query["culture"] == "en")">English</option>
+                        <option value="zu" selected="@(Context.Request.Query["culture"] == "zu")">isiZulu</option>
+                        <option value="st" selected="@(Context.Request.Query["culture"] == "st")">Sesotho</option>
+                        <option value="ts" selected="@(Context.Request.Query["culture"] == "ts")">Xitsonga</option>
+                    </select>
+                </form>
+            </li>
+        </ul>
+    </li>
+}
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+@section Styles {
+    <style>
+        /* Modern Design System */
+        :root {
+            --primary: #2a7de1;
+            --primary-dark: #1e5ca8;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-400: #ced4da;
+            --gray-500: #adb5bd;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.12);
+            --radius: 12px;
+            --radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: #f8fafc;
+            color: var(--gray-800);
+            line-height: 1.6;
+        }
+
+        /* Container & Layout */
+        .profile-container {
+            width: 100%;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Section */
+        .page-header {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin: 0;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: var(--gray-600);
+            margin: 0.5rem 0 0 0;
+            font-size: 1.1rem;
+        }
+
+        /* Modern Buttons */
+        .btn-modern {
+            background: var(--gradient);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+        }
+
+            .btn-modern:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-lg);
+                color: var(--white);
+                text-decoration: none;
+            }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--gray-600);
+            border: 2px solid var(--gray-300);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+            .btn-outline:hover {
+                background: var(--gray-600);
+                color: var(--white);
+                border-color: var(--gray-600);
+                text-decoration: none;
+                transform: translateY(-1px);
+            }
+
+        /* Cards */
+        .modern-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+            .modern-card:hover {
+                box-shadow: var(--shadow-lg);
+            }
+
+        .card-header {
+            background: var(--gray-100);
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            position: relative;
+        }
+
+            .card-header:before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: var(--gradient);
+            }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--gradient);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        /* Profile Photo Section */
+        .profile-photo-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .profile-photo {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--white);
+            box-shadow: var(--shadow);
+        }
+
+        .profile-photo-placeholder {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 4rem;
+            border: 4px solid var(--white);
+            box-shadow: var(--shadow);
+        }
+
+        .photo-actions {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .photo-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .photo-btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .photo-btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .photo-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Tabs */
+        .modern-tabs {
+            border-bottom: 1px solid var(--gray-200);
+            margin-bottom: 2rem;
+        }
+
+            .modern-tabs .nav-link {
+                border: none;
+                padding: 1rem 1.5rem;
+                color: var(--gray-600);
+                font-weight: 500;
+                border-radius: 0;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+                .modern-tabs .nav-link:hover {
+                    color: var(--primary);
+                    background: transparent;
+                }
+
+                .modern-tabs .nav-link.active {
+                    color: var(--primary);
+                    background: transparent;
+                    border-bottom: 3px solid var(--primary);
+                }
+
+        .tab-content {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.95rem;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--gray-300);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+            color: var(--gray-800);
+        }
+
+            .form-control:focus, .form-select:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(42, 125, 225, 0.1);
+                transform: translateY(-1px);
+            }
+
+            .form-control::placeholder {
+                color: var(--gray-500);
+            }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Validation Styles */
+        .text-danger {
+            color: var(--danger);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .form-control.input-validation-error,
+        .form-select.input-validation-error {
+            border-color: var(--danger);
+            background: #fef2f2;
+        }
+
+        /* Alerts */
+        .alert-modern {
+            border-radius: var(--radius);
+            border: none;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: var(--shadow);
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .alert-icon {
+            font-size: 1.25rem;
+        }
+
+        /* Grid System */
+        .row.g-4 {
+            margin: 0 -1rem;
+        }
+
+            .row.g-4 > [class*="col-"] {
+                padding: 0 1rem;
+            }
+
+        /* Responsive Design */
+        @@media (max-width: 1200px) {
+            .profile-container {
+                padding: 1.5rem;
+            }
+        }
+
+        @@media (max-width: 992px) {
+            .page-header {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .header-actions {
+                justify-content: center;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .profile-container {
+                padding: 1rem;
+            }
+
+            .page-header {
+                padding: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .card-body {
+                padding: 1.5rem;
+            }
+
+            .modern-tabs .nav-link {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .header-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .photo-actions {
+                position: static;
+                justify-content: center;
+                margin-top: 1rem;
+            }
+
+            .profile-photo-container {
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+        /* Utility Classes */
+        .d-flex {
+            display: flex;
+        }
+
+        .justify-content-between {
+            justify-content: space-between;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .text-muted {
+            color: var(--gray-600) !important;
+        }
+
+        .fw-bold {
+            font-weight: 600;
+        }
+
+        .d-grid {
+            display: grid;
+        }
+    </style>
+}
+
+<div class="profile-container">
+    <!-- Page Header -->
+    <div class="page-header">
         <div>
-            <h1 class="h3 mb-1">Iphrofayela (Profile)</h1>
-            <p class="text-muted mb-0">Update your personal and contact information</p>
+            <h1 class="page-title">Iphrofayela (Profile)</h1>
+            <p class="page-subtitle">Update your personal and contact information</p>
         </div>
-        <div>
-            <a asp-area="Patients" asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-primary">
+        <div class="header-actions">
+            <a asp-area="Patients" asp-controller="Dashboard" asp-action="Index" class="btn-outline">
                 <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
             </a>
         </div>
     </div>
 
+    <!-- Success Message -->
     @if (TempData["StatusMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-            <i class="bi bi-check-circle me-2"></i> @TempData["StatusMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="alert-modern alert-success">
+            <i class="bi bi-check-circle alert-icon"></i>
+            <div>@TempData["StatusMessage"]</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
         </div>
     }
 
@@ -29,38 +600,42 @@
         <div class="row g-4">
             <!-- Profile Photo and Quick Info -->
             <div class="col-lg-4 col-xl-3">
-                <div class="card dashboard-card border-0 mb-4">
+                <!-- Profile Card -->
+                <div class="modern-card">
                     <div class="card-body text-center">
-                        <div class="position-relative mx-auto mb-3" style="width: 150px; height: 150px;">
-                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 150px; height: 150px; overflow: hidden;">
-                                @if (!string.IsNullOrEmpty(Model.ProfilePhotoPath) || TempData["ProfilePhotoPath"] != null)
-                                {
-                                    var photoPath = Model.ProfilePhotoPath ?? TempData["ProfilePhotoPath"]?.ToString();
-                                    <img src="@photoPath" alt="Profile Photo" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover;" />
-                                }
-                                else
-                                {
-                                    <i class="bi bi-person-circle text-primary" style="font-size: 8rem;"></i>
-                                }
-                            </div>
-                            <label for="profilePhotoInput" class="btn btn-sm btn-primary rounded-circle position-absolute bottom-0 end-0" style="width: 35px; height: 35px; cursor: pointer;" title="Change Photo">
-                                <i class="bi bi-camera-fill"></i>
-                            </label>
-                            <input asp-for="ProfilePhoto" type="file" id="profilePhotoInput" name="ProfilePhoto" accept="image/*" style="display: none;" onchange="previewImage(this);" />
+                        <div class="profile-photo-container">
                             @if (!string.IsNullOrEmpty(Model.ProfilePhotoPath) || TempData["ProfilePhotoPath"] != null)
                             {
-                                <form asp-action="RemoveProfilePhoto" method="post" style="position: absolute; bottom: 0; left: 0;">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-danger rounded-circle" style="width: 35px; height: 35px;" title="Remove Photo">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                </form>
+                                var photoPath = Model.ProfilePhotoPath ?? TempData["ProfilePhotoPath"]?.ToString();
+                                <img src="@photoPath" alt="Profile Photo" class="profile-photo" />
                             }
+                            else
+                            {
+                                <div class="profile-photo-placeholder">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                            }
+                            <div class="photo-actions">
+                                <label for="profilePhotoInput" class="photo-btn photo-btn-primary" title="Change Photo">
+                                    <i class="bi bi-camera-fill"></i>
+                                </label>
+                                <input asp-for="ProfilePhoto" type="file" id="profilePhotoInput" name="ProfilePhoto" accept="image/*" style="display: none;" onchange="previewImage(this);" />
+
+                                @if (!string.IsNullOrEmpty(Model.ProfilePhotoPath) || TempData["ProfilePhotoPath"] != null)
+                                {
+                                    <form asp-action="RemoveProfilePhoto" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="photo-btn photo-btn-danger" title="Remove Photo">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
                         </div>
                         <h5 class="mb-1">@Model.FullName</h5>
                         <p class="text-muted mb-3">Patient</p>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn-modern">
                                 <i class="bi bi-save me-2"></i>Save Changes
                             </button>
                         </div>
@@ -68,25 +643,30 @@
                 </div>
 
                 <!-- Medical Aid Information -->
-                <div class="card dashboard-card border-0">
+                <div class="modern-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <div class="card-icon"><i class="bi bi-heart-pulse"></i></div>
+                            Medical Aid
+                        </h5>
+                    </div>
                     <div class="card-body">
-                        <h5 class="card-title mb-3">Medical Aid Information</h5>
-                        <div class="mb-3">
+                        <div class="form-group">
                             <label asp-for="MedicalAidScheme" class="form-label">Medical Aid Scheme</label>
                             <input asp-for="MedicalAidScheme" class="form-control" />
                             <span asp-validation-for="MedicalAidScheme" class="text-danger"></span>
                         </div>
-                        <div class="mb-3">
+                        <div class="form-group">
                             <label asp-for="MedicalAidNumber" class="form-label">Medical Aid Number</label>
                             <input asp-for="MedicalAidNumber" class="form-control" />
                             <span asp-validation-for="MedicalAidNumber" class="text-danger"></span>
                         </div>
-                        <div class="mb-3">
+                        <div class="form-group">
                             <label asp-for="MainMemberName" class="form-label">Main Member Name</label>
                             <input asp-for="MainMemberName" class="form-control" />
                             <span asp-validation-for="MainMemberName" class="text-danger"></span>
                         </div>
-                        <div class="mb-3">
+                        <div class="form-group">
                             <label asp-for="DependantCode" class="form-label">Dependant Code</label>
                             <input asp-for="DependantCode" class="form-control" />
                             <span asp-validation-for="DependantCode" class="text-danger"></span>
@@ -97,9 +677,9 @@
 
             <!-- Profile Information Tabs -->
             <div class="col-lg-8 col-xl-9">
-                <div class="card dashboard-card border-0">
+                <div class="modern-card">
                     <div class="card-body">
-                        <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                        <ul class="nav modern-tabs" id="profileTabs" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab" aria-controls="personal" aria-selected="true">
                                     <i class="bi bi-person me-2"></i>Personal
@@ -128,28 +708,28 @@
                                 <h5 class="mb-4">Personal Information</h5>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="FullName" class="form-label">Full Name</label>
                                             <input asp-for="FullName" class="form-control" />
                                             <span asp-validation-for="FullName" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="IdNumber" class="form-label">ID Number</label>
                                             <input asp-for="IdNumber" class="form-control" />
                                             <span asp-validation-for="IdNumber" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="DateOfBirth" class="form-label">Date of Birth</label>
                                             <input asp-for="DateOfBirth" class="form-control" type="date" />
                                             <span asp-validation-for="DateOfBirth" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="Gender" class="form-label">Gender</label>
                                             <select asp-for="Gender" class="form-select">
                                                 <option value="">Select Gender</option>
@@ -163,41 +743,41 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Contact Information Tab -->
                             <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
                                 <h5 class="mb-4">Contact Information</h5>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="Email" class="form-label">Email Address</label>
                                             <input asp-for="Email" class="form-control" type="email" />
                                             <span asp-validation-for="Email" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
                                             <input asp-for="PhoneNumber" class="form-control" />
                                             <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="Address" class="form-label">Address</label>
                                             <input asp-for="Address" class="form-control" />
                                             <span asp-validation-for="Address" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="City" class="form-label">City</label>
                                             <input asp-for="City" class="form-control" />
                                             <span asp-validation-for="City" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="Province" class="form-label">Province</label>
                                             <select asp-for="Province" class="form-select">
                                                 <option value="">Select Province</option>
@@ -215,7 +795,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-2">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="PostalCode" class="form-label">Postal Code</label>
                                             <input asp-for="PostalCode" class="form-control" />
                                             <span asp-validation-for="PostalCode" class="text-danger"></span>
@@ -223,20 +803,20 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Emergency Contact Tab -->
                             <div class="tab-pane fade" id="emergency" role="tabpanel" aria-labelledby="emergency-tab">
                                 <h5 class="mb-4">Emergency Contact Information</h5>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="EmergencyContactName" class="form-label">Contact Name</label>
                                             <input asp-for="EmergencyContactName" class="form-control" />
                                             <span asp-validation-for="EmergencyContactName" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="EmergencyContactRelationship" class="form-label">Relationship</label>
                                             <select asp-for="EmergencyContactRelationship" class="form-select">
                                                 <option value="">Select Relationship</option>
@@ -251,7 +831,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="EmergencyContactPhone" class="form-label">Phone Number</label>
                                             <input asp-for="EmergencyContactPhone" class="form-control" />
                                             <span asp-validation-for="EmergencyContactPhone" class="text-danger"></span>
@@ -259,13 +839,13 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Medical Information Tab -->
                             <div class="tab-pane fade" id="medical" role="tabpanel" aria-labelledby="medical-tab">
                                 <h5 class="mb-4">Medical Information</h5>
                                 <div class="row g-3">
                                     <div class="col-md-6">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="BloodType" class="form-label">Blood Type</label>
                                             <select asp-for="BloodType" class="form-select">
                                                 <option value="">Select Blood Type</option>
@@ -283,21 +863,21 @@
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="Allergies" class="form-label">Allergies</label>
                                             <textarea asp-for="Allergies" class="form-control" rows="2" placeholder="List any allergies, separated by commas"></textarea>
                                             <span asp-validation-for="Allergies" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="ChronicConditions" class="form-label">Chronic Conditions</label>
                                             <textarea asp-for="ChronicConditions" class="form-control" rows="2" placeholder="List any chronic conditions"></textarea>
                                             <span asp-validation-for="ChronicConditions" class="text-danger"></span>
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <div class="mb-3">
+                                        <div class="form-group">
                                             <label asp-for="CurrentMedications" class="form-label">Current Medications</label>
                                             <textarea asp-for="CurrentMedications" class="form-control" rows="2" placeholder="List any current medications and dosages"></textarea>
                                             <span asp-validation-for="CurrentMedications" class="text-danger"></span>
@@ -319,31 +899,55 @@
         function previewImage(input) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
-                
+
                 reader.onload = function(e) {
-                    const container = input.closest('.position-relative').querySelector('.rounded-circle');
-                    
-                    // Remove existing content
-                    while (container.firstChild) {
-                        container.removeChild(container.firstChild);
+                    const container = input.closest('.profile-photo-container');
+                    let img = container.querySelector('img');
+
+                    if (!img) {
+                        // Remove placeholder
+                        const placeholder = container.querySelector('.profile-photo-placeholder');
+                        if (placeholder) placeholder.remove();
+
+                        // Create image element
+                        img = document.createElement('img');
+                        img.className = 'profile-photo';
+                        container.insertBefore(img, container.querySelector('.photo-actions'));
                     }
-                    
-                    // Create and add the image
-                    const img = document.createElement('img');
+
                     img.src = e.target.result;
-                    img.alt = 'Profile Photo';
-                    img.className = 'img-fluid';
-                    img.style.width = '100%';
-                    img.style.height = '100%';
-                    img.style.objectFit = 'cover';
-                    
-                    container.appendChild(img);
                 }
-                
+
                 reader.readAsDataURL(input.files[0]);
             }
         }
+
+        // Add smooth animations to tab changes
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            tabPanes.forEach(pane => {
+                if (!pane.classList.contains('show')) {
+                    pane.style.display = 'none';
+                }
+            });
+
+            const tabButtons = document.querySelectorAll('[data-bs-toggle="tab"]');
+            tabButtons.forEach(button => {
+                button.addEventListener('shown.bs.tab', function(e) {
+                    const targetPane = document.querySelector(e.target.getAttribute('data-bs-target'));
+                    if (targetPane) {
+                        targetPane.style.display = 'block';
+                        targetPane.style.opacity = '0';
+                        targetPane.style.transform = 'translateY(10px)';
+
+                        setTimeout(() => {
+                            targetPane.style.transition = 'all 0.3s ease';
+                            targetPane.style.opacity = '1';
+                            targetPane.style.transform = 'translateY(0)';
+                        }, 50);
+                    }
+                });
+            });
+        });
     </script>
 }
-
-

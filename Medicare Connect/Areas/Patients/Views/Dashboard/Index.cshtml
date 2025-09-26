@@ -1,229 +1,518 @@
 @model Medicare_Connect.Areas.Patients.Models.DashboardViewModel
 @{
+    // CRITICAL CHANGE: Explicitly bypass intermediate layout
+    Layout = "/Views/Shared/_RoleBasedLayout.cshtml";
+
     ViewData["Title"] = "Patient Dashboard";
     var patientName = User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value ?? User.Identity?.Name;
 }
+@section Sidebar {
+    @{
+        var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
+    }
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "dashboard" ? "active" : "")" asp-area="Patients" asp-controller="Dashboard" asp-action="Index">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "profile" ? "active" : "")" asp-area="Patients" asp-controller="Profile" asp-action="Index">
+            <i class="bi bi-person"></i> Profile
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "appointments" ? "active" : "")" asp-area="Patients" asp-controller="Appointments" asp-action="Index">
+            <i class="bi bi-calendar-check"></i> Appointments
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "records" ? "active" : "")" asp-area="Patients" asp-controller="Records" asp-action="Index">
+            <i class="bi bi-journal-medical"></i> Records
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "prescriptions" ? "active" : "")" asp-area="Patients" asp-controller="Prescriptions" asp-action="Index">
+            <i class="bi bi-prescription2"></i> Prescriptions
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "payments" ? "active" : "")" asp-area="Patients" asp-controller="Payments" asp-action="Index">
+            <i class="bi bi-credit-card"></i> Payments
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "billing" ? "active" : "")" asp-area="Patients" asp-controller="Billing" asp-action="Index">
+            <i class="bi bi-receipt"></i> Billing
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "reminders" ? "active" : "")" asp-area="Patients" asp-controller="Reminders" asp-action="Index">
+            <i class="bi bi-bell"></i> Reminders
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "consultations" ? "active" : "")" asp-area="Patients" asp-controller="Consultations" asp-action="Index">
+            <i class="bi bi-journal-text"></i> Consultations
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "settings" ? "active" : "")" asp-area="Patients" asp-controller="Settings" asp-action="Index">
+            <i class="bi bi-gear"></i> Settings
+        </a>
+    </li>
+    <li class="nav-item dropdown ms-lg-auto">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-translate"></i> Language
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+                <form method="get" asp-area="Patients" asp-controller="Dashboard" asp-action="Index" class="px-3 py-2">
+                    <select class="form-select form-select-sm" name="culture" onchange="this.form.submit();">
+                        <option value="en" selected="@(Context.Request.Query["culture"] == "en")">English</option>
+                        <option value="zu" selected="@(Context.Request.Query["culture"] == "zu")">isiZulu</option>
+                        <option value="st" selected="@(Context.Request.Query["culture"] == "st")">Sesotho</option>
+                        <option value="ts" selected="@(Context.Request.Query["culture"] == "ts")">Xitsonga</option>
+                    </select>
+                </form>
+            </li>
+        </ul>
+    </li>
+}
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-1">Sawubona, @patientName</h1>
-            <p class="text-muted mb-0">Welcome to your patient dashboard</p>
-        </div>
-        <div>
-            <span class="badge bg-success rounded-pill px-3 py-2">
-                <i class="bi bi-check-circle me-1"></i> Active Patient
-            </span>
+<style>
+    :root {
+        --primary-color: #2563eb;
+        --success-color: #16a34a;
+        --info-color: #0ea5e9;
+        --warning-color: #f59e0b;
+        --text-color: #333;
+        --bg-color: #fff;
+        --card-bg: #ffffff;
+        --card-shadow: rgba(0, 0, 0, 0.08);
+        --border-radius: 0.75rem;
+    }
+
+    .medicare-dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+
+    .medicare-dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .medicare-welcome h1 {
+        font-size: 1.8rem;
+        color: var(--primary-color);
+        margin-bottom: 0.25rem;
+    }
+
+    .medicare-welcome p {
+        color: #666;
+    }
+
+    .medicare-status-badge {
+        background-color: var(--primary-color);
+        color: #fff;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .quick-actions-section {
+        margin-bottom: 2rem;
+    }
+
+    .quick-actions-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .medicare-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.55rem 1rem;
+        font-size: 0.9rem;
+        border-radius: var(--border-radius);
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .medicare-btn-primary {
+        background-color: var(--primary-color);
+        color: #fff;
+        border: none;
+    }
+
+        .medicare-btn-primary:hover {
+            background-color: #1e40af;
+        }
+
+    .medicare-btn-outline {
+        border: 1px solid #ccc;
+        color: #333;
+    }
+
+        .medicare-btn-outline:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+    .medicare-card {
+        background-color: var(--card-bg);
+        box-shadow: 0 4px 12px var(--card-shadow);
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        transition: transform 0.2s;
+    }
+
+        .medicare-card:hover {
+            transform: translateY(-3px);
+        }
+
+    .dashboard-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .stat-card-icon {
+        font-size: 1.5rem;
+    }
+
+        .stat-card-icon.primary {
+            color: var(--primary-color);
+        }
+
+        .stat-card-icon.success {
+            color: var(--success-color);
+        }
+
+        .stat-card-icon.info {
+            color: var(--info-color);
+        }
+
+        .stat-card-icon.warning {
+            color: var(--warning-color);
+        }
+
+    .stat-card-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-card-description {
+        color: #555;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-card-action a {
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .content-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .table-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .medicare-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .medicare-table th, .medicare-table td {
+            padding: 0.55rem 0.75rem;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        .medicare-table th {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .medicare-table td {
+            color: #333;
+        }
+
+    .empty-state {
+        text-align: center;
+        color: #999;
+        font-style: italic;
+    }
+
+    .status-badge {
+        background-color: var(--success-color);
+        color: #fff;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.4rem;
+    }
+
+    @@media (max-width: 768px) {
+        .quick-actions-buttons
+
+    {
+        flex-direction: column;
+    }
+
+    .medicare-dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    }</style>
+
+<div class="medicare-dashboard-container">
+    <div class="medicare-dashboard-header">
+        <div class="medicare-welcome">
+            <div>
+                <h1>Sawubona, @patientName</h1>
+                <p>Welcome to your patient dashboard</p>
+            </div>
+            <div class="medicare-status-badge">
+                <i class="bi bi-check-circle"></i>
+                Active Patient
+            </div>
         </div>
     </div>
 
-    <!-- Quick Actions Row -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card dashboard-card border-0">
-                <div class="card-body">
-                    <h5 class="card-title mb-3">Quick Actions</h5>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a asp-area="Patients" asp-controller="Appointments" asp-action="Index" class="btn btn-primary">
-                            <i class="bi bi-plus-circle me-2"></i>Book Appointment
-                        </a>
-                        <a asp-area="Patients" asp-controller="Prescriptions" asp-action="Index" class="btn btn-outline-primary">
-                            <i class="bi bi-prescription2 me-2"></i>View Prescriptions
-                        </a>
-                        <a asp-area="Patients" asp-controller="Records" asp-action="Index" class="btn btn-outline-primary">
-                            <i class="bi bi-journal-medical me-2"></i>Medical Records
-                        </a>
-                        <a asp-area="Patients" asp-controller="Payments" asp-action="Index" class="btn btn-outline-primary">
-                            <i class="bi bi-credit-card me-2"></i>Make Payment
-                        </a>
-                    </div>
+    <!-- Quick Actions Section -->
+    <div class="quick-actions-section">
+        <div class="medicare-card quick-actions-card">
+            <div class="medicare-card-body">
+                <h5 class="quick-actions-title">Quick Actions</h5>
+                <div class="quick-actions-buttons">
+                    <a asp-area="Patients" asp-controller="Appointments" asp-action="Index" class="medicare-btn medicare-btn-primary">
+                        <i class="bi bi-plus-circle"></i>Book Appointment
+                    </a>
+                    <a asp-area="Patients" asp-controller="Prescriptions" asp-action="Index" class="medicare-btn medicare-btn-outline">
+                        <i class="bi bi-prescription2"></i>View Prescriptions
+                    </a>
+                    <a asp-area="Patients" asp-controller="Records" asp-action="Index" class="medicare-btn medicare-btn-outline">
+                        <i class="bi bi-journal-medical"></i>Medical Records
+                    </a>
+                    <a asp-area="Patients" asp-controller="Payments" asp-action="Index" class="medicare-btn medicare-btn-outline">
+                        <i class="bi bi-credit-card"></i>Make Payment
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Dashboard Cards Row -->
-    <div class="row g-4 mb-4">
+    <!-- Dashboard Stats Grid -->
+    <div class="dashboard-stats-grid">
         <!-- Upcoming Appointments Card -->
-        <div class="col-md-6 col-xl-3">
-            <div class="card dashboard-card border-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title mb-0">Upcoming Appointments</h5>
-                        <div class="rounded-circle bg-primary bg-opacity-10 p-2">
-                            <i class="bi bi-calendar-check text-primary"></i>
-                        </div>
+        <div class="medicare-card stat-card">
+            <div class="medicare-card-body">
+                <div class="stat-card-header">
+                    <h5 class="stat-card-title">Upcoming Appointments</h5>
+                    <div class="stat-card-icon primary">
+                        <i class="bi bi-calendar-check"></i>
                     </div>
-                    <h2 class="mb-1">@Model.UpcomingAppointmentsCount</h2>
-                    <p class="text-muted mb-0">@((Model.NextAppointmentUtc.HasValue ? $"Next: {Model.NextAppointmentUtc:ddd, dd MMM yyyy HH:mm}" : "No upcoming appointments"))</p>
-                    <div class="mt-3">
-                        <a asp-area="Patients" asp-controller="Appointments" asp-action="Index" class="btn btn-sm btn-outline-primary">
-                            View All
-                        </a>
-                    </div>
+                </div>
+                <h2 class="stat-card-value">@Model.UpcomingAppointmentsCount</h2>
+                <p class="stat-card-description">@((Model.NextAppointmentUtc.HasValue ? $"Next: {Model.NextAppointmentUtc:ddd, dd MMM yyyy HH:mm}" : "No upcoming appointments"))</p>
+                <div class="stat-card-action">
+                    <a asp-area="Patients" asp-controller="Appointments" asp-action="Index" class="medicare-btn medicare-btn-outline medicare-btn-sm">
+                        View All
+                    </a>
                 </div>
             </div>
         </div>
 
         <!-- Active Prescriptions Card -->
-        <div class="col-md-6 col-xl-3">
-            <div class="card dashboard-card border-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title mb-0">Active Prescriptions</h5>
-                        <div class="rounded-circle bg-success bg-opacity-10 p-2">
-                            <i class="bi bi-prescription2 text-success"></i>
-                        </div>
+        <div class="medicare-card stat-card">
+            <div class="medicare-card-body">
+                <div class="stat-card-header">
+                    <h5 class="stat-card-title">Active Prescriptions</h5>
+                    <div class="stat-card-icon success">
+                        <i class="bi bi-prescription2"></i>
                     </div>
-                    <h2 class="mb-1">@Model.ActivePrescriptionsCount</h2>
-                    <p class="text-muted mb-0">@Model.TotalAvailableRefills Refill(s) Available</p>
-                    <div class="mt-3">
-                        <a asp-area="Patients" asp-controller="Prescriptions" asp-action="Index" class="btn btn-sm btn-outline-success">
-                            View Details
-                        </a>
-                    </div>
+                </div>
+                <h2 class="stat-card-value">@Model.ActivePrescriptionsCount</h2>
+                <p class="stat-card-description">@Model.TotalAvailableRefills Refill(s) Available</p>
+                <div class="stat-card-action">
+                    <a asp-area="Patients" asp-controller="Prescriptions" asp-action="Index" class="medicare-btn medicare-btn-outline medicare-btn-sm" style="border-color: var(--success-color); color: var(--success-color);">
+                        View Details
+                    </a>
                 </div>
             </div>
         </div>
 
         <!-- Recent Payments Card -->
-        <div class="col-md-6 col-xl-3">
-            <div class="card dashboard-card border-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title mb-0">Recent Payments</h5>
-                        <div class="rounded-circle bg-info bg-opacity-10 p-2">
-                            <i class="bi bi-credit-card text-info"></i>
-                        </div>
+        <div class="medicare-card stat-card">
+            <div class="medicare-card-body">
+                <div class="stat-card-header">
+                    <h5 class="stat-card-title">Recent Payments</h5>
+                    <div class="stat-card-icon info">
+                        <i class="bi bi-credit-card"></i>
                     </div>
-                    <h2 class="mb-1">@((Model.LastPaymentCents.HasValue ? $"R{Model.LastPaymentCents.Value / 100.0:0.00}" : "R0.00"))</h2>
-                    <p class="text-muted mb-2">@((Model.LastPaymentAtUtc.HasValue ? $"Last payment: {Model.LastPaymentAtUtc:dd MMM yyyy}" : "No payments yet"))</p>
-                    @if (Model.RecentPayments != null && Model.RecentPayments.Any())
-                    {
-                        <div class="small">
-                            @foreach (var p in Model.RecentPayments.Take(3))
-                            {
-                                <div class="d-flex justify-content-between">
-                                    <span class="text-muted">@p.CreatedAt.ToString("dd MMM") — @p.PaymentType</span>
-                                    <span class="fw-semibold">@p.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
-                                </div>
-                            }
-                        </div>
-                    }
-                    <div class="mt-3">
-                        <a asp-area="Patients" asp-controller="Payments" asp-action="Index" class="btn btn-sm btn-outline-info">
-                            Payment History
-                        </a>
+                </div>
+                <h2 class="stat-card-value">@((Model.LastPaymentCents.HasValue ? $"R{Model.LastPaymentCents.Value / 100.0:0.00}" : "R0.00"))</h2>
+                <p class="stat-card-description">@((Model.LastPaymentAtUtc.HasValue ? $"Last payment: {Model.LastPaymentAtUtc:dd MMM yyyy}" : "No payments yet"))</p>
+                @if (Model.RecentPayments != null && Model.RecentPayments.Any())
+                {
+                    <div class="stat-card-details">
+                        @foreach (var p in Model.RecentPayments.Take(3))
+                        {
+                            <div class="payment-item">
+                                <span>@p.CreatedAt.ToString("dd MMM") — @p.PaymentType</span>
+                                <span style="font-weight: 600;">@p.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</span>
+                            </div>
+                        }
                     </div>
+                }
+                <div class="stat-card-action">
+                    <a asp-area="Patients" asp-controller="Payments" asp-action="Index" class="medicare-btn medicare-btn-outline medicare-btn-sm" style="border-color: var(--info-color); color: var(--info-color);">
+                        Payment History
+                    </a>
                 </div>
             </div>
         </div>
 
         <!-- Billing Summary Card -->
-        <div class="col-md-6 col-xl-3">
-            <div class="card dashboard-card border-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title mb-0">Billing Status</h5>
-                        <div class="rounded-circle bg-warning bg-opacity-10 p-2">
-                            <i class="bi bi-receipt text-warning"></i>
-                        </div>
+        <div class="medicare-card stat-card">
+            <div class="medicare-card-body">
+                <div class="stat-card-header">
+                    <h5 class="stat-card-title">Billing Status</h5>
+                    <div class="stat-card-icon warning">
+                        <i class="bi bi-receipt"></i>
                     </div>
-                    <h2 class="mb-1">View Bills</h2>
-                    <p class="text-muted mb-0">Check outstanding bills and payment status</p>
-                    <div class="mt-3">
-                        <a asp-area="Patients" asp-controller="Billing" asp-action="Index" class="btn btn-sm btn-outline-warning">
-                            View Billing
-                        </a>
-                    </div>
+                </div>
+                <h2 class="stat-card-value" style="font-size: 1.5rem;">View Bills</h2>
+                <p class="stat-card-description">Check outstanding bills and payment status</p>
+                <div class="stat-card-action">
+                    <a asp-area="Patients" asp-controller="Billing" asp-action="Index" class="medicare-btn medicare-btn-outline medicare-btn-sm" style="border-color: var(--warning-color); color: var(--warning-color);">
+                        View Billing
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Recent Medical Records and Payments Row -->
-    <div class="row g-4">
+    <!-- Recent Records and Payments Section -->
+    <div class="content-grid">
         <!-- Recent Medical Records -->
-        <div class="col-lg-8">
-            <div class="card dashboard-card border-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="card-title mb-0">Recent Medical Records</h5>
-                        <a asp-area="Patients" asp-controller="Records" asp-action="Index" class="btn btn-sm btn-outline-primary">View All</a>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Type</th>
-                                    <th>Doctor</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (Model.RecentRecords == null || !Model.RecentRecords.Any())
+        <div class="medicare-card">
+            <div class="medicare-card-body">
+                <div class="table-card-header">
+                    <h5 class="table-card-title">
+                        📋 Recent Medical Records
+                    </h5>
+                    <a asp-area="Patients" asp-controller="Records" asp-action="Index" class="medicare-btn medicare-btn-outline medicare-btn-sm">View All</a>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="medicare-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Doctor</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RecentRecords == null || !Model.RecentRecords.Any())
+                            {
+                                <tr><td colspan="4" class="empty-state">No records yet.</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var r in Model.RecentRecords)
                                 {
-                                    <tr><td colspan="4" class="text-center text-muted">No records yet.</td></tr>
+                                    <tr>
+                                        <td>@r.Date.ToString("dd MMM yyyy")</td>
+                                        <td>@r.Type</td>
+                                        <td>@(string.IsNullOrWhiteSpace(r.Notes) ? "-" : r.Notes)</td>
+                                        <td><span class="status-badge">Completed</span></td>
+                                    </tr>
                                 }
-                                else
-                                {
-                                    @foreach (var r in Model.RecentRecords)
-                                    {
-                                        <tr>
-                                            <td>@r.Date.ToString("dd MMM yyyy")</td>
-                                            <td>@r.Type</td>
-                                            <td>@(string.IsNullOrWhiteSpace(r.Notes) ? "-" : r.Notes)</td>
-                                            <td><span class="badge bg-success">Completed</span></td>
-                                        </tr>
-                                    }
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
         <!-- Recent Payments -->
-        <div class="col-lg-4">
-            <div class="card dashboard-card border-0">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="card-title mb-0">Your Recent Payments</h5>
-                        <a asp-area="Patients" asp-controller="Payments" asp-action="Index" class="btn btn-sm btn-outline-secondary">View All</a>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Type</th>
-                                    <th>Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (Model.RecentPayments == null || !Model.RecentPayments.Any())
+        <div class="medicare-card">
+            <div class="medicare-card-body">
+                <div class="table-card-header">
+                    <h5 class="table-card-title">
+                        💳 Your Recent Payments
+                    </h5>
+                    <a asp-area="Patients" asp-controller="Payments" asp-action="Index" class="medicare-btn medicare-btn-outline medicare-btn-sm">View All</a>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="medicare-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RecentPayments == null || !Model.RecentPayments.Any())
+                            {
+                                <tr><td colspan="3" class="empty-state">No payments yet.</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var p in Model.RecentPayments)
                                 {
-                                    <tr><td colspan="3" class="text-center text-muted">No payments yet.</td></tr>
+                                    <tr>
+                                        <td>@p.CreatedAt.ToString("dd MMM yyyy")</td>
+                                        <td>@p.PaymentType</td>
+                                        <td style="font-weight: 600; color: var(--success-color);">@p.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</td>
+                                    </tr>
                                 }
-                                else
-                                {
-                                    @foreach (var p in Model.RecentPayments)
-                                    {
-                                        <tr>
-                                            <td>@p.CreatedAt.ToString("dd MMM yyyy")</td>
-                                            <td>@p.PaymentType</td>
-                                            <td>@p.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-ZA"))</td>
-                                        </tr>
-                                    }
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+@section Scripts {
+    
+}

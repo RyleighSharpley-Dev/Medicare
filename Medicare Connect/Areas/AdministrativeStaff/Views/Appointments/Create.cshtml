@@ -1,147 +1,658 @@
-@model Medicare_Connect.Areas.AdministrativeStaff.Models.AppointmentManagementViewModel
+﻿@model Medicare_Connect.Areas.AdministrativeStaff.Models.AppointmentManagementViewModel
 @{
     ViewData["Title"] = "Schedule Appointment";
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Schedule New Appointment</h2>
-                <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Back to Appointments
-                </a>
-            </div>
+@section Styles {
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Appointment Details</h5>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="PatientId" class="form-label"></label>
-                                <select asp-for="PatientId" class="form-select">
-                                    <option value="">Select Patient</option>
-                                    @foreach (var patient in ViewBag.Patients)
-                                    {
-                                        <option value="@patient.Id">@patient.Name</option>
-                                    }
-                                </select>
-                                <span asp-validation-for="PatientId" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="DoctorId" class="form-label"></label>
-                                <select asp-for="DoctorId" class="form-select">
-                                    <option value="">Select Doctor</option>
-                                    @foreach (var doctor in ViewBag.Doctors)
-                                    {
-                                        <option value="@doctor.Id">@doctor.Name</option>
-                                    }
-                                </select>
-                                <span asp-validation-for="DoctorId" class="text-danger"></span>
-                            </div>
-                        </div>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="AppointmentType" class="form-label"></label>
-                                <select asp-for="AppointmentType" class="form-select">
-                                    <option value="">Select Type</option>
-                                    <option value="General Checkup">General Checkup</option>
-                                    <option value="Follow-up">Follow-up</option>
-                                    <option value="Lab Results">Lab Results</option>
-                                    <option value="Vaccination">Vaccination</option>
-                                    <option value="Specialist Consultation">Specialist Consultation</option>
-                                    <option value="Emergency Care">Emergency Care</option>
-                                    <option value="Surgery">Surgery</option>
-                                    <option value="Physical Therapy">Physical Therapy</option>
-                                </select>
-                                <span asp-validation-for="AppointmentType" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Location" class="form-label"></label>
-                                <input asp-for="Location" class="form-control" placeholder="e.g., Main Clinic, Room 101" />
-                                <span asp-validation-for="Location" class="text-danger"></span>
-                            </div>
-                        </div>
+        /* Main Container */
+        .schedule-container {
+            width: 100%;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="AppointmentDate" class="form-label"></label>
-                                <input asp-for="AppointmentDate" class="form-control" type="date" />
-                                <span asp-validation-for="AppointmentDate" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="AppointmentTime" class="form-label"></label>
-                                <input asp-for="AppointmentTime" class="form-control" type="time" />
-                                <span asp-validation-for="AppointmentTime" class="text-danger"></span>
-                            </div>
-                        </div>
+        /* Header Section */
+        .page-header {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="DurationMinutes" class="form-label"></label>
-                                <select asp-for="DurationMinutes" class="form-select">
-                                    <option value="15">15 minutes</option>
-                                    <option value="30" selected>30 minutes</option>
-                                    <option value="45">45 minutes</option>
-                                    <option value="60">1 hour</option>
-                                    <option value="90">1.5 hours</option>
-                                    <option value="120">2 hours</option>
-                                </select>
-                                <span asp-validation-for="DurationMinutes" class="text-danger"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="PriorityLevel" class="form-label"></label>
-                                <select asp-for="PriorityLevel" class="form-select">
-                                    <option value="Low">Low</option>
-                                    <option value="Normal" selected>Normal</option>
-                                    <option value="High">High</option>
-                                    <option value="Urgent">Urgent</option>
-                                </select>
-                                <span asp-validation-for="PriorityLevel" class="text-danger"></span>
-                            </div>
-                        </div>
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="form-check">
-                                    <input asp-for="InsuranceCoverage" class="form-check-input" type="checkbox" />
-                                    <label asp-for="InsuranceCoverage" class="form-check-label"></label>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="form-check">
-                                    <input asp-for="RequiresPreAuthorization" class="form-check-input" type="checkbox" />
-                                    <label asp-for="RequiresPreAuthorization" class="form-check-label"></label>
-                                </div>
-                            </div>
-                        </div>
+        /* Modern Buttons */
+        .btn-modern {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.875rem 1.75rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
 
-                        <div class="mb-3">
-                            <label asp-for="Notes" class="form-label"></label>
-                            <textarea asp-for="Notes" class="form-control" rows="3" 
-                                      placeholder="Additional notes or special instructions..."></textarea>
-                            <span asp-validation-for="Notes" class="text-danger"></span>
-                        </div>
+            .btn-modern:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+                color: white;
+                text-decoration: none;
+            }
 
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-calendar-check"></i> Schedule Appointment
-                            </button>
-                            <button type="reset" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-clockwise"></i> Reset
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        .btn-outline {
+            background: transparent;
+            color: #64748b;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+            .btn-outline:hover {
+                background: #64748b;
+                color: white;
+                border-color: #64748b;
+                text-decoration: none;
+                transform: translateY(-1px);
+            }
+
+        .btn-reset {
+            background: #f1f5f9;
+            color: #475569;
+            border: 2px solid #e2e8f0;
+        }
+
+            .btn-reset:hover {
+                background: #475569;
+                color: white;
+                border-color: #475569;
+            }
+
+        /* Form Container */
+        .form-container {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        /* Section Headers */
+        .section-header {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+            .section-header:before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+            }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        /* Form Sections */
+        .form-section {
+            padding: 2rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+            .form-section:last-child {
+                border-bottom: none;
+            }
+
+        .subsection-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #ffffff;
+            color: #1e293b;
+        }
+
+            .form-control:focus, .form-select:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+                transform: translateY(-1px);
+            }
+
+            .form-control::placeholder {
+                color: #9ca3af;
+            }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Checkboxes */
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-check-input {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 4px;
+            background: #ffffff;
+            cursor: pointer;
+            position: relative;
+            margin: 0;
+        }
+
+            .form-check-input:checked {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                border-color: #667eea;
+            }
+
+                .form-check-input:checked::after {
+                    content: '✓';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: white;
+                    font-size: 12px;
+                    font-weight: bold;
+                }
+
+        .form-check-label {
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        /* Special Input Styling */
+        .priority-select {
+            position: relative;
+        }
+
+        .priority-high {
+            border-color: #f59e0b !important;
+            background: #fef3c7;
+        }
+
+        .priority-urgent {
+            border-color: #ef4444 !important;
+            background: #fef2f2;
+        }
+
+        /* Validation Styles */
+        .text-danger {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .form-control.input-validation-error,
+        .form-select.input-validation-error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+            .form-control.input-validation-error:focus,
+            .form-select.input-validation-error:focus {
+                border-color: #ef4444;
+                box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+            }
+
+        /* Grid System */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+            .form-row.single {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row.triple {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+
+        /* Action Buttons */
+        .form-actions {
+            padding: 1.5rem 2rem;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-start;
+        }
+
+        /* Quick Selection Chips */
+        .appointment-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .type-chip {
+            padding: 0.375rem 0.75rem;
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .type-chip:hover {
+                background: #667eea;
+                color: white;
+                border-color: #667eea;
+            }
+
+        /* Mobile Responsiveness */
+        @@media (max-width: 768px) {
+            .schedule-container
+
+        {
+            padding: 1rem;
+        }
+
+        .page-header {
+            padding: 1.5rem;
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-section {
+            padding: 1.5rem;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+            .form-row.triple {
+                grid-template-columns: 1fr;
+            }
+
+        .form-actions {
+            flex-direction: column;
+            padding: 1.5rem;
+        }
+
+        }
+
+        @@media (max-width: 480px) {
+            .section-title
+
+        {
+            font-size: 1.125rem;
+        }
+
+        .subsection-title {
+            font-size: 1rem;
+        }
+
+        .type-chip {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        }
+
+        /* Utility Classes */
+        .d-flex {
+            display: flex;
+        }
+
+        .justify-content-between {
+            justify-content: space-between;
+        }
+
+        .align-items-center {
+            align-items: center;
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .gap-2 {
+            gap: 0.5rem;
+        }
+    </style>
+}
+
+<div class="schedule-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2 class="page-title">Schedule New Appointment</h2>
+        <a href="@Url.Action("Index")" class="btn-outline">
+            <i class="bi bi-arrow-left"></i> Back to Appointments
+        </a>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <div class="section-header">
+            <h5 class="section-title">
+                <div class="section-icon"><i class="bi bi-calendar-plus"></i></div>
+                Appointment Details
+            </h5>
         </div>
+
+        <form method="post">
+            <!-- Basic Information Section -->
+            <div class="form-section">
+                <h6 class="subsection-title">
+                    <i class="bi bi-people"></i> Patient & Doctor Selection
+                </h6>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="PatientId" class="form-label"></label>
+                        <select asp-for="PatientId" class="form-select">
+                            <option value="">Select Patient</option>
+                            @foreach (var patient in ViewBag.Patients)
+                            {
+                                <option value="@patient.Id">@patient.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="PatientId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DoctorId" class="form-label"></label>
+                        <select asp-for="DoctorId" class="form-select">
+                            <option value="">Select Doctor</option>
+                            @foreach (var doctor in ViewBag.Doctors)
+                            {
+                                <option value="@doctor.Id">@doctor.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="DoctorId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="AppointmentType" class="form-label"></label>
+                        <select asp-for="AppointmentType" class="form-select">
+                            <option value="">Select Appointment Type</option>
+                            <option value="General Checkup">General Checkup</option>
+                            <option value="Follow-up">Follow-up</option>
+                            <option value="Lab Results">Lab Results</option>
+                            <option value="Vaccination">Vaccination</option>
+                            <option value="Specialist Consultation">Specialist Consultation</option>
+                            <option value="Emergency Care">Emergency Care</option>
+                            <option value="Surgery">Surgery</option>
+                            <option value="Physical Therapy">Physical Therapy</option>
+                        </select>
+                        <span asp-validation-for="AppointmentType" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Location" class="form-label"></label>
+                        <input asp-for="Location" class="form-control" placeholder="e.g., Main Clinic, Room 101" />
+                        <span asp-validation-for="Location" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date & Time Section -->
+            <div class="form-section">
+                <h6 class="subsection-title">
+                    <i class="bi bi-calendar-event"></i> Date & Time Details
+                </h6>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="AppointmentDate" class="form-label"></label>
+                        <input asp-for="AppointmentDate" class="form-control" type="date" />
+                        <span asp-validation-for="AppointmentDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AppointmentTime" class="form-label"></label>
+                        <input asp-for="AppointmentTime" class="form-control" type="time" />
+                        <span asp-validation-for="AppointmentTime" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="DurationMinutes" class="form-label"></label>
+                        <select asp-for="DurationMinutes" class="form-select">
+                            <option value="15">15 minutes</option>
+                            <option value="30" selected>30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60">1 hour</option>
+                            <option value="90">1.5 hours</option>
+                            <option value="120">2 hours</option>
+                        </select>
+                        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+                    </div>
+                    <div class="form-group priority-select">
+                        <label asp-for="PriorityLevel" class="form-label"></label>
+                        <select asp-for="PriorityLevel" class="form-select">
+                            <option value="Low">Low Priority</option>
+                            <option value="Normal" selected>Normal Priority</option>
+                            <option value="High">High Priority</option>
+                            <option value="Urgent">Urgent</option>
+                        </select>
+                        <span asp-validation-for="PriorityLevel" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Options Section -->
+            <div class="form-section">
+                <h6 class="subsection-title">
+                    <i class="bi bi-gear"></i> Additional Options
+                </h6>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input asp-for="InsuranceCoverage" class="form-check-input" type="checkbox" />
+                            <label asp-for="InsuranceCoverage" class="form-check-label"></label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input asp-for="RequiresPreAuthorization" class="form-check-input" type="checkbox" />
+                            <label asp-for="RequiresPreAuthorization" class="form-check-label"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row single">
+                    <div class="form-group">
+                        <label asp-for="Notes" class="form-label"></label>
+                        <textarea asp-for="Notes" class="form-control" rows="4"
+                                  placeholder="Additional notes, special instructions, or patient concerns..."></textarea>
+                        <span asp-validation-for="Notes" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn-modern">
+                    <i class="bi bi-calendar-check"></i> Schedule Appointment
+                </button>
+                <button type="reset" class="btn-reset btn-outline">
+                    <i class="bi bi-arrow-clockwise"></i> Reset Form
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-} 
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Priority level styling
+            const prioritySelect = document.querySelector('select[name="PriorityLevel"]');
+            if (prioritySelect) {
+                function updatePriorityStyle() {
+                    const value = prioritySelect.value;
+                    prioritySelect.classList.remove('priority-high', 'priority-urgent');
+                    if (value === 'High') {
+                        prioritySelect.classList.add('priority-high');
+                    } else if (value === 'Urgent') {
+                        prioritySelect.classList.add('priority-urgent');
+                    }
+                }
+
+                prioritySelect.addEventListener('change', updatePriorityStyle);
+                updatePriorityStyle(); // Initial call
+            }
+
+            // Form validation visual feedback
+            const inputs = document.querySelectorAll('.form-control, .form-select');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    if (this.value.trim() !== '') {
+                        this.style.borderColor = '#10b981';
+                    } else {
+                        this.style.borderColor = '#e2e8f0';
+                    }
+                });
+            });
+
+            // Set minimum date to today
+            const dateInput = document.querySelector('input[type="date"]');
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.setAttribute('min', today);
+            }
+
+            // Reset form styling
+            const resetBtn = document.querySelector('button[type="reset"]');
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function() {
+                    setTimeout(() => {
+                        inputs.forEach(input => {
+                            input.style.borderColor = '#e2e8f0';
+                        });
+                        if (prioritySelect) {
+                            prioritySelect.classList.remove('priority-high', 'priority-urgent');
+                        }
+                    }, 100);
+                });
+            }
+        });
+    </script>
+}
