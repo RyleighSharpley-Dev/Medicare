@@ -1,8 +1,13 @@
-using System.ComponentModel.DataAnnotations;
+using Medicare_Connect.Areas.Patients.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.WebUtilities;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
+using System.Text;
 
 namespace Medicare_Connect.Areas.Identity.Pages.Account;
 
@@ -12,12 +17,13 @@ public class RegisterModel : PageModel
     private readonly UserManager<IdentityUser> _userManager;
     private readonly SignInManager<IdentityUser> _signInManager;
     private readonly RoleManager<IdentityRole> _roleManager;
-
-    public RegisterModel(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, RoleManager<IdentityRole> roleManager)
+    private readonly IEmailSender _emailSender;
+    public RegisterModel(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _roleManager = roleManager;
+        _emailSender = emailSender;
     }
 
     [BindProperty]
@@ -52,6 +58,7 @@ public class RegisterModel : PageModel
     public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
     {
         returnUrl ??= Url.Content("~/");
+
         if (!ModelState.IsValid)
         {
             ReturnUrl = returnUrl;
@@ -60,9 +67,10 @@ public class RegisterModel : PageModel
 
         var user = new IdentityUser { UserName = Input.Email, Email = Input.Email };
         var result = await _userManager.CreateAsync(user, Input.Password);
+
         if (result.Succeeded)
         {
-            // Ensure "Patients" role exists (fallback in case seeding hasn't run yet)
+            // Ensure "Patients" role exists
             const string defaultRole = "Patients";
             if (!await _roleManager.RoleExistsAsync(defaultRole))
             {
@@ -70,16 +78,33 @@ public class RegisterModel : PageModel
             }
             await _userManager.AddToRoleAsync(user, defaultRole);
 
-            await _signInManager.SignInAsync(user, isPersistent: false);
-            return LocalRedirect(returnUrl);
+            //  Generate email confirmation token
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var tokenEncoded = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            //  Build the confirmation link
+            var confirmationUrl = Url.Page(
+                "/Account/ConfirmEmail",
+                pageHandler: null,
+                values: new { area = "Identity", userId = user.Id, code = tokenEncoded },
+                protocol: Request.Scheme);
+
+            //  Send confirmation email
+            await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                $"Please confirm your account by <a href='{confirmationUrl}'>clicking here</a>.");
+
+            //  Redirect to RegisterConfirmation page instead of signing in
+            return RedirectToPage("RegisterConfirmation", new { email = Input.Email });
         }
+
         foreach (var error in result.Errors)
         {
             ModelState.AddModelError(string.Empty, error.Description);
         }
+
         ReturnUrl = returnUrl;
         return Page();
     }
+
 }
 
 

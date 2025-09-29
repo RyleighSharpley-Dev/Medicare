@@ -9,6 +9,7 @@ using Medicare_Connect.Data;
 using Medicare_Connect.Data.Entities;
 using ModelAppointmentStatus = Medicare_Connect.Areas.Patients.Models.AppointmentStatus;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace Medicare_Connect.Areas.Patients.Controllers;
 
@@ -225,7 +226,7 @@ public class AppointmentsController : Controller
 		{
 			var subject = $"Reminder scheduled: {appt.AppointmentType} on {appt.AppointmentDate:dd MMM yyyy HH:mm}";
 			var body = $"<p>Sawubona {displayName},</p><p>We have scheduled reminders for your appointment on <strong>{appt.AppointmentDate:ddd, dd MMM yyyy HH:mm}</strong>.</p><ul><li>24 hours before</li><li>2 hours before</li></ul><p>Doctor: {appt.DoctorName}</p>";
-			_ = _emailSender.SendAsync(toEmail, subject, body);
+			_ = _emailSender.SendEmailAsync(toEmail, subject, body);
 		}
 
 		var unitAmountCents = appt.PriceCents;
