@@ -1,0 +1,252 @@
+﻿@model List<Medicare_Connect.Areas.Patients.Models.Prescription>
+@using Medicare_Connect.Areas.Patients.Models
+@{
+    Layout = "/Views/Shared/_RoleBasedLayout.cshtml";
+    ViewData["Title"] = "Prescriptions";
+    var patients = ViewBag.Patients as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var patientKey = ViewBag.PatientKey as string;
+    var refillRequests = ViewBag.RefillRequests as IEnumerable<RefillRequest> ?? Enumerable.Empty<RefillRequest>();
+}
+
+@section Sidebar {
+    @{
+        var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
+    }
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "dashboard" ? "active" : "")" asp-area="Nurses" asp-controller="Dashboard" asp-action="Index">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "patients" ? "active" : "")" asp-area="Nurses" asp-controller="Patients" asp-action="Index">
+            <i class="bi bi-people"></i> Patients
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "profile" ? "active" : "")" asp-area="Nurses" asp-controller="Profile" asp-action="Index">
+            <i class="bi bi-person-circle"></i> Profile
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "schedule" ? "active" : "")" asp-area="Nurses" asp-controller="Schedule" asp-action="Index">
+            <i class="bi bi-calendar-check"></i> Schedule
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "prescriptions" ? "active" : "")" asp-area="Nurses" asp-controller="NursePrescriptions" asp-action="Index">
+            <i class="bi bi-capsule-pill"></i> Prescriptions
+        </a>
+    </li>
+
+
+
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div>
+            <h2 class="h4 fw-bold text-primary mb-1">Prescriptions</h2>
+            <p class="text-muted small mb-0">Manage patient prescriptions and refill requests</p>
+        </div>
+        <a class="btn btn-outline-primary mt-3 mt-md-0" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">
+            <i class="bi bi-arrow-left me-2"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Alerts -->
+    @if (TempData["RxSuccess"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["RxSuccess"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["RxError"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["RxError"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- Left Column -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-3 mb-4">
+                <div class="card-body">
+                    <h5 class="fw-semibold mb-3 text-secondary">Select Patient</h5>
+                    <form asp-action="For" method="get">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Patient</label>
+                            <select class="form-select" name="patientKey" required>
+                                <option value="">Choose...</option>
+                                @foreach (var p in patients)
+                                {
+                                    <option value="@p.PatientKey" selected="@(patientKey == p.PatientKey ? "selected" : null)">@p.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-people me-2"></i> Load Prescriptions
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-3 mb-4 @(string.IsNullOrWhiteSpace(patientKey) ? "opacity-50" : string.Empty)">
+                <div class="card-body">
+                    <h5 class="fw-semibold mb-3 text-secondary">Create Prescription</h5>
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="patientKey" value="@patientKey" />
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Medication</label>
+                            <input class="form-control" type="text" name="Medication" maxlength="128" required @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null) />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Dosage</label>
+                            <input class="form-control" type="text" name="Dosage" maxlength="128" required @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null) />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Refills Total</label>
+                            <input class="form-control" type="number" name="RefillsTotal" min="0" max="10" value="0" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null) />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Notes (optional)</label>
+                            <textarea class="form-control" name="Notes" rows="2" maxlength="256" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null)></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="submit" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null)>
+                                <i class="bi bi-plus-circle me-2"></i> Create
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-3 mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-semibold text-secondary mb-0">Patient Prescriptions</h5>
+                        @if (Model != null && Model.Any())
+                        {
+                            <span class="text-muted small">Total: @Model.Count</span>
+                        }
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Medication</th>
+                                    <th>Dosage</th>
+                                    <th>Date</th>
+                                    <th>Refills</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model == null || !Model.Any())
+                                {
+                                    <tr><td colspan="5" class="text-center text-muted py-4">No prescriptions yet.</td></tr>
+                                }
+                                else
+                                {
+                                    @foreach (var rx in Model)
+                                    {
+                                        <tr>
+                                            <td>@rx.Medication</td>
+                                            <td>@rx.Dosage</td>
+                                            <td>@rx.Date.ToString("dd MMM yyyy")</td>
+                                            <td>@rx.RefillsUsed / @rx.RefillsTotal</td>
+                                            <td>
+                                                @if (rx.Status == PrescriptionStatus.Active)
+                                                {
+                                                    <span class="badge bg-success">Active</span>
+                                                    ;
+                                                }
+                                                else if (rx.Status == PrescriptionStatus.Completed)
+                                                {
+
+                                                    <span class="badge bg-secondary">Completed</span>
+                                                    ;
+                                                }
+                                                else
+                                                {
+
+                                                    <span class="badge bg-secondary">Cancelled</span>
+                                                    ;
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-semibold text-secondary mb-0">Refill Requests</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Prescription</th>
+                                    <th>Patient</th>
+                                    <th>Requested</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!refillRequests.Any())
+                                {
+                                    <tr><td colspan="4" class="text-center text-muted py-4">No pending requests</td></tr>
+                                }
+                                else
+                                {
+                                    @foreach (var r in refillRequests)
+                                    {
+                                        var rx = Medicare_Connect.Areas.Patients.Services.PrescriptionStore.FindPrescription(r.PrescriptionId);
+                                        <tr>
+                                            <td>@rx?.Medication</td>
+                                            <td>@r.PatientKey</td>
+                                            <td>@r.RequestedAt.ToString("dd MMM yyyy HH:mm")</td>
+                                            <td class="text-end">
+                                                <form asp-action="ApproveRefill" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@r.Id" />
+                                                    <button class="btn btn-sm btn-success rounded-pill" type="submit">
+                                                        <i class="bi bi-check2 me-1"></i>Approve
+                                                    </button>
+                                                </form>
+                                                <form asp-action="RejectRefill" method="post" class="d-inline ms-1">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@r.Id" />
+                                                    <input type="hidden" name="notes" value="Not clinically indicated" />
+                                                    <button class="btn btn-sm btn-outline-secondary rounded-pill" type="submit">
+                                                        <i class="bi bi-x me-1"></i>Reject
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
