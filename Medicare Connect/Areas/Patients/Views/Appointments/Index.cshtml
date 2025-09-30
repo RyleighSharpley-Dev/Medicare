@@ -668,9 +668,7 @@
                                             @if (a.Status == Medicare_Connect.Areas.Patients.Models.AppointmentStatus.Booked)
                                             {
                                                 <div class="action-buttons">
-                                                    <a class="medicare-btn medicare-btn-sm medicare-btn-secondary" asp-action="Edit" asp-route-id="@a.Id">
-                                                        <i class="bi bi-pencil-square"></i>Reschedule
-                                                    </a>
+                                                  
                                                     <form asp-action="Cancel" method="post" style="display: inline;">
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="id" value="@a.Id" />
