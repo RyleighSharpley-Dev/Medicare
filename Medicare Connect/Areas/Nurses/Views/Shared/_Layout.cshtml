@@ -2,21 +2,68 @@
     Layout = "/Views/Shared/_RoleBasedLayout.cshtml";
     ViewData["Title"] = ViewData["Title"] ?? "Nurses";
 }
-
 @section Sidebar {
-    <partial name="/Areas/Nurses/Views/Shared/_NurseNav.cshtml" />
+    <!-- Empty to satisfy the layout requirement -->
 }
 
-@section Styles {
-    <style>
-        /* Additional Nurses area specific styles */
-    </style>
+
+@{
+    var routeValues = ViewContext.RouteData.Values;
+    string currentController = (routeValues["controller"]?.ToString() ?? "").ToLowerInvariant();
 }
 
-@RenderBody()
+<!-- Horizontal Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm mb-4">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="@Url.Action("Index", "Dashboard", new { area = "Nurses" })">
+            Nurses Panel
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nurseNavbar" aria-controls="nurseNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="nurseNavbar">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link @(currentController == "dashboard" ? "active" : "")" asp-area="Nurses" asp-controller="Dashboard" asp-action="Index">
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentController == "patients" ? "active" : "")" asp-area="Nurses" asp-controller="Patients" asp-action="Index">
+                        Patients
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentController == "schedule" ? "active" : "")" asp-area="Nurses" asp-controller="Schedule" asp-action="Index">
+                        Schedule
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentController == "profile" ? "active" : "")" asp-area="Nurses" asp-controller="Profile" asp-action="Index">
+                        Profile
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container-fluid">
+    @RenderBody()
+</div>
 
 @section Scripts {
     @await RenderSectionAsync("Scripts", required: false)
 }
 
-
+@section Styles {
+    <style>
+        .navbar .nav-link.active {
+            font-weight: 600;
+            color: #0d6efd !important; /* Bootstrap primary color */
+        }
+    </style>
+}

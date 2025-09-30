@@ -1,114 +1,195 @@
-@model List<Medicare_Connect.Areas.Nurses.Models.PatientListItem>
+﻿@model List<Medicare_Connect.Areas.Nurses.Models.PatientListItem>
 @{
     ViewData["Title"] = "Patients";
 }
+@{
+    // CRITICAL CHANGE: Explicitly bypass intermediate layout
+    Layout = "/Views/Shared/_RoleBasedLayout.cshtml";
+    ViewData["Title"] = "Consultations";
+    var patients = ViewBag.Patients as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var patientKey = ViewBag.PatientKey as string;
+}
+@section Sidebar {
+    @{
+        var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
+    }
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "dashboard" ? "active" : "")" asp-area="Nurses" asp-controller="Dashboard" asp-action="Index">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "patients" ? "active" : "")" asp-area="Nurses" asp-controller="Patients" asp-action="Index">
+            <i class="bi bi-people"></i> Patients
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "profile" ? "active" : "")" asp-area="Nurses" asp-controller="Profile" asp-action="Index">
+            <i class="bi bi-person-circle"></i> Profile
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "schedule" ? "active" : "")" asp-area="Nurses" asp-controller="Schedule" asp-action="Index">
+            <i class="bi bi-calendar-check"></i> Schedule
+        </a>
+    </li>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="mb-0">Patient Management</h2>
-                <div class="d-flex gap-2">
-                    <form method="get" class="d-flex gap-2">
-                        <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" 
-                               class="form-control" placeholder="Search patients..." />
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-search"></i> Search
-                        </button>
-                    </form>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "prescriptions" ? "active" : "")" asp-area="Nurses" asp-controller="Prescriptions" asp-action="Index">
+            <i class="bi bi-capsule-pill"></i> Prescriptions
+        </a>
+    </li>
+   
+
+
+}
+
+<div class="container py-5">
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">👥 Patient Management</h2>
+            <p class="text-muted mb-0">View, search, and manage patients under your care.</p>
+        </div>
+
+        <!-- Search -->
+        <form method="get" class="d-flex gap-2 mt-3 mt-md-0">
+            <input type="text" name="searchTerm" value="@ViewBag.SearchTerm"
+                   class="form-control rounded-pill shadow-sm"
+                   placeholder="Search patients..." />
+            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-search"></i>
+            </button>
+            @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+            {
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-x-circle"></i>
+                </a>
+            }
+        </form>
+    </div>
+
+    <!-- Patient List -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-white border-0 rounded-top-4 py-3">
+            <h5 class="mb-0 fw-semibold">Patient List</h5>
+        </div>
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <div class="icon-circle-lg bg-light text-muted mb-3">
+                        <i class="bi bi-people fs-1"></i>
+                    </div>
+                    <p class="text-muted mb-0">No patients found.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Patient</th>
+                                <th>Email</th>
+                                <th>Last Visit</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var patient in Model)
+                            {
+                                <tr>
+                                    <!-- Patient Name -->
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle bg-primary text-white me-3">
+                                                <i class="bi bi-person"></i>
+                                            </div>
+                                            <strong>@patient.Name</strong>
+                                        </div>
+                                    </td>
+
+                                    <!-- Email -->
+                                    <td class="text-muted">@patient.Email</td>
+
+                                    <!-- Last Visit -->
+                                    <td>
+                                        @if (patient.LastVisit.HasValue)
+                                        {
+                                            <span class="text-muted">@patient.LastVisit.Value.ToString("MMM dd, yyyy")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">No visits</span>
+                                        }
+                                    </td>
+
+                                    <!-- Status -->
+                                    <td>
+                                        @{
+                                            var status = patient.Status?.ToLower() ?? "";
+                                            var badgeClass = status switch
+                                            {
+                                                "active" => "bg-success",
+                                                "inactive" => "bg-secondary",
+                                                "critical" => "bg-danger",
+                                                _ => "bg-info text-dark"
+                                            };
+                                        }
+                                        <span class="badge @badgeClass">@patient.Status</span>
+                                    </td>
+
+                                    <!-- Actions -->
+                                    <td class="text-end">
+                                        <div class="btn-group">
+                                            <a href="@Url.Action("Care", new { patientKey = patient.PatientKey })"
+                                               class="btn btn-sm btn-outline-primary rounded-pill">
+                                                <i class="bi bi-heart-pulse"></i> Care
+                                            </a>
+                                            <a href="@Url.Action("Index", "Records", new { area = "Doctors", patientKey = patient.PatientKey })"
+                                               class="btn btn-sm btn-outline-info rounded-pill">
+                                                <i class="bi bi-journal-medical"></i> Records
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-3 text-muted small">
+                    Showing <strong>@Model.Count</strong> patient(s)
                     @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
                     {
-                        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                            <i class="bi bi-x-circle"></i> Clear
-                        </a>
+                        <span>for "<em>@ViewBag.SearchTerm</em>"</span>
                     }
                 </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Patient List</h5>
-                </div>
-                <div class="card-body">
-                    @if (!Model.Any())
-                    {
-                        <div class="text-center py-4">
-                            <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
-                            <p class="text-muted mt-2">No patients found.</p>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Patient Name</th>
-                                        <th>Email</th>
-                                        <th>Last Visit</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var patient in Model)
-                                    {
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" 
-                                                         style="width: 40px; height: 40px;">
-                                                        <i class="bi bi-person"></i>
-                                                    </div>
-                                                    <div>
-                                                        <strong>@patient.Name</strong>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>@patient.Email</td>
-                                            <td>
-                                                @if (patient.LastVisit.HasValue)
-                                                {
-                                                    <span class="text-muted">@patient.LastVisit.Value.ToString("MMM dd, yyyy")</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="text-muted">No visits</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-success">@patient.Status</span>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <a href="@Url.Action("Care", new { patientKey = patient.PatientKey })" 
-                                                       class="btn btn-sm btn-outline-primary">
-                                                        <i class="bi bi-heart-pulse"></i> Care
-                                                    </a>
-                                                    <a href="@Url.Action("Index", "Records", new { area = "Doctors", patientKey = patient.PatientKey })" 
-                                                       class="btn btn-sm btn-outline-info">
-                                                        <i class="bi bi-journal-medical"></i> Records
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <div class="mt-3">
-                            <small class="text-muted">
-                                Showing @Model.Count patient(s)
-                                @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
-                                {
-                                    <span>for "@ViewBag.SearchTerm"</span>
-                                }
-                            </small>
-                        </div>
-                    }
-                </div>
-            </div>
+            }
         </div>
     </div>
-</div> 
+</div>
+
+<!-- Styling -->
+<style>
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    .icon-circle-lg {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
