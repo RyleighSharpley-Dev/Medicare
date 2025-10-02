@@ -116,7 +116,8 @@
                                 <tr>
                                     <td>
                                         <i class="bi bi-clock me-1 text-primary"></i>
-                                        @(a.StartTime.ToString("HH:mm")) - @(a.EndTime.ToString("HH:mm"))
+                                        @(a.Timeslot?.StartTime.ToString("HH:mm")) - @(a.Timeslot?.EndTime.ToString("HH:mm"))
+
                                     </td>
                                     <td><i class="bi bi-person-circle me-1 text-secondary"></i>@(a.Patient?.Email ?? a.PatientId)</td>
                                     <td>@a.AppointmentType</td>

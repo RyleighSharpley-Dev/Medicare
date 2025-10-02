@@ -38,11 +38,7 @@
             <i class="bi bi-credit-card"></i> Payments
         </a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link @(currentController == "billing" ? "active" : "")" asp-area="Patients" asp-controller="Billing" asp-action="Index">
-            <i class="bi bi-receipt"></i> Billing
-        </a>
-    </li>
+   
     <li class="nav-item">
         <a class="nav-link @(currentController == "reminders" ? "active" : "")" asp-area="Patients" asp-controller="Reminders" asp-action="Index">
             <i class="bi bi-bell"></i> Reminders
@@ -53,28 +49,8 @@
             <i class="bi bi-journal-text"></i> Consultations
         </a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link @(currentController == "settings" ? "active" : "")" asp-area="Patients" asp-controller="Settings" asp-action="Index">
-            <i class="bi bi-gear"></i> Settings
-        </a>
-    </li>
-    <li class="nav-item dropdown ms-lg-auto">
-        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-            <i class="bi bi-translate"></i> Language
-        </a>
-        <ul class="dropdown-menu dropdown-menu-end">
-            <li>
-                <form method="get" asp-area="Patients" asp-controller="Dashboard" asp-action="Index" class="px-3 py-2">
-                    <select class="form-select form-select-sm" name="culture" onchange="this.form.submit();">
-                        <option value="en" selected="@(Context.Request.Query["culture"] == "en")">English</option>
-                        <option value="zu" selected="@(Context.Request.Query["culture"] == "zu")">isiZulu</option>
-                        <option value="st" selected="@(Context.Request.Query["culture"] == "st")">Sesotho</option>
-                        <option value="ts" selected="@(Context.Request.Query["culture"] == "ts")">Xitsonga</option>
-                    </select>
-                </form>
-            </li>
-        </ul>
-    </li>
+  
+  
 }
 
 <style>

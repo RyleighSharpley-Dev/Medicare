@@ -364,17 +364,7 @@
                 </div>
             </div>
 
-            <div class="medicare-doctor-language-selector">
-                <form method="get" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">
-                    <label>Language:</label>
-                    <select class="medicare-doctor-language-select" name="culture" onchange="this.form.action=this.form.action+'?culture='+this.value; this.form.submit();">
-                        <option value="en" selected="@(Context.Request.Query["culture"] == "en")">English</option>
-                        <option value="zu" selected="@(Context.Request.Query["culture"] == "zu")">isiZulu</option>
-                        <option value="st" selected="@(Context.Request.Query["culture"] == "st")">Sesotho</option>
-                        <option value="ts" selected="@(Context.Request.Query["culture"] == "ts")">Xitsonga</option>
-                    </select>
-                </form>
-            </div>
+           
         </div>
     </div>
 </nav>
