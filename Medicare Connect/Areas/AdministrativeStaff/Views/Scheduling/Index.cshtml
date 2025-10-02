@@ -574,15 +574,11 @@
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn-action btn-view">
-                                            <i class="bi bi-eye"></i> View
-                                        </button>
-                                        <button class="btn-action btn-edit">
+                                       
+                                        <a href="@Url.Action("Create", "Scheduling", new { id = schedule.Id })" class="btn-action btn-edit">
                                             <i class="bi bi-pencil"></i> Edit
-                                        </button>
-                                        <button class="btn-action btn-cancel">
-                                            <i class="bi bi-x-circle"></i> Cancel
-                                        </button>
+                                        </a>
+
                                     </div>
                                 </td>
                             </tr>

@@ -3,17 +3,101 @@
     ViewData["Title"] = "User Management";
 }
 
+@section Styles {
+    <style>
+        body {
+            background: #f8f9fc;
+        }
+
+        .page-header {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+            .page-header h1 {
+                font-weight: 700;
+                font-size: 1.75rem;
+                color: #1e293b;
+                margin-bottom: 0.25rem;
+            }
+
+            .page-header p {
+                color: #64748b;
+                margin: 0;
+            }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 0.6rem 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(102, 126, 234, 0.35);
+            }
+
+        .card.dashboard-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        table thead {
+            background: #f8fafc;
+        }
+
+            table thead th {
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: #475569;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                border-bottom: 1px solid #e2e8f0;
+            }
+
+        table tbody td {
+            vertical-align: middle;
+            color: #1e293b;
+        }
+
+        .badge {
+            font-weight: 500;
+            border-radius: 8px;
+            padding: 0.35rem 0.65rem;
+        }
+
+        .btn-sm {
+            border-radius: 8px;
+            padding: 0.35rem 0.75rem;
+            font-size: 0.8rem;
+        }
+    </style>
+}
+
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Header -->
+    <div class="page-header d-flex justify-content-between align-items-center flex-wrap">
         <div>
-            <h1 class="h3 mb-1">User Management</h1>
-            <p class="text-muted mb-0">Create, edit, and manage user roles</p>
+            <h1>User Management</h1>
+            <p>Create, edit, and manage user roles</p>
         </div>
         <div>
-            <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-circle me-2"></i>New User</a>
+            <a class="btn btn-primary" asp-action="Create">
+                <i class="bi bi-plus-circle me-2"></i> New User
+            </a>
         </div>
     </div>
 
+    <!-- Alerts -->
     @if (TempData["Msg"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -29,6 +113,7 @@
         </div>
     }
 
+    <!-- Main Card -->
     <div class="card dashboard-card border-0">
         <div class="card-body">
             <div class="table-responsive">
@@ -37,7 +122,7 @@
                         <tr>
                             <th>Email</th>
                             <th>Roles</th>
-                            <th>Id</th>
+                            <th>User Id</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -76,4 +161,4 @@
             </div>
         </div>
     </div>
-</div> 
+</div>
