@@ -76,19 +76,41 @@
     @{
         var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
     }
-    <li class="nav-item"><a class="nav-link @(currentController == "dashboard" ? "active" : "")" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-    <li class="nav-item"><a class="nav-link @(currentController == "profile" ? "active" : "")" asp-area="Doctors" asp-controller="Profile" asp-action="Index"><i class="bi bi-person"></i> Profile</a></li>
-    <li class="nav-item"><a class="nav-link @(currentController == "appointments" ? "active" : "")" asp-area="Doctors" asp-controller="Appointments" asp-action="Index"><i class="bi bi-calendar-check"></i> Appointments</a></li>
-    <li class="nav-item"><a class="nav-link @(currentController == "records" ? "active" : "")" asp-area="Doctors" asp-controller="Records" asp-action="Index"><i class="bi bi-journal-medical"></i> Records</a></li>
-    <li class="nav-item"><a class="nav-link @(currentController == "prescriptions" ? "active" : "")" asp-area="Doctors" asp-controller="Prescriptions" asp-action="Index"><i class="bi bi-prescription2"></i> Prescriptions</a></li>
-    <li class="nav-item"><a class="nav-link @(currentController == "payments" ? "active" : "")" asp-area="Doctors" asp-controller="Patients" asp-action="Index"><i class="bi bi-person"></i> Patients</a></li>
-    <li class="nav-item"><a class="nav-link @(currentController == "consultations" ? "active" : "")" asp-area="Doctors" asp-controller="Consultations" asp-action="Index"><i class="bi bi-journal-text"></i> Consultations</a></li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "dashboard" ? "active" : "")" asp-area="Nurses" asp-controller="Dashboard" asp-action="Index">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "patients" ? "active" : "")" asp-area="Nurses" asp-controller="Patients" asp-action="Index">
+            <i class="bi bi-people"></i> Patients
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "profile" ? "active" : "")" asp-area="Nurses" asp-controller="Profile" asp-action="Index">
+            <i class="bi bi-person-circle"></i> Profile
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "schedule" ? "active" : "")" asp-area="Nurses" asp-controller="Schedule" asp-action="Index">
+            <i class="bi bi-calendar-check"></i> Schedule
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "prescriptions" ? "active" : "")" asp-area="Nurses" asp-controller="NursePrescriptions" asp-action="Index">
+            <i class="bi bi-capsule-pill"></i> Prescriptions
+        </a>
+    </li>
+
+
+
 }
 
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="h4 border-start border-4 border-primary ps-3">Patient Records</h2>
-        <a class="btn btn-outline-primary" asp-area="Doctors" asp-controller="Dashboard" asp-action="Index">← Back to dashboard</a>
+        <a class="btn btn-outline-primary" asp-area="Nurses" asp-controller="Dashboard" asp-action="Index">← Back to dashboard</a>
     </div>
     <p class="text-muted mb-4">Select a patient to view their records, or add new entries using the form.</p>
 
@@ -139,43 +161,43 @@
                             <i class="bi bi-plus-circle me-1"></i>Toggle
                         </button>
                     </div>
-                        <div id="addRecordForm" class="collapse show)">
-                            <form asp-action="Upload" method="post">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="patientKey" value="@patientKey" />
-                                <div class="mb-3">
-                                    <label class="form-label">Title</label>
-                                    <input class="form-control" type="text" name="Title" maxlength="100" required @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null) />
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Type</label>
-                                    <select class="form-select" name="Type" required @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null)>
-                                        <option value="Report">Report</option>
-                                        <option value="Prescription">Prescription</option>
-                                        <option value="LabResult">Lab Result</option>
-                                        <option value="Imaging">Imaging</option>
-                                        <option value="Other" selected>Other</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Date</label>
-                                    <input class="form-control" type="date" name="Date" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null) />
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Notes (optional)</label>
-                                    <textarea class="form-control" name="Notes" rows="2" maxlength="256" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null)></textarea>
-                                </div>
-                                <div class="d-grid">
-                                    <button class="btn btn-primary" type="submit" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null)>
-                                        <i class="bi bi-plus-circle me-2"></i>Save Record
-                                    </button>
-                                </div>
-                            </form>
-                            @if (string.IsNullOrWhiteSpace(patientKey))
-                            {
-                                <small class="text-muted d-block mt-2">Select a patient first to enable the form.</small>
-                            }
-                        </div>
+                    <div id="addRecordForm" class="collapse show)">
+                        <form asp-action="Upload" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="patientKey" value="@patientKey" />
+                            <div class="mb-3">
+                                <label class="form-label">Title</label>
+                                <input class="form-control" type="text" name="Title" maxlength="100" required @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null) />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Type</label>
+                                <select class="form-select" name="Type" required @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null)>
+                                    <option value="Report">Report</option>
+                                    <option value="Prescription">Prescription</option>
+                                    <option value="LabResult">Lab Result</option>
+                                    <option value="Imaging">Imaging</option>
+                                    <option value="Other" selected>Other</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Date</label>
+                                <input class="form-control" type="date" name="Date" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null) />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Notes (optional)</label>
+                                <textarea class="form-control" name="Notes" rows="2" maxlength="256" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null)></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button class="btn btn-primary" type="submit" @(string.IsNullOrWhiteSpace(patientKey) ? "disabled" : null)>
+                                    <i class="bi bi-plus-circle me-2"></i>Save Record
+                                </button>
+                            </div>
+                        </form>
+                        @if (string.IsNullOrWhiteSpace(patientKey))
+                        {
+                            <small class="text-muted d-block mt-2">Select a patient first to enable the form.</small>
+                        }
+                    </div>
                 </div>
             </div>
         </div>

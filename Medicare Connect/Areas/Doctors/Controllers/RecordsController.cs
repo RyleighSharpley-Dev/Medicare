@@ -7,7 +7,7 @@ using Medicare_Connect.Areas.Patients.Services;
 namespace Medicare_Connect.Areas.Doctors.Controllers;
 
 [Area("Doctors")]
-[Authorize(Roles = "Doctors")]
+[Authorize(Roles = "Doctors, Nurses")]
 public class RecordsController : Controller
 {
 	private readonly UserManager<IdentityUser> _userManager;
