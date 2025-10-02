@@ -176,13 +176,13 @@
                     <h6 class="fw-semibold mb-0">Quick Actions</h6>
                 </div>
                 <div class="card-body d-grid gap-2">
-                    <a href="@Url.Action("Index", "Records", new { area = "Doctors", patientKey = Model.PatientKey })" class="btn btn-outline-info">
+                    <a href="@Url.Action("Index", "Records", new { area = "Nurses", patientKey = Model.PatientKey })" class="btn btn-outline-info">
                         <i class="bi bi-journal-medical"></i> View Medical Records
                     </a>
-                    <a href="@Url.Action("Index", "Appointments", new { area = "Doctors", patientKey = Model.PatientKey })" class="btn btn-outline-primary">
+                    <a href="@Url.Action("Index", "NurseAppointments", new { area = "Nurses", patientKey = Model.PatientKey })" class="btn btn-outline-primary">
                         <i class="bi bi-calendar-check"></i> View Appointments
                     </a>
-                    <a href="@Url.Action("Index", "Prescriptions", new { area = "Doctors", patientKey = Model.PatientKey })" class="btn btn-outline-warning">
+                    <a href="@Url.Action("Index", "NursePrescriptions", new { area = "Nurses", patientKey = Model.PatientKey })" class="btn btn-outline-warning">
                         <i class="bi bi-prescription2"></i> View Prescriptions
                     </a>
                 </div>

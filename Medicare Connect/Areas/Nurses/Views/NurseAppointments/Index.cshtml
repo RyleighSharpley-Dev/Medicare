@@ -1,0 +1,159 @@
+﻿@model List<Medicare_Connect.Data.Entities.AppointmentEntity>
+@{
+    Layout = "/Views/Shared/_RoleBasedLayout.cshtml";
+    ViewData["Title"] = "Patient Appointments";
+    var patientKey = (string)ViewData["PatientKey"];
+    var patientEmail = (string)ViewData["PatientEmail"];
+}
+
+@section Sidebar {
+    @{
+        var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
+    }
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "dashboard" ? "active" : "")" asp-area="Nurses" asp-controller="Dashboard" asp-action="Index">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "patients" ? "active" : "")" asp-area="Nurses" asp-controller="Patients" asp-action="Index">
+            <i class="bi bi-people"></i> Patients
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "profile" ? "active" : "")" asp-area="Nurses" asp-controller="Profile" asp-action="Index">
+            <i class="bi bi-person-circle"></i> Profile
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "schedule" ? "active" : "")" asp-area="Nurses" asp-controller="Schedule" asp-action="Index">
+            <i class="bi bi-calendar-check"></i> Schedule
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentController == "prescriptions" ? "active" : "")" asp-area="Nurses" asp-controller="NursePrescriptions" asp-action="Index">
+            <i class="bi bi-capsule-pill"></i> Prescriptions
+        </a>
+    </li>
+}
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div style="background-color: #dc3545" class="text-white rounded-3 p-4 mb-4 shadow-sm">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-1"><i class="bi bi-calendar-event me-2"></i>Appointments</h1>
+                <p class="mb-0">Viewing appointments for <strong>@patientEmail</strong></p>
+                <small class="text-light">Patient ID: @patientKey</small>
+            </div>
+            <a class="btn btn-outline-light" asp-area="Nurses" asp-controller="Patients" asp-action="Index">
+                <i class="bi bi-arrow-left me-1"></i> Back to Patients
+            </a>
+        </div>
+    </div>
+
+    <!-- Flash message -->
+    @if (TempData["Msg"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["Msg"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Appointments Table -->
+    <div class="card border-0 shadow-lg rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Notes</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-5">
+                                    <i class="bi bi-calendar-x display-4 d-block mb-3"></i>
+                                    <span class="fs-5">No appointments found for this patient</span>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var a in Model)
+                            {
+                                <tr>
+                                    <td>@a.AppointmentDate.ToString("yyyy-MM-dd")</td>
+                                    <td>
+                                        <i class="bi bi-clock me-1 text-primary"></i>
+                                        @(a.Timeslot?.StartTime.ToString("HH:mm")) - @(a.Timeslot?.EndTime.ToString("HH:mm"))
+                                    </td>
+                                    <td>@a.AppointmentType</td>
+                                    <td>
+                                        @switch (a.Status)
+                                        {
+                                            case Medicare_Connect.Data.Entities.AppointmentStatus.Booked:
+                                                <span class="badge rounded-pill bg-info">Booked</span>
+                                                ; break;
+                                            case Medicare_Connect.Data.Entities.AppointmentStatus.Confirmed:
+                                                <span class="badge rounded-pill bg-primary">Confirmed</span>
+                                                ; break;
+                                            case Medicare_Connect.Data.Entities.AppointmentStatus.Completed:
+                                                <span class="badge rounded-pill bg-success">Completed</span>
+                                                ; break;
+                                            case Medicare_Connect.Data.Entities.AppointmentStatus.Cancelled:
+                                                <span class="badge rounded-pill bg-danger">Cancelled</span>
+                                                ; break;
+                                            default:
+                                                <span class="badge rounded-pill bg-secondary">@a.Status</span>
+                                                ; break;
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (a.PaymentStatus == "Completed")
+                                        {
+                                            <span class="badge rounded-pill bg-success"><i class="bi bi-check-circle me-1"></i>Paid</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge rounded-pill bg-warning text-dark"><i class="bi bi-exclamation-circle me-1"></i>@a.PaymentStatus</span>
+                                        }
+                                    </td>
+                                    <td class="text-truncate" style="max-width: 220px;">@a.Notes</td>
+                                    <td class="text-end">
+                                        @if (a.Status == Medicare_Connect.Data.Entities.AppointmentStatus.Booked || a.Status == Medicare_Connect.Data.Entities.AppointmentStatus.Confirmed)
+                                        {
+                                            <form asp-action="Complete" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@a.Id" />
+                                                <button class="btn btn-success btn-sm rounded-pill" type="submit">
+                                                    <i class="bi bi-check2-circle me-1"></i>Complete
+                                                </button>
+                                            </form>
+                                            <form asp-action="Cancel" method="post" class="d-inline ms-1">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@a.Id" />
+                                                <button class="btn btn-outline-danger btn-sm rounded-pill" type="submit">
+                                                    <i class="bi bi-x-circle me-1"></i>Cancel
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
